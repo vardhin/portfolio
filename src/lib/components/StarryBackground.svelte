@@ -12,14 +12,24 @@
   let ctx;
   const stars = [];
 
+  let cursor;
+  let cursorX = 0;
+  let cursorY = 0;
+
+  function updateCursor(event) {
+    const rect = canvas.getBoundingClientRect();
+    cursorX = event.clientX - rect.left;
+    cursorY = event.clientY - rect.top;
+  }
+
   // Add click handler function
   function handleClick(event) {
     const rect = canvas.getBoundingClientRect();
     const x = event.clientX - rect.left;
     const y = event.clientY - rect.top;
     
-    // Create a much larger star at click position
-    const size = (minStarSize + Math.random() * (maxStarSize - minStarSize)) * 2.5; // 150% bigger
+    // Create an even larger star at click position
+    const size = (minStarSize + Math.random() * (maxStarSize - minStarSize)) * 3.5; // Increased from 2.5 to 3.5
     const star = new Star(x, y, size, false, true);
     stars.push(star);
   }
@@ -44,10 +54,10 @@
         (0.01 + Math.random() * 0.05) : 
         (0.002 + Math.random() * 0.004);
       
-      // Longer life for click-spawned stars
+      // Much longer life for click-spawned stars
       this.timeToLive = isClickSpawned ?
-        6000 + Math.random() * 6000 : // 6-12 seconds for click-spawned
-        3000 + Math.random() * 4000;  // 3-7 seconds for others
+        12000 + Math.random() * 8000 : // 12-20 seconds for click-spawned (doubled from before)
+        3000 + Math.random() * 4000;   // 3-7 seconds for others
       
       this.age = 0;
       this.isDying = false;
@@ -157,13 +167,13 @@
     const deltaTime = currentTime - lastTime;
     lastTime = currentTime;
     
-    // Clear the canvas with no shadow effect
+    // Clear the canvas
     ctx.shadowBlur = 0;
     ctx.shadowColor = 'transparent';
     ctx.fillStyle = backgroundColor;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    // Update and draw existing stars
+    // Draw stars
     for (let i = stars.length - 1; i >= 0; i--) {
       const star = stars[i];
       const isAlive = star.update(deltaTime);
@@ -177,6 +187,16 @@
       } else {
         star.draw(ctx);
       }
+    }
+
+    // Draw custom cursor
+    if (cursor) {
+      ctx.shadowBlur = 20;  // Increased shadow blur
+      ctx.shadowColor = 'rgba(255, 255, 255, 0.5)';
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+      ctx.beginPath();
+      ctx.arc(cursorX, cursorY, 6, 0, Math.PI * 2);  // Increased radius from 4 to 6
+      ctx.fill();
     }
 
     requestAnimationFrame(animate);
@@ -196,12 +216,18 @@
       createStars();
     };
 
-    // Add click event listener
+    // Add mousemove event listener
+    canvas.addEventListener('mousemove', updateCursor);
+    canvas.addEventListener('mouseenter', () => cursor = true);
+    canvas.addEventListener('mouseleave', () => cursor = false);
     canvas.addEventListener('click', handleClick);
     window.addEventListener('resize', handleResize);
     
     return () => {
       window.removeEventListener('resize', handleResize);
+      canvas.removeEventListener('mousemove', updateCursor);
+      canvas.removeEventListener('mouseenter', () => cursor = true);
+      canvas.removeEventListener('mouseleave', () => cursor = false);
       canvas.removeEventListener('click', handleClick);
     };
   });
@@ -210,7 +236,7 @@
 <div class="canvas-container">
   <canvas
     bind:this={canvas}
-    style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; cursor: pointer;"
+    style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; cursor: none;"
   />
 </div>
 
