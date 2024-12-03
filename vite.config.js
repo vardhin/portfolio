@@ -3,21 +3,6 @@ import { defineConfig } from 'vite';
 
 export default defineConfig({
 	plugins: [sveltekit()],
-	optimizeDeps: {
-		include: ['pixi.js']
-	},
-	ssr: {
-		noExternal: ['pixi.js']
-	},
-	build: {
-		rollupOptions: {
-		  output: {
-			manualChunks: {
-			  pixi: ['pixi.js']
-			}
-		  }
-		}
-	  },
 	server: {
 		proxy: {
 			'/ws': {

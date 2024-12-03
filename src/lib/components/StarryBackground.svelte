@@ -172,6 +172,7 @@
       ctx.shadowBlur = 0;
       ctx.shadowColor = 'transparent';
     }
+
   }
 
   function createStar() {
