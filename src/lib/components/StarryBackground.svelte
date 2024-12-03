@@ -16,22 +16,44 @@
   let cursorX = 0;
   let cursorY = 0;
 
+  let isMouseDown = false;
+  let spawnInterval;
+
   function updateCursor(event) {
     const rect = canvas.getBoundingClientRect();
     cursorX = event.clientX - rect.left;
     cursorY = event.clientY - rect.top;
   }
 
-  // Add click handler function
-  function handleClick(event) {
+  function createClickStar(x, y) {
+    const size = (minStarSize + Math.random() * (maxStarSize - minStarSize)) * 3.5;
+    // Add small random offset for more natural spread when holding
+    const offsetX = Math.random() * 10 - 5; // -5 to +5 pixels
+    const offsetY = Math.random() * 10 - 5;
+    const star = new Star(x + offsetX, y + offsetY, size, false, true);
+    stars.push(star);
+  }
+
+  function handleMouseDown(event) {
+    isMouseDown = true;
     const rect = canvas.getBoundingClientRect();
     const x = event.clientX - rect.left;
     const y = event.clientY - rect.top;
     
-    // Create an even larger star at click position
-    const size = (minStarSize + Math.random() * (maxStarSize - minStarSize)) * 3.5; // Increased from 2.5 to 3.5
-    const star = new Star(x, y, size, false, true);
-    stars.push(star);
+    // Create initial star
+    createClickStar(x, y);
+    
+    // Set up interval for continuous creation
+    spawnInterval = setInterval(() => {
+      if (isMouseDown) {
+        createClickStar(cursorX, cursorY);
+      }
+    }, 100); // Create a new star every 100ms while holding
+  }
+
+  function handleMouseUp() {
+    isMouseDown = false;
+    clearInterval(spawnInterval);
   }
 
   class Star {
@@ -216,11 +238,16 @@
       createStars();
     };
 
-    // Add mousemove event listener
+    // Update event listeners
     canvas.addEventListener('mousemove', updateCursor);
     canvas.addEventListener('mouseenter', () => cursor = true);
-    canvas.addEventListener('mouseleave', () => cursor = false);
-    canvas.addEventListener('click', handleClick);
+    canvas.addEventListener('mouseleave', () => {
+      cursor = false;
+      isMouseDown = false; // Make sure to stop spawning if mouse leaves canvas
+      clearInterval(spawnInterval);
+    });
+    canvas.addEventListener('mousedown', handleMouseDown);
+    canvas.addEventListener('mouseup', handleMouseUp);
     window.addEventListener('resize', handleResize);
     
     return () => {
@@ -228,7 +255,9 @@
       canvas.removeEventListener('mousemove', updateCursor);
       canvas.removeEventListener('mouseenter', () => cursor = true);
       canvas.removeEventListener('mouseleave', () => cursor = false);
-      canvas.removeEventListener('click', handleClick);
+      canvas.removeEventListener('mousedown', handleMouseDown);
+      canvas.removeEventListener('mouseup', handleMouseUp);
+      clearInterval(spawnInterval); // Clean up interval on component destroy
     };
   });
 </script>
