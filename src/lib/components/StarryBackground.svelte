@@ -12,22 +12,58 @@
   let ctx;
   const stars = [];
 
+  // Add click handler function
+  function handleClick(event) {
+    const rect = canvas.getBoundingClientRect();
+    const x = event.clientX - rect.left;
+    const y = event.clientY - rect.top;
+    
+    // Create a much larger star at click position
+    const size = (minStarSize + Math.random() * (maxStarSize - minStarSize)) * 2.5; // 150% bigger
+    const star = new Star(x, y, size, false, true);
+    stars.push(star);
+  }
+
   class Star {
-    constructor(x, y, size, isShooting = false) {
+    constructor(x, y, size, isShooting = false, isClickSpawned = false) {
       this.x = x;
       this.y = y;
-      this.size = isShooting ? size * 1.5 : size; // Make shooting stars larger
+      this.size = size;
       this.isShooting = isShooting;
-      this.brightness = 0; // Start invisible for fade in
+      this.isClickSpawned = isClickSpawned;
+      this.brightness = 0;
+      
+      // Much brighter for click-spawned stars
       this.maxBrightness = isShooting ? 
-        2.0 + Math.random() * 0.5 : // Shooting stars even brighter
-        0.8 + Math.random() * 0.7;  // Static stars brighter
+        2.0 + Math.random() * 0.5 : // Shooting stars
+        isClickSpawned ?
+          1.5 + Math.random() * 1.0 : // Click-spawned stars (much brighter)
+          0.8 + Math.random() * 0.7;  // Normal static stars
+      
       this.twinkleSpeed = isShooting ? 
-        (0.01 + Math.random() * 0.05) : // Keep shooting stars' speed the same
-        (0.002 + Math.random() * 0.004); // Slightly faster to make twinkles more visible
-      this.timeToLive = 3000 + Math.random() * 4000; // 3-7 seconds
+        (0.01 + Math.random() * 0.05) : 
+        (0.002 + Math.random() * 0.004);
+      
+      // Longer life for click-spawned stars
+      this.timeToLive = isClickSpawned ?
+        6000 + Math.random() * 6000 : // 6-12 seconds for click-spawned
+        3000 + Math.random() * 4000;  // 3-7 seconds for others
+      
       this.age = 0;
       this.isDying = false;
+      
+      // Much larger glow for click-spawned stars
+      this.glowSize = isShooting ? 
+        size * (2 + Math.random() * 2) : 
+        isClickSpawned ?
+          size * (3 + Math.random() * 2) :  // Much bigger glow
+          size * (1 + Math.random() * 1.5);
+      
+      this.glowColor = isShooting ? 
+        `rgba(255, 255, 255, ${0.3 + Math.random() * 0.2})` :
+        isClickSpawned ?
+          `rgba(255, 255, 255, ${0.4 + Math.random() * 0.3})` : // Stronger glow
+          `rgba(255, 255, 255, ${0.1 + Math.random() * 0.15})`;
       
       if (isShooting) {
         // Increase speed for shooting stars
@@ -39,14 +75,6 @@
         this.timeToLive = 1500 + Math.random() * 1000; // Shorter life for shooting stars
         this.trailLength = 20; // Longer trail for shooting stars
       }
-      
-      // Add glow properties
-      this.glowSize = isShooting ? 
-        size * (2 + Math.random() * 2) : // Bigger glow for shooting stars
-        size * (1 + Math.random() * 1.5); // Random glow size for static stars
-      this.glowColor = isShooting ? 
-        `rgba(255, 255, 255, ${0.3 + Math.random() * 0.2})` : // Brighter glow for shooting stars
-        `rgba(255, 255, 255, ${0.1 + Math.random() * 0.15})`; // Softer glow for static stars
     }
 
     update(deltaTime) {
@@ -168,15 +196,21 @@
       createStars();
     };
 
+    // Add click event listener
+    canvas.addEventListener('click', handleClick);
     window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+    
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      canvas.removeEventListener('click', handleClick);
+    };
   });
 </script>
 
 <div class="canvas-container">
   <canvas
     bind:this={canvas}
-    style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1;"
+    style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; cursor: pointer;"
   />
 </div>
 
