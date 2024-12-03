@@ -21,8 +21,10 @@
 
   function updateCursor(event) {
     const rect = canvas.getBoundingClientRect();
-    cursorX = event.clientX - rect.left;
-    cursorY = event.clientY - rect.top;
+    const clientX = event.touches ? event.touches[0].clientX : event.clientX;
+    const clientY = event.touches ? event.touches[0].clientY : event.clientY;
+    cursorX = clientX - rect.left;
+    cursorY = clientY - rect.top;
   }
 
   function createClickStar(x, y) {
@@ -34,11 +36,14 @@
     stars.push(star);
   }
 
-  function handleMouseDown(event) {
+  function handleStart(event) {
+    event.preventDefault(); // Prevent default touch behavior
     isMouseDown = true;
     const rect = canvas.getBoundingClientRect();
-    const x = event.clientX - rect.left;
-    const y = event.clientY - rect.top;
+    const clientX = event.touches ? event.touches[0].clientX : event.clientX;
+    const clientY = event.touches ? event.touches[0].clientY : event.clientY;
+    const x = clientX - rect.left;
+    const y = clientY - rect.top;
     
     // Create initial star
     createClickStar(x, y);
@@ -48,10 +53,10 @@
       if (isMouseDown) {
         createClickStar(cursorX, cursorY);
       }
-    }, 100); // Create a new star every 100ms while holding
+    }, 100);
   }
 
-  function handleMouseUp() {
+  function handleEnd() {
     isMouseDown = false;
     clearInterval(spawnInterval);
   }
@@ -238,26 +243,32 @@
       createStars();
     };
 
-    // Update event listeners
+    // Add both mouse and touch event listeners
     canvas.addEventListener('mousemove', updateCursor);
+    canvas.addEventListener('touchmove', updateCursor, { passive: false });
     canvas.addEventListener('mouseenter', () => cursor = true);
     canvas.addEventListener('mouseleave', () => {
       cursor = false;
-      isMouseDown = false; // Make sure to stop spawning if mouse leaves canvas
+      isMouseDown = false;
       clearInterval(spawnInterval);
     });
-    canvas.addEventListener('mousedown', handleMouseDown);
-    canvas.addEventListener('mouseup', handleMouseUp);
+    canvas.addEventListener('mousedown', handleStart);
+    canvas.addEventListener('touchstart', handleStart, { passive: false });
+    canvas.addEventListener('mouseup', handleEnd);
+    canvas.addEventListener('touchend', handleEnd);
     window.addEventListener('resize', handleResize);
     
     return () => {
       window.removeEventListener('resize', handleResize);
       canvas.removeEventListener('mousemove', updateCursor);
+      canvas.removeEventListener('touchmove', updateCursor);
       canvas.removeEventListener('mouseenter', () => cursor = true);
       canvas.removeEventListener('mouseleave', () => cursor = false);
-      canvas.removeEventListener('mousedown', handleMouseDown);
-      canvas.removeEventListener('mouseup', handleMouseUp);
-      clearInterval(spawnInterval); // Clean up interval on component destroy
+      canvas.removeEventListener('mousedown', handleStart);
+      canvas.removeEventListener('touchstart', handleStart);
+      canvas.removeEventListener('mouseup', handleEnd);
+      canvas.removeEventListener('touchend', handleEnd);
+      clearInterval(spawnInterval);
     };
   });
 </script>
@@ -265,7 +276,7 @@
 <div class="canvas-container">
   <canvas
     bind:this={canvas}
-    style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; cursor: none;"
+    style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; cursor: none; touch-action: none;"
   />
 </div>
 
