@@ -5,8 +5,8 @@
   let container;
   let scene, camera, renderer;
   let stars = [];
-  const TOTAL_STARS = 200;
-  const SHOOTING_STAR_PERCENTAGE = 0.05; // 5% shooting stars
+  const TOTAL_STARS = 800;
+  const SHOOTING_STAR_PERCENTAGE = 0.009; // Reduced from 0.008 to make them more rare
 
   class BaseStar {
     constructor() {
@@ -129,48 +129,117 @@
       this.mesh.geometry = new THREE.SphereGeometry(this.size, 8, 8);
       this.glow.geometry = new THREE.SphereGeometry(this.size * 2, 8, 8);
       
-      // Initialize trail
+      // Adjust timing parameters
+      this.ttl = Math.random() * 1.5 + 1; // Reduced TTL to 1-2.5 seconds
+      this.fadeTime = 0.4; // Faster fade in/out (was 1.0)
+      
+      // Reduce trail length
+      const trailLength = 30; // Reduced from 50 to 30
       const trailPoints = [];
-      trailPoints.push(new THREE.Vector3(0, 0, 0));
-      trailPoints.push(new THREE.Vector3(0, 0, -10));
+      for (let i = 0; i <= trailLength; i++) {
+        const t = i / trailLength;
+        trailPoints.push(new THREE.Vector3(-t * 60, t * 60, 0));
+      }
       
       this.trailGeometry = new THREE.BufferGeometry().setFromPoints(trailPoints);
       this.trailMaterial = new THREE.LineBasicMaterial({
         color: 0xFFFFFF,
         transparent: true,
-        opacity: 0.5
+        opacity: 0.6,
+        blending: THREE.AdditiveBlending
       });
       this.trail = new THREE.Line(this.trailGeometry, this.trailMaterial);
       
+      // Add particles for extra effect
+      const particleCount = 20;
+      const particlePositions = new Float32Array(particleCount * 3);
+      const particleSizes = new Float32Array(particleCount);
+      
+      for (let i = 0; i < particleCount; i++) {
+        const t = i / particleCount;
+        particlePositions[i * 3] = -t * 40;
+        particlePositions[i * 3 + 1] = t * 40;
+        particlePositions[i * 3 + 2] = 0;
+        particleSizes[i] = (1 - t) * 2;
+      }
+      
+      const particleGeometry = new THREE.BufferGeometry();
+      particleGeometry.setAttribute('position', new THREE.BufferAttribute(particlePositions, 3));
+      particleGeometry.setAttribute('size', new THREE.BufferAttribute(particleSizes, 1));
+      
+      this.particles = new THREE.Points(
+        particleGeometry,
+        new THREE.ShaderMaterial({
+          uniforms: {
+            opacity: { value: 0 }
+          },
+          vertexShader: `
+            attribute float size;
+            varying float vAlpha;
+            void main() {
+              vAlpha = 1.0 - (position.x + 40.0) / -40.0;
+              vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
+              gl_PointSize = size * (300.0 / -mvPosition.z);
+              gl_Position = projectionMatrix * mvPosition;
+            }
+          `,
+          fragmentShader: `
+            uniform float opacity;
+            varying float vAlpha;
+            void main() {
+              float d = length(gl_PointCoord - vec2(0.5));
+              if (d > 0.5) discard;
+              float alpha = smoothstep(0.5, 0.0, d) * vAlpha * opacity;
+              gl_FragColor = vec4(1.0, 1.0, 1.0, alpha);
+            }
+          `,
+          transparent: true,
+          blending: THREE.AdditiveBlending
+        })
+      );
+      
       this.setNewPosition();
       this.speed = new THREE.Vector3(
-        Math.random() * 0.5 + 0.5,
-        Math.random() * -0.5 - 0.5,
-        Math.random() * -1 - 0.5
+        Math.random() * 50 + 75,  // Reduced horizontal speed
+        Math.random() * -50 - 75, // Reduced vertical speed
+        Math.random() * -10 - 5   // Slight depth variation
       );
     }
 
     setNewPosition() {
       const position = new THREE.Vector3(
-        Math.random() * 2000 - 1500,
-        Math.random() * 2000 + 500,
+        Math.random() * 2000 - 1000,
+        1000, // Start from top of screen
         Math.random() * 1000 - 500
       );
       this.mesh.position.copy(position);
       this.glow.position.copy(position);
       this.trail.position.copy(position);
+      this.particles.position.copy(position);
+      
+      // Reset opacity and fade state
+      this.opacity = 0;
+      this.fadeState = 'in';
+      this.age = 0;
     }
 
     update(deltaTime, time) {
       super.update(deltaTime, time);
       
-      // Update position
-      this.mesh.position.add(this.speed);
+      // Update trail and particle opacity based on star's opacity
+      this.trailMaterial.opacity = this.opacity * 0.6;
+      this.particles.material.uniforms.opacity.value = this.opacity;
+
+      // Update position with smoother movement
+      const movement = this.speed.clone().multiplyScalar(deltaTime);
+      this.mesh.position.add(movement);
       this.glow.position.copy(this.mesh.position);
       this.trail.position.copy(this.mesh.position);
+      this.particles.position.copy(this.mesh.position);
 
-      // Reset position if star moves too far right or too low
-      if (this.mesh.position.x > 1000 || this.mesh.position.y < -1000) {
+      // Reset position if star moves too far
+      if (this.mesh.position.x > 1000 || this.mesh.position.x < -1000 ||
+          this.mesh.position.y < -1000) {
         this.setNewPosition();
       }
     }
@@ -209,6 +278,7 @@
       scene.add(star.mesh);
       scene.add(star.glow);
       scene.add(star.trail);
+      scene.add(star.particles);  // Add the particle system
       console.log(`Added shooting star ${i + 1}`);
     }
 
@@ -247,8 +317,11 @@
         scene.remove(star.glow);
         if (star instanceof ShootingStar) {
           scene.remove(star.trail);
+          scene.remove(star.particles);  // Remove particle system
           star.trailGeometry.dispose();
           star.trailMaterial.dispose();
+          star.particles.geometry.dispose();
+          star.particles.material.dispose();
         }
         star.mesh.geometry.dispose();
         star.mesh.material.dispose();
