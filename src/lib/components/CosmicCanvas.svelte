@@ -17,8 +17,16 @@
       this.opacity = 0;
 
       const geometry = new THREE.SphereGeometry(this.size, 8, 8);
+      const starColors = [
+        0xFFFFFF,  // White
+        0xFFE4B5,  // Moccasin
+        0x87CEEB,  // Sky Blue
+        0xFFA07A,  // Light Salmon
+        0xFFD700   // Gold
+      ];
+      this.color = starColors[Math.floor(Math.random() * starColors.length)];
       const material = new THREE.MeshBasicMaterial({
-        color: 0xFFFFFF,
+        color: this.color,
         transparent: true,
         opacity: 0
       });
