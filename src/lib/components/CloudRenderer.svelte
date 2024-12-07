@@ -3,6 +3,7 @@
     import * as THREE from 'three';
   
     let container;
+    let isLoading = true;
   
     onMount(() => {
       // Scene setup
@@ -21,8 +22,12 @@
           1000
       );
   
-      const renderer = new THREE.WebGLRenderer();
+      const renderer = new THREE.WebGLRenderer({
+          antialias: true,
+          powerPreference: "high-performance"
+      });
       renderer.setSize(window.innerWidth, window.innerHeight);
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2)); // Limit pixel ratio for performance
       container.appendChild(renderer.domElement);
   
       // Create volumetric fog material
@@ -200,9 +205,11 @@
   
       // Animation loop
       let time = 0;
+      let animationFrameId;
+      
       const animate = () => {
-        requestAnimationFrame(animate);
-        time += 0.01; // Increased from 0.001 for faster movement
+        animationFrameId = requestAnimationFrame(animate);
+        time += 0.01;
         fogMaterial.uniforms.time.value = time;
         renderer.render(scene, camera);
       };
@@ -257,19 +264,68 @@
       container.addEventListener('mouseup', onMouseUp);
       container.addEventListener('mouseleave', onMouseUp);
   
+      const onTouchStart = (event) => {
+          event.preventDefault();
+          const touch = event.touches[0];
+          updateMousePosition(touch);
+          const sunPos = fogMaterial.uniforms.sunPosition.value;
+          const aspect = container.clientWidth / container.clientHeight;
+          
+          const distance = Math.sqrt(
+              Math.pow((mouse.x - sunPos.x * aspect), 2) + 
+              Math.pow(mouse.y - sunPos.y, 2)
+          );
+          
+          if (distance < 0.45) {
+              isDragging = true;
+          }
+      };
+
+      const onTouchMove = (event) => {
+          event.preventDefault();
+          if (isDragging) {
+              const touch = event.touches[0];
+              updateMousePosition(touch);
+              const aspect = container.clientWidth / container.clientHeight;
+              fogMaterial.uniforms.sunPosition.value.set(mouse.x / aspect, mouse.y);
+          }
+      };
+
+      // Add touch event listeners
+      container.addEventListener('touchstart', onTouchStart);
+      container.addEventListener('touchmove', onTouchMove);
+      container.addEventListener('touchend', onMouseUp);
+      container.addEventListener('touchcancel', onMouseUp);
+  
+      // After everything is set up
+      isLoading = false;
+  
       // Cleanup
       return () => {
+        cancelAnimationFrame(animationFrameId);
         window.removeEventListener('resize', handleResize);
         container.removeEventListener('mousedown', onMouseDown);
         container.removeEventListener('mousemove', onMouseMove);
         container.removeEventListener('mouseup', onMouseUp);
         container.removeEventListener('mouseleave', onMouseUp);
+        container.removeEventListener('touchstart', onTouchStart);
+        container.removeEventListener('touchmove', onTouchMove);
+        container.removeEventListener('touchend', onMouseUp);
+        container.removeEventListener('touchcancel', onMouseUp);
         container.removeChild(renderer.domElement);
+        renderer.dispose();
+        fogTexture.dispose();
+        planeGeometry.dispose();
+        fogMaterial.dispose();
       };
     });
   </script>
   
-  <div bind:this={container} />
+  <div bind:this={container}>
+    {#if isLoading}
+        <div class="loading">Loading...</div>
+    {/if}
+  </div>
   
   <style>
     div {
@@ -278,5 +334,13 @@
       margin: 0;
       padding: 0;
       overflow: hidden;
+    }
+
+    .loading {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        color: #333;
     }
   </style>
