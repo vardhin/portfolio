@@ -39,6 +39,7 @@
       const fogMaterial = new THREE.ShaderMaterial({
         uniforms: {
           time: { value: 0 },
+          seed: { value: Math.random() * 100.0 },
           fogTexture: { value: fogTexture },
           resolution: { value: new THREE.Vector2(window.innerWidth, window.innerHeight) }
         },
@@ -53,12 +54,13 @@
         `,
         fragmentShader: `
           uniform float time;
+          uniform float seed;
           uniform vec2 resolution;
           varying vec3 vPosition;
           varying vec2 vUv;
   
           float rand(vec2 n) { 
-            return fract(sin(dot(n, vec2(12.9898, 78.233))) * 43758.5453);
+            return fract(sin(dot(n, vec2(12.9898, 78.233)) + seed) * 43758.5453);
           }
   
           float noise(vec2 p) {
