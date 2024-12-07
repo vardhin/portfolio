@@ -27,7 +27,7 @@
   
       // Create volumetric fog material
       const fogTexture = new THREE.Data3DTexture(
-        new Uint8Array(64 * 64 * 64).map(() => Math.random() * 255),
+        new Uint8Array(64 * 64 * 64).map(() => Math.random() * 155 + 100),
         64, 64, 64
       );
       fogTexture.format = THREE.RedFormat;
@@ -40,18 +40,22 @@
         uniforms: {
           time: { value: 0 },
           fogTexture: { value: fogTexture },
+          resolution: { value: new THREE.Vector2(window.innerWidth, window.innerHeight) }
         },
         vertexShader: `
           varying vec3 vPosition;
+          varying vec2 vUv;
           void main() {
             vPosition = position;
+            vUv = uv;
             gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
           }
         `,
         fragmentShader: `
           uniform float time;
-          uniform sampler3D fogTexture;
+          uniform vec2 resolution;
           varying vec3 vPosition;
+          varying vec2 vUv;
   
           float rand(vec2 n) { 
             return fract(sin(dot(n, vec2(12.9898, 78.233))) * 43758.5453);
@@ -60,8 +64,6 @@
           float noise(vec2 p) {
             vec2 ip = floor(p);
             vec2 fp = fract(p);
-            
-            // Smoother interpolation
             fp = fp * fp * (3.0 - 2.0 * fp);
             
             float a = rand(ip);
@@ -79,43 +81,51 @@
           float fbm(vec2 p) {
             float sum = 0.0;
             float amp = 1.0;
-            float freq = 1.0;
-            // Fewer octaves for softer clouds
-            for(int i = 0; i < 4; i++) {
+            float freq = 1.2;
+            for(int i = 0; i < 6; i++) {
               sum += amp * noise(p * freq);
-              freq *= 2.0;
+              freq *= 1.8;
               amp *= 0.5;
             }
             return sum;
           }
   
           void main() {
-            vec2 uv = vPosition.xy;
+            vec2 moveUV = vPosition.xy;
             
-            // Add horizontal movement to UV coordinates
-            uv.x += time * 0.1; // Increased time factor for more noticeable movement
+            moveUV -= vec2(time * 0.08, 0.0);
             
-            // Base cloud pattern
-            float f = fbm(uv * 2.0);
+            moveUV *= 1.2;
             
-            // Add some variation with different movement speed
-            f += fbm(uv * 4.0 + vec2(time * 0.05, 0.0)) * 0.5;
+            float baseLayer = fbm(moveUV * 1.3);
+            float detailLayer = fbm(moveUV * 1.8) * 0.25;
+            float heightLayer = fbm(moveUV * 1.5) * 0.15;
             
-            // Make clouds more distinct
-            f = smoothstep(0.3, 0.7, f);
+            float f = baseLayer * 0.8 + detailLayer + heightLayer;
             
-            // Add some depth variation
-            float depth = fbm(uv * 3.0 + f);
+            f = smoothstep(0.57, 0.64, f);
             
-            // Cloud color
-            vec3 cloudColor = vec3(1.0);
-            vec3 skyColor = vec3(0.7, 0.85, 1.0);
+            float sparsityNoise = fbm(moveUV * 1.1);
+            f *= step(0.48, sparsityNoise);
             
-            // Mix colors based on density
+            float secondarySparsity = fbm(moveUV * 0.8);
+            f *= smoothstep(0.45, 0.65, secondarySparsity);
+            
+            vec3 cloudBright = vec3(1.0, 1.0, 1.0);
+            vec3 cloudDark = vec3(0.8, 0.8, 0.85);
+            vec3 skyColor = vec3(0.6, 0.8, 1.0);
+            
+            float lightInfluence = fbm(moveUV * 0.8 + vec2(time * 0.02, 0.0));
+            vec3 cloudColor = mix(cloudDark, cloudBright, lightInfluence);
+            
+            float depth = fbm(moveUV * 1.5 + f);
+            float depthInfluence = smoothstep(0.3, 0.7, depth);
+            cloudColor = mix(cloudColor, cloudDark, depthInfluence * 0.3);
+            
             vec3 finalColor = mix(skyColor, cloudColor, f * depth);
-            
-            // Adjust opacity for more natural look
             float opacity = f * depth * 0.8;
+            
+            opacity *= smoothstep(0.0, 0.1, 1.0 - length(vUv * 2.0 - 1.0));
             
             gl_FragColor = vec4(finalColor, opacity);
           }
@@ -148,7 +158,7 @@
       let time = 0;
       const animate = () => {
         requestAnimationFrame(animate);
-        time += 0.003; // Slower time increment for smoother motion
+        time += 0.01; // Increased from 0.001 for faster movement
         fogMaterial.uniforms.time.value = time;
         renderer.render(scene, camera);
       };
