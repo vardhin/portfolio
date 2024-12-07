@@ -53,74 +53,71 @@
           uniform sampler3D fogTexture;
           varying vec3 vPosition;
   
-          // Improved noise functions
           float rand(vec2 n) { 
-            return fract(sin(dot(n, vec2(12.9898, 4.1414))) * 43758.5453);
+            return fract(sin(dot(n, vec2(12.9898, 78.233))) * 43758.5453);
           }
   
           float noise(vec2 p) {
             vec2 ip = floor(p);
-            vec2 u = fract(p);
-            u = u*u*(3.0-2.0*u);
+            vec2 fp = fract(p);
             
-            float res = mix(
-              mix(rand(ip), rand(ip+vec2(1.0,0.0)), u.x),
-              mix(rand(ip+vec2(0.0,1.0)), rand(ip+vec2(1.0,1.0)), u.x), u.y);
-            return res*res;
+            // Smoother interpolation
+            fp = fp * fp * (3.0 - 2.0 * fp);
+            
+            float a = rand(ip);
+            float b = rand(ip + vec2(1.0, 0.0));
+            float c = rand(ip + vec2(0.0, 1.0));
+            float d = rand(ip + vec2(1.0, 1.0));
+  
+            return mix(
+              mix(a, b, fp.x),
+              mix(c, d, fp.x),
+              fp.y
+            );
           }
   
-          float fbm(vec2 x) {
-            float v = 0.0;
-            float a = 0.5;
-            vec2 shift = vec2(100);
-            mat2 rot = mat2(cos(0.5), sin(0.5), -sin(0.5), cos(0.5));
-            
-            for (int i = 0; i < 5; ++i) {
-              v += a * noise(x);
-              x = rot * x * 2.0 + shift + time * 0.1;
-              a *= 0.5;
+          float fbm(vec2 p) {
+            float sum = 0.0;
+            float amp = 1.0;
+            float freq = 1.0;
+            // Fewer octaves for softer clouds
+            for(int i = 0; i < 4; i++) {
+              sum += amp * noise(p * freq);
+              freq *= 2.0;
+              amp *= 0.5;
             }
-            return v;
+            return sum;
           }
   
           void main() {
-            vec3 samplePos = vPosition * 0.5 + 0.5;
+            vec2 uv = vPosition.xy;
             
-            vec2 p = samplePos.xy * 4.0;
-            p.x += time * 0.2;
+            // Add horizontal movement to UV coordinates
+            uv.x += time * 0.1; // Increased time factor for more noticeable movement
             
-            float noise1 = fbm(p);
-            float noise2 = fbm(p + vec2(5.2, 1.3));
+            // Base cloud pattern
+            float f = fbm(uv * 2.0);
             
-            vec2 q = vec2(
-              noise1 + 0.5 * time,
-              noise2 + 0.5 * time
-            );
+            // Add some variation with different movement speed
+            f += fbm(uv * 4.0 + vec2(time * 0.05, 0.0)) * 0.5;
             
-            float finalNoise = fbm(p + 4.0 * q);
+            // Make clouds more distinct
+            f = smoothstep(0.3, 0.7, f);
             
-            vec3 fogSamplePos = vec3(
-              samplePos.x + finalNoise * 0.3,
-              samplePos.y + noise1 * 0.2,
-              samplePos.z + noise2 * 0.2
-            );
+            // Add some depth variation
+            float depth = fbm(uv * 3.0 + f);
             
-            float baseDensity = texture(fogTexture, fogSamplePos).r;
-            float density = baseDensity * finalNoise;
+            // Cloud color
+            vec3 cloudColor = vec3(1.0);
+            vec3 skyColor = vec3(0.7, 0.85, 1.0);
             
-            density = smoothstep(0.2, 0.6, density);
+            // Mix colors based on density
+            vec3 finalColor = mix(skyColor, cloudColor, f * depth);
             
-            // More dramatic color scheme
-            vec3 fogColor = vec3(0.95, 0.9, 1.0);  // Base color with slight purple tint
+            // Adjust opacity for more natural look
+            float opacity = f * depth * 0.8;
             
-            // Add stronger purple and pink tints
-            vec3 tint1 = vec3(0.6, 0.2, 0.8);  // Deep purple
-            vec3 tint2 = vec3(0.8, 0.3, 0.6);  // Pink-purple
-            
-            fogColor = mix(fogColor, tint1, finalNoise * 0.6);
-            fogColor = mix(fogColor, tint2, noise1 * 0.4);
-            
-            gl_FragColor = vec4(fogColor, density * 0.7);  // Increased opacity for better visibility
+            gl_FragColor = vec4(finalColor, opacity);
           }
         `,
         transparent: true,
