@@ -9,8 +9,8 @@
       const scene = new THREE.Scene();
       scene.background = new THREE.Color(0xADD8E6);
   
-      // Use orthographic camera instead of perspective
-      const frustumSize = 2;
+      // Adjust frustum size to match screen proportions
+      const frustumSize = 10;  // Increased from 2 to cover more area
       const aspect = window.innerWidth / window.innerHeight;
       const camera = new THREE.OrthographicCamera(
           frustumSize * aspect / -2,
@@ -41,7 +41,8 @@
           time: { value: 0 },
           seed: { value: Math.random() * 100.0 },
           fogTexture: { value: fogTexture },
-          resolution: { value: new THREE.Vector2(window.innerWidth, window.innerHeight) }
+          resolution: { value: new THREE.Vector2(window.innerWidth, window.innerHeight) },
+          sunPosition: { value: new THREE.Vector2(0.3, 0.0) }
         },
         vertexShader: `
           varying vec3 vPosition;
@@ -56,6 +57,7 @@
           uniform float time;
           uniform float seed;
           uniform vec2 resolution;
+          uniform vec2 sunPosition;
           varying vec3 vPosition;
           varying vec2 vUv;
   
@@ -97,20 +99,20 @@
             
             moveUV -= vec2(time * 0.08, 0.0);
             
-            moveUV *= 1.2;
+            moveUV *= 0.4;
             
-            float baseLayer = fbm(moveUV * 1.3);
-            float detailLayer = fbm(moveUV * 1.8) * 0.35;
-            float heightLayer = fbm(moveUV * 1.5) * 0.25;
+            float baseLayer = fbm(moveUV * 0.8);
+            float detailLayer = fbm(moveUV * 1.2) * 0.35;
+            float heightLayer = fbm(moveUV * 0.9) * 0.25;
             
             float f = baseLayer * 0.75 + detailLayer + heightLayer;
             
             f = smoothstep(0.45, 0.75, f);
             
-            float sparsityNoise = fbm(moveUV * 1.1);
+            float sparsityNoise = fbm(moveUV * 0.6);
             f *= smoothstep(0.35, 0.65, sparsityNoise);
             
-            float secondarySparsity = fbm(moveUV * 0.8);
+            float secondarySparsity = fbm(moveUV * 0.4);
             f *= smoothstep(0.3, 0.8, secondarySparsity);
             
             vec3 cloudBright = vec3(1.0, 1.0, 1.0);
@@ -124,19 +126,58 @@
             float depthInfluence = smoothstep(0.3, 0.7, depth);
             cloudColor = mix(cloudColor, cloudDark, depthInfluence * 0.3);
             
-            vec3 finalColor = mix(skyColor, cloudColor, f * depth);
-            float opacity = f * depth * 0.8;
+            vec2 sunUV = vUv * 2.0 - 1.0;
+            sunUV.x *= resolution.x / resolution.y;
+            float sunDistance = length(sunUV - sunPosition * vec2(resolution.x / resolution.y, 1.0));
             
-            opacity *= smoothstep(0.0, 0.1, 1.0 - length(vUv * 2.0 - 1.0));
+            float sunGlow = 1.0 - smoothstep(0.0, 0.45, sunDistance);
+            float sunCore = 1.0 - smoothstep(0.0, 0.18, sunDistance);
+            float sunDisk = 1.0 - smoothstep(0.1, 0.11, sunDistance);
             
-            gl_FragColor = vec4(finalColor, opacity);
+            // Calculate cloud opacity first
+            float cloudOpacity = f * depth;
+            
+            // Base sky color with subtle glow
+            vec3 baseColor = skyColor;
+            
+            // Increased threshold for sun visibility through clouds
+            if (cloudOpacity < 0.6) {  // Increased from 0.3 to allow more visibility through clouds
+                vec3 sunColor = mix(
+                    vec3(1.0, 0.95, 0.85),
+                    vec3(1.0, 0.6, 0.2),
+                    sunDistance
+                );
+                
+                vec3 sunFinal = mix(
+                    sunColor * 1.5,
+                    vec3(1.8, 1.75, 1.7),
+                    sunDisk
+                );
+                
+                // Smoother transition through clouds
+                float clearSkyFactor = 1.0 - (cloudOpacity * 1.67);  // Adjusted from 3.33 for gentler falloff
+                baseColor = mix(baseColor, sunFinal, sunDisk * clearSkyFactor);
+                baseColor = mix(baseColor, sunColor, sunGlow * clearSkyFactor * 0.8);
+            }
+            
+            // Increased glow through clouds
+            float throughCloudGlow = sunGlow * 0.3 * (1.0 - cloudOpacity);  // Increased from 0.15
+            
+            // Final color blending
+            vec3 finalColor = mix(baseColor, cloudColor, cloudOpacity);
+            finalColor += vec3(1.0, 0.9, 0.8) * throughCloudGlow;  // Subtle warm glow
+            
+            gl_FragColor = vec4(finalColor, max(cloudOpacity, sunDisk * (1.0 - cloudOpacity)));
           }
         `,
         transparent: true,
       });
   
-      // Create a plane that covers the entire view
-      const planeGeometry = new THREE.PlaneGeometry(10, 10);
+      // Create a plane that matches the camera frustum
+      const planeGeometry = new THREE.PlaneGeometry(
+          frustumSize * aspect,
+          frustumSize
+      );
       const fogPlane = new THREE.Mesh(planeGeometry, fogMaterial);
       fogPlane.position.z = -5;
       scene.add(fogPlane);
@@ -144,7 +185,7 @@
       // Position camera
       camera.position.z = 5;
   
-      // Update resize handler for orthographic camera
+      // Update resize handler
       const handleResize = () => {
         const aspect = window.innerWidth / window.innerHeight;
         camera.left = frustumSize * aspect / -2;
@@ -153,6 +194,7 @@
         camera.bottom = frustumSize / -2;
         camera.updateProjectionMatrix();
         renderer.setSize(window.innerWidth, window.innerHeight);
+        fogMaterial.uniforms.resolution.value.set(window.innerWidth, window.innerHeight);
       };
       window.addEventListener('resize', handleResize);
   
@@ -166,9 +208,62 @@
       };
       animate();
   
+      // Add mouse interaction handling
+      let isDragging = false;
+      const mouse = new THREE.Vector2();
+      
+      // Update mouse position calculation
+      const updateMousePosition = (event) => {
+          const rect = container.getBoundingClientRect();
+          const aspect = rect.width / rect.height;
+          
+          // Map to scene coordinates with aspect ratio correction
+          const x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+          const y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+          
+          mouse.x = x * aspect;
+          mouse.y = y;
+      };
+
+      const onMouseDown = (event) => {
+          updateMousePosition(event);
+          const sunPos = fogMaterial.uniforms.sunPosition.value;
+          const aspect = container.clientWidth / container.clientHeight;
+          
+          const distance = Math.sqrt(
+              Math.pow((mouse.x - sunPos.x * aspect), 2) + 
+              Math.pow(mouse.y - sunPos.y, 2)
+          );
+          
+          if (distance < 0.45) {
+              isDragging = true;
+          }
+      };
+
+      const onMouseMove = (event) => {
+          if (isDragging) {
+              updateMousePosition(event);
+              const aspect = container.clientWidth / container.clientHeight;
+              fogMaterial.uniforms.sunPosition.value.set(mouse.x / aspect, mouse.y);
+          }
+      };
+
+      const onMouseUp = () => {
+          isDragging = false;
+      };
+
+      container.addEventListener('mousedown', onMouseDown);
+      container.addEventListener('mousemove', onMouseMove);
+      container.addEventListener('mouseup', onMouseUp);
+      container.addEventListener('mouseleave', onMouseUp);
+  
       // Cleanup
       return () => {
         window.removeEventListener('resize', handleResize);
+        container.removeEventListener('mousedown', onMouseDown);
+        container.removeEventListener('mousemove', onMouseMove);
+        container.removeEventListener('mouseup', onMouseUp);
+        container.removeEventListener('mouseleave', onMouseUp);
         container.removeChild(renderer.domElement);
       };
     });
