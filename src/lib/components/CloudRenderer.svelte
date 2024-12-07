@@ -98,18 +98,18 @@
             moveUV *= 1.2;
             
             float baseLayer = fbm(moveUV * 1.3);
-            float detailLayer = fbm(moveUV * 1.8) * 0.25;
-            float heightLayer = fbm(moveUV * 1.5) * 0.15;
+            float detailLayer = fbm(moveUV * 1.8) * 0.35;
+            float heightLayer = fbm(moveUV * 1.5) * 0.25;
             
-            float f = baseLayer * 0.8 + detailLayer + heightLayer;
+            float f = baseLayer * 0.75 + detailLayer + heightLayer;
             
-            f = smoothstep(0.57, 0.64, f);
+            f = smoothstep(0.45, 0.75, f);
             
             float sparsityNoise = fbm(moveUV * 1.1);
-            f *= step(0.48, sparsityNoise);
+            f *= smoothstep(0.35, 0.65, sparsityNoise);
             
             float secondarySparsity = fbm(moveUV * 0.8);
-            f *= smoothstep(0.45, 0.65, secondarySparsity);
+            f *= smoothstep(0.3, 0.8, secondarySparsity);
             
             vec3 cloudBright = vec3(1.0, 1.0, 1.0);
             vec3 cloudDark = vec3(0.8, 0.8, 0.85);
