@@ -19,7 +19,7 @@
     // Add new variables for time display
     let currentTime = "12:00 PM";
     let skyColors = {
-        nightDeep: new THREE.Color(0x020208),    // Almost pitch black (midnight to 3am)
+        nightDeep: new THREE.Color(0x000000),    // Changed to pure black (midnight)
         nightLight: new THREE.Color(0x0A0A2A),    // Very dark night
         preDawn: new THREE.Color(0x1A1A3A),       // Just before dawn
         dawn: new THREE.Color(0xF28CA8),          // Dawn/Sunrise
@@ -154,8 +154,8 @@
   
       // Create volumetric fog material
       const fogTexture = new THREE.Data3DTexture(
-        new Uint8Array(64 * 64 * 64).map(() => Math.random() * 155 + 100),
-        64, 64, 64
+        new Uint8Array(128 * 128 * 128).map(() => Math.random() * 155 + 100),
+        128, 128, 128
       );
       fogTexture.format = THREE.RedFormat;
       fogTexture.minFilter = THREE.LinearFilter;
@@ -217,10 +217,10 @@
             float sum = 0.0;
             float amp = 1.0;
             float freq = 1.2;
-            for(int i = 0; i < 6; i++) {
+            for(int i = 0; i < 8; i++) {
               sum += amp * noise(p * freq);
-              freq *= 1.8;
-              amp *= 0.5;
+              freq *= 1.9;
+              amp *= 0.55;
             }
             return sum;
           }
@@ -230,21 +230,21 @@
             
             moveUV -= vec2(time * 0.08, 0.0);
             
-            moveUV *= 0.8;
+            moveUV *= 0.5;
             
-            float baseLayer = fbm(moveUV * 0.8);
-            float detailLayer = fbm(moveUV * 1.2) * 0.15;
-            float heightLayer = fbm(moveUV * 0.9) * 0.1;
+            float baseLayer = fbm(moveUV * 0.7);
+            float detailLayer = fbm(moveUV * 1.2) * 0.2;
+            float heightLayer = fbm(moveUV * 0.8) * 0.15;
             
             float f = baseLayer * 0.5 + detailLayer + heightLayer;
             
-            f = smoothstep(0.6, 0.9, f);
+            f = smoothstep(0.75, 0.95, f);
             
-            float sparsityNoise = fbm(moveUV * 0.6);
-            f *= smoothstep(0.5, 0.8, sparsityNoise);
+            float sparsityNoise = fbm(moveUV * 0.4);
+            f *= smoothstep(0.65, 0.85, sparsityNoise);
             
-            float secondarySparsity = fbm(moveUV * 0.4);
-            f *= smoothstep(0.4, 0.9, secondarySparsity);
+            float secondarySparsity = fbm(moveUV * 0.3);
+            f *= smoothstep(0.6, 0.95, secondarySparsity);
             
             vec3 cloudBright = vec3(0.98, 0.98, 1.0);
             vec3 cloudDark = vec3(0.7, 0.7, 0.8);
@@ -256,10 +256,10 @@
             float depthInfluence = smoothstep(0.2, 0.8, depth);
             cloudColor = mix(cloudColor, cloudDark, depthInfluence * 0.3);
             
-            float baseOpacity = f * (0.6 + depth * 0.2);
+            float baseOpacity = f * (0.5 + depth * 0.2);
             float edgeFade = smoothstep(0.0, 0.4, f);
             
-            float finalOpacity = baseOpacity * edgeFade * 0.7;
+            float finalOpacity = baseOpacity * edgeFade * 0.6;
             
             gl_FragColor = vec4(cloudColor, finalOpacity);
           }
@@ -300,17 +300,15 @@
       const animate = () => {
         animationFrameId = requestAnimationFrame(animate);
         
-        // Calculate sun movement speed using stored previous position
         const currentSunX = fogMaterial.uniforms.sunPosition.value.x;
         const sunMovementSpeed = Math.abs(currentSunX - previousSunX);
-        previousSunX = currentSunX; // Store for next frame
+        previousSunX = currentSunX;
         
-        // Make the speed change much more dramatic
-        const baseTimeIncrement = 0.01;
-        const speedMultiplier = 1350.0; // Dramatically increased from 50.0 to 500.0
+        // Increase base time increment for faster passive movement
+        const baseTimeIncrement = 0.02;
+        const speedMultiplier = 1350.0;
         const timeIncrement = baseTimeIncrement + (sunMovementSpeed * speedMultiplier);
         
-        // Update cloud movement speed in shader
         time += timeIncrement;
         
         // Update the wind speed uniform with a much higher multiplier
