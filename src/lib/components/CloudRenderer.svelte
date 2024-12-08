@@ -19,15 +19,15 @@
     // Add new variables for time display
     let currentTime = "02:30 AM";  // Updated to match new position
     let skyColors = {
-        nightDeep: new THREE.Color(0x000000),    // Changed to pure black (midnight)
-        nightLight: new THREE.Color(0x0A0A2A),    // Very dark night
-        preDawn: new THREE.Color(0x1A1A3A),       // Just before dawn
-        dawn: new THREE.Color(0xF28CA8),          // Dawn/Sunrise
-        morningGold: new THREE.Color(0xFFC68C),   // Golden morning
-        day: new THREE.Color(0x87CEEB),           // Day blue
-        afternoonWarm: new THREE.Color(0xA5D6F2), // Warm afternoon
-        dusk: new THREE.Color(0xFF7F50),          // Dusk/Sunset
-        twilight: new THREE.Color(0x2C3E50)       // Twilight
+        nightDeep: new THREE.Color(0x000000),    // Pure black (midnight)
+        nightLight: new THREE.Color(0x0A0A2A),    // Very dark blue-black
+        preDawn: new THREE.Color(0x12122E),       // Slightly lighter than night, still deep blue
+        dawn: new THREE.Color(0x1A1A3A),          // Deep blue
+        morningGold: new THREE.Color(0x1A1A3A),   // Deep blue
+        day: new THREE.Color(0x87CEEB),           // Natural sky blue (unchanged)
+        afternoonWarm: new THREE.Color(0x6CA9C2), // Slightly darker, cooler sky blue
+        dusk: new THREE.Color(0x12122E),          // Changed to match pre-dawn
+        twilight: new THREE.Color(0x0A0A2A)       // Changed to match nightLight
     };
   
     // Function to convert x position to time
@@ -46,27 +46,27 @@
         const hour = ((x + 1) * 12);
         isNightTime = hour < 5 || hour > 19;
         
-        if (hour < 3) { // Deep night (midnight to 3am)
+        if (hour < 4) { // Extended deep night period (midnight to 4am)
             return skyColors.nightDeep.clone();
-        } else if (hour < 4) { // Transition from deep night to lighter night
-            return skyColors.nightDeep.clone().lerp(skyColors.nightLight, (hour - 3));
-        } else if (hour < 5) { // Night to pre-dawn
-            return skyColors.nightLight.clone().lerp(skyColors.preDawn, (hour - 4));
+        } else if (hour < 4.5) { // Shorter transition from deep night to lighter night
+            return skyColors.nightDeep.clone().lerp(skyColors.nightLight, (hour - 4) * 2);
+        } else if (hour < 5) { // Shorter night to pre-dawn
+            return skyColors.nightLight.clone().lerp(skyColors.preDawn, (hour - 4.5) * 2);
         } else if (hour < 6) { // Pre-dawn to dawn
             return skyColors.preDawn.clone().lerp(skyColors.dawn, (hour - 5));
-        } else if (hour < 7) { // Dawn to morning gold
-            return skyColors.dawn.clone().lerp(skyColors.morningGold, (hour - 6));
-        } else if (hour < 8) { // Morning gold to day
-            return skyColors.morningGold.clone().lerp(skyColors.day, (hour - 7));
+        } else if (hour < 6.5) { // Dawn to morning gold (reduced from 1 hour to 30 minutes)
+            return skyColors.dawn.clone().lerp(skyColors.morningGold, (hour - 6) * 2);
+        } else if (hour < 7) { // Morning gold to day (reduced from 1 hour to 30 minutes)
+            return skyColors.morningGold.clone().lerp(skyColors.day, (hour - 6.5) * 2);
         } else if (hour < 16) { // Day
             return skyColors.day.clone().lerp(skyColors.afternoonWarm, (hour - 8) / 8);
         } else if (hour < 17) { // Afternoon to dusk
             return skyColors.afternoonWarm.clone().lerp(skyColors.dusk, (hour - 16));
         } else if (hour < 18) { // Dusk to twilight
             return skyColors.dusk.clone().lerp(skyColors.twilight, (hour - 17));
-        } else if (hour < 20) { // Twilight to deep night
-            return skyColors.twilight.clone().lerp(skyColors.nightDeep, (hour - 18) / 2);
-        } else { // Night
+        } else if (hour < 19) { // Faster transition to deep night
+            return skyColors.twilight.clone().lerp(skyColors.nightDeep, (hour - 18));
+        } else { // Extended night period
             return skyColors.nightDeep.clone();
         }
     }
@@ -129,7 +129,7 @@
             const v = Math.random();
             const theta = 2 * Math.PI * u;  // Azimuthal angle
             const phi = Math.acos(2 * v - 1);  // Polar angle
-            const radius = 8;  // Distance from camera
+            const radius = 12;  // Increased from 8 to 12 - Distance from camera
 
             // Convert spherical coordinates to Cartesian
             this.mesh.position.set(
@@ -143,7 +143,7 @@
         }
 
         update(deltaTime) {
-            if (!isNightTime || !showClouds) {
+            if (!isNightTime) {
                 this.material.opacity = 0;
                 return;
             }
@@ -262,7 +262,7 @@
       const thinFogMaterial = new THREE.MeshBasicMaterial({
         color: 0xFFFFFF,
         transparent: true,
-        opacity: 0.15
+        opacity: 0.03
       });
       const thinFogPlane = new THREE.Mesh(thinFogGeometry, thinFogMaterial);
       thinFogPlane.position.z = -4; // Between clouds and background
