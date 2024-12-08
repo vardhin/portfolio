@@ -660,7 +660,10 @@
   
   <div bind:this={container}>
     {#if isLoading}
-        <div class="loading">Loading...</div>
+        <div class="loading-container">
+            <div class="loading-spinner"></div>
+            <div class="loading-text">Loading clouds...</div>
+        </div>
     {/if}
     <div class="controls">
         <button class="control-button" title={showClouds ? 'Hide Clouds' : 'Show Clouds'} on:click={() => showClouds = !showClouds}>
@@ -681,12 +684,44 @@
         overflow: hidden;
     }
 
-    .loading {
+    .loading-container {
         position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        color: #333;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, #87CEEB, #E0F6FF);
+        z-index: 1000;
+    }
+
+    .loading-spinner {
+        width: 60px;
+        height: 60px;
+        border: 4px solid rgba(255, 255, 255, 0.3);
+        border-radius: 50%;
+        border-top-color: white;
+        animation: spin 1s ease-in-out infinite;
+        margin-bottom: 20px;
+    }
+
+    .loading-text {
+        color: white;
+        font-size: 1.4rem;
+        font-weight: 500;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        letter-spacing: 1px;
+        text-align: center;
+        padding: 0 20px;
+    }
+
+    @keyframes spin {
+        to {
+            transform: rotate(360deg);
+        }
     }
 
     .controls {
