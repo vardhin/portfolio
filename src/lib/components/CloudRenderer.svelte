@@ -42,31 +42,38 @@
   
     // Function to get sky color based on time
     function getSkyColor(x) {
-        // Map x from [-1, 1] to [0, 24] hours
         const hour = ((x + 1) * 12);
-        isNightTime = hour < 5 || hour > 19;
         
-        if (hour < 4) { // Extended deep night period (midnight to 4am)
+        if (hour < 4) {
             return skyColors.nightDeep.clone();
-        } else if (hour < 4.5) { // Shorter transition from deep night to lighter night
-            return skyColors.nightDeep.clone().lerp(skyColors.nightLight, (hour - 4) * 2);
-        } else if (hour < 5) { // Shorter night to pre-dawn
-            return skyColors.nightLight.clone().lerp(skyColors.preDawn, (hour - 4.5) * 2);
-        } else if (hour < 6) { // Pre-dawn to dawn
-            return skyColors.preDawn.clone().lerp(skyColors.dawn, (hour - 5));
-        } else if (hour < 6.5) { // Dawn to morning gold (reduced from 1 hour to 30 minutes)
-            return skyColors.dawn.clone().lerp(skyColors.morningGold, (hour - 6) * 2);
-        } else if (hour < 7) { // Morning gold to day (reduced from 1 hour to 30 minutes)
-            return skyColors.morningGold.clone().lerp(skyColors.day, (hour - 6.5) * 2);
-        } else if (hour < 16) { // Day
-            return skyColors.day.clone().lerp(skyColors.afternoonWarm, (hour - 8) / 8);
-        } else if (hour < 17) { // Afternoon to dusk
-            return skyColors.afternoonWarm.clone().lerp(skyColors.dusk, (hour - 16));
-        } else if (hour < 18) { // Dusk to twilight
-            return skyColors.dusk.clone().lerp(skyColors.twilight, (hour - 17));
-        } else if (hour < 19) { // Faster transition to deep night
-            return skyColors.twilight.clone().lerp(skyColors.nightDeep, (hour - 18));
-        } else { // Extended night period
+        } else if (hour < 4.5) {
+            const t = smoothstep(4.0, 4.5, hour);
+            return skyColors.nightDeep.clone().lerp(skyColors.nightLight, t);
+        } else if (hour < 5) {
+            const t = smoothstep(4.5, 5.0, hour);
+            return skyColors.nightLight.clone().lerp(skyColors.preDawn, t);
+        } else if (hour < 6) {
+            const t = smoothstep(5.0, 6.0, hour);
+            return skyColors.preDawn.clone().lerp(skyColors.dawn, t);
+        } else if (hour < 6.5) {
+            const t = smoothstep(6.0, 6.5, hour);
+            return skyColors.dawn.clone().lerp(skyColors.morningGold, t);
+        } else if (hour < 7) {
+            const t = smoothstep(6.5, 7.0, hour);
+            return skyColors.morningGold.clone().lerp(skyColors.day, t);
+        } else if (hour < 16) {
+            const t = smoothstep(8.0, 16.0, hour);
+            return skyColors.day.clone().lerp(skyColors.afternoonWarm, t);
+        } else if (hour < 17) {
+            const t = smoothstep(16.0, 17.0, hour);
+            return skyColors.afternoonWarm.clone().lerp(skyColors.dusk, t);
+        } else if (hour < 18) {
+            const t = smoothstep(17.0, 18.0, hour);
+            return skyColors.dusk.clone().lerp(skyColors.twilight, t);
+        } else if (hour < 19) {
+            const t = smoothstep(18.0, 19.0, hour);
+            return skyColors.twilight.clone().lerp(skyColors.nightDeep, t);
+        } else {
             return skyColors.nightDeep.clone();
         }
     }
@@ -114,9 +121,7 @@
             this.material = new THREE.MeshBasicMaterial({
                 color: color,
                 transparent: true,
-                opacity: 0,
-                emissive: color,
-                emissiveIntensity: 0.5
+                opacity: 0
             });
 
             this.mesh = new THREE.Mesh(geometry, this.material);
@@ -287,7 +292,7 @@
       const thinFogMaterial = new THREE.MeshBasicMaterial({
         color: 0xFFFFFF,
         transparent: true,
-        opacity: 0.03
+        opacity: 0.01
       });
       const thinFogPlane = new THREE.Mesh(thinFogGeometry, thinFogMaterial);
       thinFogPlane.position.z = -4; // Between clouds and background
@@ -331,7 +336,8 @@
           cloudDensity: { value: weatherState.cloudDensity },
           windSpeed: { value: weatherState.windSpeed },
           stormIntensity: { value: weatherState.stormIntensity },
-          rainIntensity: { value: weatherState.rainIntensity }
+          rainIntensity: { value: weatherState.rainIntensity },
+          hour: { value: 0.0 }
         },
         vertexShader: `
           varying vec3 vPosition;
@@ -347,6 +353,7 @@
           uniform float seed;
           uniform vec2 resolution;
           uniform vec2 sunPosition;
+          uniform float hour;
           varying vec3 vPosition;
           varying vec2 vUv;
   
@@ -404,8 +411,80 @@
             float secondarySparsity = fbm(moveUV * 0.3);
             f *= smoothstep(0.6, 0.95, secondarySparsity);
             
-            vec3 cloudBright = vec3(0.98, 0.98, 1.0);
-            vec3 cloudDark = vec3(0.7, 0.7, 0.8);
+            // Define cloud colors for different times with smoother transitions
+            vec3 cloudBright;
+            vec3 cloudDark;
+            
+            if (hour < 4.0) {  // Deep night
+                cloudBright = vec3(0.98, 0.98, 1.0);
+                cloudDark = vec3(0.7, 0.7, 0.8);
+            } else if (hour < 4.5) {
+                float t = smoothstep(4.0, 4.5, hour);
+                cloudBright = mix(
+                    vec3(0.98, 0.98, 1.0),   // Night
+                    vec3(0.99, 0.95, 0.9),   // Pre-dawn
+                    t
+                );
+                cloudDark = mix(
+                    vec3(0.7, 0.7, 0.8),     // Night
+                    vec3(0.75, 0.7, 0.75),   // Pre-dawn
+                    t
+                );
+            } else if (hour < 5.0) {
+                float t = smoothstep(4.5, 5.0, hour);
+                cloudBright = mix(
+                    vec3(0.99, 0.95, 0.9),   // Pre-dawn
+                    vec3(1.0, 0.9, 0.8),     // Dawn
+                    t
+                );
+                cloudDark = mix(
+                    vec3(0.75, 0.7, 0.75),   // Pre-dawn
+                    vec3(0.8, 0.7, 0.7),     // Dawn
+                    t
+                );
+            } else if (hour < 7.0) {
+                float t = smoothstep(5.0, 7.0, hour);
+                cloudBright = mix(
+                    vec3(1.0, 0.9, 0.8),     // Dawn
+                    vec3(0.98, 0.98, 1.0),   // Day
+                    t
+                );
+                cloudDark = mix(
+                    vec3(0.8, 0.7, 0.7),     // Dawn
+                    vec3(0.7, 0.7, 0.8),     // Day
+                    t
+                );
+            } else if (hour < 13.0) {  // Day
+                cloudBright = vec3(0.98, 0.98, 1.0);
+                cloudDark = vec3(0.7, 0.7, 0.8);
+            } else if (hour < 16.0) {  // Early dusk transition
+                float t = smoothstep(13.0, 16.0, hour);
+                cloudBright = mix(
+                    vec3(0.98, 0.98, 1.0),   // Day
+                    vec3(1.0, 0.9, 0.85),    // Early dusk
+                    t
+                );
+                cloudDark = mix(
+                    vec3(0.7, 0.7, 0.8),     // Day
+                    vec3(0.8, 0.7, 0.7),     // Early dusk
+                    t
+                );
+            } else if (hour < 19.0) {  // Late dusk transition
+                float t = smoothstep(16.0, 19.0, hour);
+                cloudBright = mix(
+                    vec3(1.0, 0.9, 0.85),    // Early dusk
+                    vec3(0.98, 0.98, 1.0),   // Night
+                    t
+                );
+                cloudDark = mix(
+                    vec3(0.8, 0.7, 0.7),     // Early dusk
+                    vec3(0.7, 0.7, 0.8),     // Night
+                    t
+                );
+            } else {  // Night
+                cloudBright = vec3(0.98, 0.98, 1.0);
+                cloudDark = vec3(0.7, 0.7, 0.8);
+            }
             
             float lightInfluence = fbm(moveUV * 0.8 + vec2(time * 0.02, 0.0));
             vec3 cloudColor = mix(cloudDark, cloudBright, lightInfluence);
@@ -492,10 +571,10 @@
         sunGlowMesh.position.x = sunX;
         sunGlowMesh.position.y = sunY;
 
-        // Update sky color every frame for smooth transitions
+        // Much gentler sky color transitions
         const currentSkyColor = getSkyColor(fogMaterial.uniforms.sunPosition.value.x);
         if (scene.background) {
-            scene.background.lerp(currentSkyColor, 0.05);
+            scene.background.lerp(currentSkyColor, 0.01);
         }
 
         // Calculate hour and isNightTime once
@@ -517,17 +596,19 @@
         // Update sun glow time uniform
         sunGlowMaterial.uniforms.time.value = time * 0.5;
 
-        // Update sun/moon appearance using the already calculated isNightTime
+        // Gentler sun/moon transitions
         if (isNightTime) {
-            sunMaterial.color.setHex(0xEEEEFF); // Cooler white for moon
-            sunMaterial.opacity = 0.9;
+            sunMaterial.color.lerp(new THREE.Color(0xEEEEFF), 0.01);
+            sunMaterial.opacity = THREE.MathUtils.lerp(sunMaterial.opacity, 0.9, 0.01);
         } else {
-            sunMaterial.color.setHex(0xFFF7E6); // Warm white for sun
-            sunMaterial.opacity = 1.0;
+            sunMaterial.color.lerp(new THREE.Color(0xFFF7E6), 0.01);
+            sunMaterial.opacity = THREE.MathUtils.lerp(sunMaterial.opacity, 1.0, 0.01);
         }
 
         // Update glow effect
         sunGlowMaterial.uniforms.isNight.value = isNightTime;
+
+        fogMaterial.uniforms.hour.value = hour;
 
         renderer.render(scene, camera);
       };
@@ -708,6 +789,12 @@
             update();
         });
     };
+
+    // Add smoothstep helper function if not already present
+    function smoothstep(edge0, edge1, x) {
+        const t = Math.max(0, Math.min(1, (x - edge0) / (edge1 - edge0)));
+        return t * t * (3 - 2 * t);
+    }
   </script>
   
   <div bind:this={container}>
