@@ -44,7 +44,8 @@
     function getSkyColor(x) {
         // Map x from [-1, 1] to [0, 24] hours
         const hour = ((x + 1) * 12);
-  
+        isNightTime = hour < 5 || hour > 19;
+        
         if (hour < 3) { // Deep night (midnight to 3am)
             return skyColors.nightDeep.clone();
         } else if (hour < 4) { // Transition from deep night to lighter night
@@ -67,6 +68,128 @@
             return skyColors.twilight.clone().lerp(skyColors.nightDeep, (hour - 18) / 2);
         } else { // Night
             return skyColors.nightDeep.clone();
+        }
+    }
+  
+    // Add new state variables
+    let showClouds = true;
+    let enableCloudMovement = true;
+  
+    // Add new variable to track if it's night time
+    let isNightTime = false;
+
+    // Add star system variables
+    let stars = [];
+    const TOTAL_STARS = 200;  // Reduced from 800
+
+    class Star {
+        constructor() {
+            this.resetProperties();
+            this.createMesh();
+        }
+
+        resetProperties() {
+            this.size = Math.random() * 0.015 + 0.003; // Random size between 0.003 and 0.018
+            this.ttl = Math.random() * 5 + 3; // Time to live: 3-8 seconds
+            this.age = 0;
+            this.fadeState = 'in';  // States: 'in', 'stable', 'out', 'waiting'
+            this.fadeTime = 1.0;    // Time to fade in/out
+            this.waitTime = Math.random() * 2;  // Random wait time 0-2 seconds
+            this.waitTimer = 0;
+        }
+
+        createMesh() {
+            const geometry = new THREE.SphereGeometry(this.size, 8, 8);
+            const starColors = [
+                0xFFFFFF,    // White (young stars)
+                0xFFF4E8,    // Slightly warm white
+                0xFFEBD5,    // Warm white (like our Sun)
+                0xFFE4B5,    // Cream (older stars)
+                0xFFD7AA,    // Pale orange (red giants)
+                0x99CCFF,    // Blue-white (hot young stars)
+                0xCAE1FF     // Light blue (very hot stars)
+            ];
+            const color = starColors[Math.floor(Math.random() * starColors.length)];
+            
+            this.material = new THREE.MeshBasicMaterial({
+                color: color,
+                transparent: true,
+                opacity: 0,
+                emissive: color,
+                emissiveIntensity: 0.5
+            });
+
+            this.mesh = new THREE.Mesh(geometry, this.material);
+            this.setNewPosition();
+        }
+
+        setNewPosition() {
+            // Use spherical distribution for more uniform star placement
+            const u = Math.random();
+            const v = Math.random();
+            const theta = 2 * Math.PI * u;  // Azimuthal angle
+            const phi = Math.acos(2 * v - 1);  // Polar angle
+            const radius = 8;  // Distance from camera
+
+            // Convert spherical coordinates to Cartesian
+            this.mesh.position.set(
+                radius * Math.sin(phi) * Math.cos(theta),
+                radius * Math.sin(phi) * Math.sin(theta),
+                -4.5
+            );
+
+            // Add slight random variation to z-position for depth
+            this.mesh.position.z += (Math.random() - 0.5) * 2;
+        }
+
+        update(deltaTime) {
+            if (!isNightTime || !showClouds) {
+                this.material.opacity = 0;
+                return;
+            }
+
+            this.age += deltaTime;
+
+            switch(this.fadeState) {
+                case 'in':
+                    this.material.opacity += deltaTime / this.fadeTime;
+                    if (this.material.opacity >= 1) {
+                        this.material.opacity = 1;
+                        this.fadeState = 'stable';
+                    }
+                    break;
+
+                case 'stable':
+                    const twinkle = Math.sin(this.age * 3) * 0.05 + 
+                                   Math.sin(this.age * 5) * 0.03 + 
+                                   Math.sin(this.age * 7) * 0.02;
+                    this.material.opacity = (0.85 + twinkle) * (1 - weatherState.cloudDensity * 0.8);
+                    
+                    if (this.age >= this.ttl) {
+                        this.fadeState = 'out';
+                    }
+                    break;
+
+                case 'out':
+                    this.material.opacity -= deltaTime / this.fadeTime;
+                    if (this.material.opacity <= 0) {
+                        this.material.opacity = 0;
+                        this.fadeState = 'waiting';
+                        this.waitTimer = 0;
+                    }
+                    break;
+
+                case 'waiting':
+                    this.waitTimer += deltaTime;
+                    if (this.waitTimer >= this.waitTime) {
+                        this.resetProperties();
+                        this.setNewPosition();
+                        this.mesh.geometry.dispose();
+                        this.mesh.geometry = new THREE.SphereGeometry(this.size, 8, 8);
+                        this.fadeState = 'in';
+                    }
+                    break;
+            }
         }
     }
   
@@ -296,6 +419,10 @@
       let time = 0;
       let animationFrameId;
       let previousSunX = fogMaterial.uniforms.sunPosition.value.x;
+      const speedMultiplier = 1350.0;
+      
+      // Add lastTime variable at the top of onMount
+      let lastTime;
       
       const animate = () => {
         animationFrameId = requestAnimationFrame(animate);
@@ -304,17 +431,23 @@
         const sunMovementSpeed = Math.abs(currentSunX - previousSunX);
         previousSunX = currentSunX;
         
-        // Increase base time increment for faster passive movement
-        const baseTimeIncrement = 0.02;
-        const speedMultiplier = 1350.0;
-        const timeIncrement = baseTimeIncrement + (sunMovementSpeed * speedMultiplier);
+        // Only increment time if cloud movement is enabled
+        if (enableCloudMovement) {
+            const baseTimeIncrement = 0.015;
+            const timeIncrement = baseTimeIncrement + (sunMovementSpeed * speedMultiplier);
+            time += timeIncrement;
+        }
         
-        time += timeIncrement;
+        fogMaterial.uniforms.time.value = time;
+        
+        // Update cloud visibility
+        if (fogPlane) {
+            fogPlane.visible = showClouds;
+        }
         
         // Update the wind speed uniform with a much higher multiplier
         fogMaterial.uniforms.windSpeed.value = weatherState.windSpeed * (1.0 + sunMovementSpeed * speedMultiplier * 2);
-        fogMaterial.uniforms.time.value = time;
-
+        
         // Update sun and glow position
         const aspect = container.clientWidth / container.clientHeight;
         const sunX = fogMaterial.uniforms.sunPosition.value.x * (frustumSize * aspect / 2);
@@ -330,6 +463,21 @@
             scene.background.lerp(currentSkyColor, 0.05);
         } else {
             scene.background = currentSkyColor;
+        }
+
+        // Calculate delta time for smooth animations
+        const currentTime = performance.now() / 1000;  // Convert to seconds
+        const deltaTime = currentTime - (lastTime || currentTime);
+        lastTime = currentTime;
+
+        // Update stars
+        if (stars.length > 0) {
+            const hour = ((fogMaterial.uniforms.sunPosition.value.x + 1) * 12);
+            isNightTime = hour < 5 || hour > 19;
+            
+            stars.forEach(star => {
+                star.update(deltaTime);
+            });
         }
 
         renderer.render(scene, camera);
@@ -439,6 +587,13 @@
       // After everything is set up
       isLoading = false;
   
+      // Create stars and add them to the scene
+      for (let i = 0; i < TOTAL_STARS; i++) {
+          const star = new Star();
+          stars.push(star);
+          scene.add(star.mesh);
+      }
+  
       // Cleanup
       return () => {
         cancelAnimationFrame(animationFrameId);
@@ -462,6 +617,11 @@
         thinFogMaterial.dispose();
         sunGlowGeometry.dispose();
         sunGlowMaterial.dispose();
+        stars.forEach(star => {
+            scene.remove(star.mesh);
+            star.mesh.geometry.dispose();
+            star.material.dispose();
+        });
       };
     });
   
@@ -502,19 +662,23 @@
     {#if isLoading}
         <div class="loading">Loading...</div>
     {/if}
-    <div class="coordinates">
-        Sun Position: ({sunCoordinates.x}, {sunCoordinates.y})<br>
-        Time: {currentTime}
+    <div class="controls">
+        <button class="control-button" title={showClouds ? 'Hide Clouds' : 'Show Clouds'} on:click={() => showClouds = !showClouds}>
+            {showClouds ? '☁️' : '🌤️'}
+        </button>
+        <button class="control-button" title={enableCloudMovement ? 'Stop Movement' : 'Start Movement'} on:click={() => enableCloudMovement = !enableCloudMovement}>
+            {enableCloudMovement ? '⏸️' : '▶️'}
+        </button>
     </div>
   </div>
   
   <style>
     div {
-      width: 100%;
-      height: 100vh;
-      margin: 0;
-      padding: 0;
-      overflow: hidden;
+        width: 100%;
+        height: 100vh;
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
     }
 
     .loading {
@@ -525,15 +689,38 @@
         color: #333;
     }
 
-    .coordinates {
+    .controls {
         position: fixed;
         top: 20px;
         left: 20px;
+        display: flex;
+        gap: 10px;
+        z-index: 1000;
+    }
+
+    .control-button {
+        width: 40px;
+        height: 40px;
+        padding: 0;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
         color: white;
-        padding: 8px 12px;
-        font-family: monospace;
-        font-size: 14px;
-        pointer-events: none;
-        text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+        cursor: pointer;
+        font-size: 16px;
+        backdrop-filter: blur(8px);
+        transition: all 0.2s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .control-button:hover {
+        background: rgba(255, 255, 255, 0.2);
+        transform: scale(1.05);
+    }
+
+    .control-button:active {
+        transform: scale(0.95);
     }
   </style>
