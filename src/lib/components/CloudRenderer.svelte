@@ -14,10 +14,10 @@
     };
   
     // Add new variable to store coordinates
-    let sunCoordinates = { x: 0.3, y: 0.0 };  // Initialize with default sun position
+    let sunCoordinates = { x: -0.7, y: -0.2 };  // Changed from -0.5 to -0.7
   
     // Add new variables for time display
-    let currentTime = "12:00 PM";
+    let currentTime = "02:30 AM";  // Updated to match new position
     let skyColors = {
         nightDeep: new THREE.Color(0x000000),    // Changed to pure black (midnight)
         nightLight: new THREE.Color(0x0A0A2A),    // Very dark night
@@ -76,11 +76,11 @@
     let enableCloudMovement = true;
   
     // Add new variable to track if it's night time
-    let isNightTime = false;
+    let isNightTime = true;
 
     // Add star system variables
     let stars = [];
-    const TOTAL_STARS = 200;  // Reduced from 800
+    const TOTAL_STARS = 350;  // Reduced from 800
 
     class Star {
         constructor() {
@@ -196,7 +196,9 @@
     onMount(() => {
       // Scene setup
       const scene = new THREE.Scene();
-      scene.background = getSkyColor(sunCoordinates.x);
+      
+      // Force initial sky color for night time
+      scene.background = skyColors.nightLight.clone();
   
       // Adjust frustum size to match screen proportions
       const frustumSize = 10;  // Increased from 2 to cover more area
@@ -210,7 +212,11 @@
         opacity: 1.0
       });
       const sunMesh = new THREE.Mesh(sunGeometry, sunMaterial);
-      sunMesh.position.z = -6; // Behind clouds but in front of background
+      sunMesh.position.set(
+        -0.7 * (frustumSize * aspect / 2),
+        -0.2 * (frustumSize / 2),
+        -6
+      );
   
       // Add sun glow effect
       const sunGlowGeometry = new THREE.CircleGeometry(0.6, 32);
@@ -240,7 +246,11 @@
         depthWrite: false
       });
       const sunGlowMesh = new THREE.Mesh(sunGlowGeometry, sunGlowMaterial);
-      sunGlowMesh.position.z = -6;
+      sunGlowMesh.position.set(
+        -0.7 * (frustumSize * aspect / 2),
+        -0.2 * (frustumSize / 2),
+        -6
+      );
       scene.add(sunGlowMesh);
       scene.add(sunMesh);
   
@@ -292,7 +302,7 @@
           seed: { value: Math.random() * 100.0 },
           fogTexture: { value: fogTexture },
           resolution: { value: new THREE.Vector2(window.innerWidth, window.innerHeight) },
-          sunPosition: { value: new THREE.Vector2(0.3, 0.0) },
+          sunPosition: { value: new THREE.Vector2(-0.7, -0.2) },  // Changed from -0.5 to -0.7
           cloudDensity: { value: weatherState.cloudDensity },
           windSpeed: { value: weatherState.windSpeed },
           stormIntensity: { value: weatherState.stormIntensity },
@@ -461,9 +471,11 @@
         const currentSkyColor = getSkyColor(fogMaterial.uniforms.sunPosition.value.x);
         if (scene.background) {
             scene.background.lerp(currentSkyColor, 0.05);
-        } else {
-            scene.background = currentSkyColor;
         }
+
+        // Make sure isNightTime is calculated correctly
+        const hour = ((fogMaterial.uniforms.sunPosition.value.x + 1) * 12);
+        isNightTime = hour < 5 || hour > 19;
 
         // Calculate delta time for smooth animations
         const currentTime = performance.now() / 1000;  // Convert to seconds
@@ -594,6 +606,9 @@
           scene.add(star.mesh);
       }
   
+      // Force initial night time state
+      isNightTime = true;
+  
       // Cleanup
       return () => {
         cancelAnimationFrame(animationFrameId);
@@ -666,10 +681,26 @@
         </div>
     {/if}
     <div class="controls">
-        <button class="control-button" title={showClouds ? 'Hide Clouds' : 'Show Clouds'} on:click={() => showClouds = !showClouds}>
+        <button 
+            class="control-button" 
+            title={showClouds ? 'Hide Clouds' : 'Show Clouds'} 
+            on:click={() => showClouds = !showClouds}
+            on:touchstart|preventDefault={(e) => {
+                showClouds = !showClouds;
+                e.stopPropagation();
+            }}
+        >
             {showClouds ? '☁️' : '🌤️'}
         </button>
-        <button class="control-button" title={enableCloudMovement ? 'Stop Movement' : 'Start Movement'} on:click={() => enableCloudMovement = !enableCloudMovement}>
+        <button 
+            class="control-button" 
+            title={enableCloudMovement ? 'Stop Movement' : 'Start Movement'} 
+            on:click={() => enableCloudMovement = !enableCloudMovement}
+            on:touchstart|preventDefault={(e) => {
+                enableCloudMovement = !enableCloudMovement;
+                e.stopPropagation();
+            }}
+        >
             {enableCloudMovement ? '⏸️' : '▶️'}
         </button>
     </div>
@@ -748,6 +779,8 @@
         display: flex;
         align-items: center;
         justify-content: center;
+        -webkit-tap-highlight-color: transparent; /* Removes tap highlight on iOS */
+        touch-action: manipulation; /* Improves touch handling */
     }
 
     .control-button:hover {
@@ -757,5 +790,20 @@
 
     .control-button:active {
         transform: scale(0.95);
+    }
+
+    /* Make buttons larger on touch devices */
+    @media (pointer: coarse) {
+        .control-button {
+            width: 48px;
+            height: 48px;
+            font-size: 20px;
+        }
+        
+        .controls {
+            top: 24px;
+            left: 24px;
+            gap: 16px;
+        }
     }
   </style>
