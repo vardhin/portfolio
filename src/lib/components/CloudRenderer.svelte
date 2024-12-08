@@ -5,21 +5,143 @@
     let container;
     let isLoading = true;
   
+    // Add weather state
+    let weatherState = {
+        cloudDensity: 0.3,
+        windSpeed: 0.08,
+        stormIntensity: 0.0,
+        rainIntensity: 0.0
+    };
+  
+    // Add new variable to store coordinates
+    let sunCoordinates = { x: 0.3, y: 0.0 };  // Initialize with default sun position
+  
+    // Add new variables for time display
+    let currentTime = "12:00 PM";
+    let skyColors = {
+        nightDeep: new THREE.Color(0x020208),    // Almost pitch black (midnight to 3am)
+        nightLight: new THREE.Color(0x0A0A2A),    // Very dark night
+        preDawn: new THREE.Color(0x1A1A3A),       // Just before dawn
+        dawn: new THREE.Color(0xF28CA8),          // Dawn/Sunrise
+        morningGold: new THREE.Color(0xFFC68C),   // Golden morning
+        day: new THREE.Color(0x87CEEB),           // Day blue
+        afternoonWarm: new THREE.Color(0xA5D6F2), // Warm afternoon
+        dusk: new THREE.Color(0xFF7F50),          // Dusk/Sunset
+        twilight: new THREE.Color(0x2C3E50)       // Twilight
+    };
+  
+    // Function to convert x position to time
+    function getTimeFromX(x) {
+        // Map x from [-1, 1] to [0, 24]
+        const hours = ((x + 1) * 12);
+        const totalMinutes = Math.floor(hours * 60);
+        const h = Math.floor(totalMinutes / 60);
+        const m = totalMinutes % 60;
+        return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`;
+    }
+  
+    // Function to get sky color based on time
+    function getSkyColor(x) {
+        // Map x from [-1, 1] to [0, 24] hours
+        const hour = ((x + 1) * 12);
+  
+        if (hour < 3) { // Deep night (midnight to 3am)
+            return skyColors.nightDeep.clone();
+        } else if (hour < 4) { // Transition from deep night to lighter night
+            return skyColors.nightDeep.clone().lerp(skyColors.nightLight, (hour - 3));
+        } else if (hour < 5) { // Night to pre-dawn
+            return skyColors.nightLight.clone().lerp(skyColors.preDawn, (hour - 4));
+        } else if (hour < 6) { // Pre-dawn to dawn
+            return skyColors.preDawn.clone().lerp(skyColors.dawn, (hour - 5));
+        } else if (hour < 7) { // Dawn to morning gold
+            return skyColors.dawn.clone().lerp(skyColors.morningGold, (hour - 6));
+        } else if (hour < 8) { // Morning gold to day
+            return skyColors.morningGold.clone().lerp(skyColors.day, (hour - 7));
+        } else if (hour < 16) { // Day
+            return skyColors.day.clone().lerp(skyColors.afternoonWarm, (hour - 8) / 8);
+        } else if (hour < 17) { // Afternoon to dusk
+            return skyColors.afternoonWarm.clone().lerp(skyColors.dusk, (hour - 16));
+        } else if (hour < 18) { // Dusk to twilight
+            return skyColors.dusk.clone().lerp(skyColors.twilight, (hour - 17));
+        } else if (hour < 20) { // Twilight to deep night
+            return skyColors.twilight.clone().lerp(skyColors.nightDeep, (hour - 18) / 2);
+        } else { // Night
+            return skyColors.nightDeep.clone();
+        }
+    }
+  
     onMount(() => {
       // Scene setup
       const scene = new THREE.Scene();
-      scene.background = new THREE.Color(0xADD8E6);
+      scene.background = getSkyColor(sunCoordinates.x);
   
       // Adjust frustum size to match screen proportions
       const frustumSize = 10;  // Increased from 2 to cover more area
       const aspect = window.innerWidth / window.innerHeight;
+  
+      // Add sun mesh
+      const sunGeometry = new THREE.CircleGeometry(0.3, 32);
+      const sunMaterial = new THREE.MeshBasicMaterial({ 
+        color: 0xFFF7E6,
+        transparent: true,
+        opacity: 1.0
+      });
+      const sunMesh = new THREE.Mesh(sunGeometry, sunMaterial);
+      sunMesh.position.z = -6; // Behind clouds but in front of background
+  
+      // Add sun glow effect
+      const sunGlowGeometry = new THREE.CircleGeometry(0.6, 32);
+      const sunGlowMaterial = new THREE.ShaderMaterial({
+        uniforms: {
+          color: { value: new THREE.Color(0xFFAA33) }
+        },
+        vertexShader: `
+          varying vec2 vUv;
+          void main() {
+            vUv = uv;
+            gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+          }
+        `,
+        fragmentShader: `
+          uniform vec3 color;
+          varying vec2 vUv;
+          void main() {
+            float dist = length(vUv - vec2(0.5, 0.5)) * 2.0;
+            float alpha = 1.0 - smoothstep(0.0, 1.0, dist);
+            alpha = pow(alpha, 2.0);
+            gl_FragColor = vec4(color, alpha * 0.5);
+          }
+        `,
+        transparent: true,
+        blending: THREE.AdditiveBlending,
+        depthWrite: false
+      });
+      const sunGlowMesh = new THREE.Mesh(sunGlowGeometry, sunGlowMaterial);
+      sunGlowMesh.position.z = -6;
+      scene.add(sunGlowMesh);
+      scene.add(sunMesh);
+  
+      // Add thin fog layer
+      const thinFogGeometry = new THREE.PlaneGeometry(
+        frustumSize * aspect,
+        frustumSize
+      );
+      const thinFogMaterial = new THREE.MeshBasicMaterial({
+        color: 0xFFFFFF,
+        transparent: true,
+        opacity: 0.15
+      });
+      const thinFogPlane = new THREE.Mesh(thinFogGeometry, thinFogMaterial);
+      thinFogPlane.position.z = -4; // Between clouds and background
+      scene.add(thinFogPlane);
+  
       const camera = new THREE.OrthographicCamera(
-          frustumSize * aspect / -2,
-          frustumSize * aspect / 2,
-          frustumSize / 2,
-          frustumSize / -2,
-          0.1,
-          1000
+        frustumSize * aspect / -2,
+        frustumSize * aspect / 2,
+        frustumSize / 2,
+        frustumSize / -2,
+        0.1,
+        1000
       );
   
       const renderer = new THREE.WebGLRenderer({
@@ -47,7 +169,11 @@
           seed: { value: Math.random() * 100.0 },
           fogTexture: { value: fogTexture },
           resolution: { value: new THREE.Vector2(window.innerWidth, window.innerHeight) },
-          sunPosition: { value: new THREE.Vector2(0.3, 0.0) }
+          sunPosition: { value: new THREE.Vector2(0.3, 0.0) },
+          cloudDensity: { value: weatherState.cloudDensity },
+          windSpeed: { value: weatherState.windSpeed },
+          stormIntensity: { value: weatherState.stormIntensity },
+          rainIntensity: { value: weatherState.rainIntensity }
         },
         vertexShader: `
           varying vec3 vPosition;
@@ -104,75 +230,38 @@
             
             moveUV -= vec2(time * 0.08, 0.0);
             
-            moveUV *= 0.4;
+            moveUV *= 0.8;
             
             float baseLayer = fbm(moveUV * 0.8);
-            float detailLayer = fbm(moveUV * 1.2) * 0.35;
-            float heightLayer = fbm(moveUV * 0.9) * 0.25;
+            float detailLayer = fbm(moveUV * 1.2) * 0.15;
+            float heightLayer = fbm(moveUV * 0.9) * 0.1;
             
-            float f = baseLayer * 0.75 + detailLayer + heightLayer;
+            float f = baseLayer * 0.5 + detailLayer + heightLayer;
             
-            f = smoothstep(0.45, 0.75, f);
+            f = smoothstep(0.6, 0.9, f);
             
             float sparsityNoise = fbm(moveUV * 0.6);
-            f *= smoothstep(0.35, 0.65, sparsityNoise);
+            f *= smoothstep(0.5, 0.8, sparsityNoise);
             
             float secondarySparsity = fbm(moveUV * 0.4);
-            f *= smoothstep(0.3, 0.8, secondarySparsity);
+            f *= smoothstep(0.4, 0.9, secondarySparsity);
             
-            vec3 cloudBright = vec3(1.0, 1.0, 1.0);
-            vec3 cloudDark = vec3(0.8, 0.8, 0.85);
-            vec3 skyColor = vec3(0.6, 0.8, 1.0);
+            vec3 cloudBright = vec3(0.98, 0.98, 1.0);
+            vec3 cloudDark = vec3(0.7, 0.7, 0.8);
             
             float lightInfluence = fbm(moveUV * 0.8 + vec2(time * 0.02, 0.0));
             vec3 cloudColor = mix(cloudDark, cloudBright, lightInfluence);
             
             float depth = fbm(moveUV * 1.5 + f);
-            float depthInfluence = smoothstep(0.3, 0.7, depth);
+            float depthInfluence = smoothstep(0.2, 0.8, depth);
             cloudColor = mix(cloudColor, cloudDark, depthInfluence * 0.3);
             
-            vec2 sunUV = vUv * 2.0 - 1.0;
-            sunUV.x *= resolution.x / resolution.y;
-            float sunDistance = length(sunUV - sunPosition * vec2(resolution.x / resolution.y, 1.0));
+            float baseOpacity = f * (0.6 + depth * 0.2);
+            float edgeFade = smoothstep(0.0, 0.4, f);
             
-            float sunGlow = 1.0 - smoothstep(0.0, 0.45, sunDistance);
-            float sunCore = 1.0 - smoothstep(0.0, 0.18, sunDistance);
-            float sunDisk = 1.0 - smoothstep(0.1, 0.11, sunDistance);
+            float finalOpacity = baseOpacity * edgeFade * 0.7;
             
-            // Calculate cloud opacity first
-            float cloudOpacity = f * depth;
-            
-            // Base sky color with subtle glow
-            vec3 baseColor = skyColor;
-            
-            // Increased threshold for sun visibility through clouds
-            if (cloudOpacity < 0.6) {  // Increased from 0.3 to allow more visibility through clouds
-                vec3 sunColor = mix(
-                    vec3(1.0, 0.95, 0.85),
-                    vec3(1.0, 0.6, 0.2),
-                    sunDistance
-                );
-                
-                vec3 sunFinal = mix(
-                    sunColor * 1.5,
-                    vec3(1.8, 1.75, 1.7),
-                    sunDisk
-                );
-                
-                // Smoother transition through clouds
-                float clearSkyFactor = 1.0 - (cloudOpacity * 1.67);  // Adjusted from 3.33 for gentler falloff
-                baseColor = mix(baseColor, sunFinal, sunDisk * clearSkyFactor);
-                baseColor = mix(baseColor, sunColor, sunGlow * clearSkyFactor * 0.8);
-            }
-            
-            // Increased glow through clouds
-            float throughCloudGlow = sunGlow * 0.3 * (1.0 - cloudOpacity);  // Increased from 0.15
-            
-            // Final color blending
-            vec3 finalColor = mix(baseColor, cloudColor, cloudOpacity);
-            finalColor += vec3(1.0, 0.9, 0.8) * throughCloudGlow;  // Subtle warm glow
-            
-            gl_FragColor = vec4(finalColor, max(cloudOpacity, sunDisk * (1.0 - cloudOpacity)));
+            gl_FragColor = vec4(cloudColor, finalOpacity);
           }
         `,
         transparent: true,
@@ -206,11 +295,45 @@
       // Animation loop
       let time = 0;
       let animationFrameId;
+      let previousSunX = fogMaterial.uniforms.sunPosition.value.x;
       
       const animate = () => {
         animationFrameId = requestAnimationFrame(animate);
-        time += 0.01;
+        
+        // Calculate sun movement speed using stored previous position
+        const currentSunX = fogMaterial.uniforms.sunPosition.value.x;
+        const sunMovementSpeed = Math.abs(currentSunX - previousSunX);
+        previousSunX = currentSunX; // Store for next frame
+        
+        // Make the speed change much more dramatic
+        const baseTimeIncrement = 0.01;
+        const speedMultiplier = 1350.0; // Dramatically increased from 50.0 to 500.0
+        const timeIncrement = baseTimeIncrement + (sunMovementSpeed * speedMultiplier);
+        
+        // Update cloud movement speed in shader
+        time += timeIncrement;
+        
+        // Update the wind speed uniform with a much higher multiplier
+        fogMaterial.uniforms.windSpeed.value = weatherState.windSpeed * (1.0 + sunMovementSpeed * speedMultiplier * 2);
         fogMaterial.uniforms.time.value = time;
+
+        // Update sun and glow position
+        const aspect = container.clientWidth / container.clientHeight;
+        const sunX = fogMaterial.uniforms.sunPosition.value.x * (frustumSize * aspect / 2);
+        const sunY = fogMaterial.uniforms.sunPosition.value.y * (frustumSize / 2);
+        sunMesh.position.x = sunX;
+        sunMesh.position.y = sunY;
+        sunGlowMesh.position.x = sunX;
+        sunGlowMesh.position.y = sunY;
+
+        // Update sky color every frame for smooth transitions
+        const currentSkyColor = getSkyColor(fogMaterial.uniforms.sunPosition.value.x);
+        if (scene.background) {
+            scene.background.lerp(currentSkyColor, 0.05);
+        } else {
+            scene.background = currentSkyColor;
+        }
+
         renderer.render(scene, camera);
       };
       animate();
@@ -251,7 +374,16 @@
           if (isDragging) {
               updateMousePosition(event);
               const aspect = container.clientWidth / container.clientHeight;
-              fogMaterial.uniforms.sunPosition.value.set(mouse.x / aspect, mouse.y);
+              const newX = mouse.x / aspect;
+              const newY = mouse.y;
+              fogMaterial.uniforms.sunPosition.value.set(newX, newY);
+              
+              // Update coordinates and time display
+              sunCoordinates = { x: newX.toFixed(3), y: newY.toFixed(3) };
+              currentTime = getTimeFromX(newX);
+              
+              // Update sky color
+              scene.background = getSkyColor(newX);
           }
       };
 
@@ -287,7 +419,16 @@
               const touch = event.touches[0];
               updateMousePosition(touch);
               const aspect = container.clientWidth / container.clientHeight;
-              fogMaterial.uniforms.sunPosition.value.set(mouse.x / aspect, mouse.y);
+              const newX = mouse.x / aspect;
+              const newY = mouse.y;
+              fogMaterial.uniforms.sunPosition.value.set(newX, newY);
+              
+              // Update coordinates and time display
+              sunCoordinates = { x: newX.toFixed(3), y: newY.toFixed(3) };
+              currentTime = getTimeFromX(newX);
+              
+              // Update sky color
+              scene.background = getSkyColor(newX);
           }
       };
 
@@ -317,14 +458,56 @@
         fogTexture.dispose();
         planeGeometry.dispose();
         fogMaterial.dispose();
+        sunGeometry.dispose();
+        sunMaterial.dispose();
+        thinFogGeometry.dispose();
+        thinFogMaterial.dispose();
+        sunGlowGeometry.dispose();
+        sunGlowMaterial.dispose();
       };
     });
+  
+    const transitionWeather = async (targetState, duration = 2000) => {
+        const startState = { ...weatherState };
+        const startTime = performance.now();
+        
+        return new Promise(resolve => {
+            function update() {
+                const elapsed = performance.now() - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                
+                // Smooth transition using easing
+                const ease = t => t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
+                const t = ease(progress);
+                
+                // Update weather parameters
+                Object.keys(targetState).forEach(key => {
+                    weatherState[key] = startState[key] + (targetState[key] - startState[key]) * t;
+                    if (fogMaterial.uniforms[key]) {
+                        fogMaterial.uniforms[key].value = weatherState[key];
+                    }
+                });
+                
+                if (progress < 1) {
+                    requestAnimationFrame(update);
+                } else {
+                    resolve();
+                }
+            }
+            
+            update();
+        });
+    };
   </script>
   
   <div bind:this={container}>
     {#if isLoading}
         <div class="loading">Loading...</div>
     {/if}
+    <div class="coordinates">
+        Sun Position: ({sunCoordinates.x}, {sunCoordinates.y})<br>
+        Time: {currentTime}
+    </div>
   </div>
   
   <style>
@@ -342,5 +525,17 @@
         left: 50%;
         transform: translate(-50%, -50%);
         color: #333;
+    }
+
+    .coordinates {
+        position: fixed;
+        top: 20px;
+        left: 20px;
+        color: white;
+        padding: 8px 12px;
+        font-family: monospace;
+        font-size: 14px;
+        pointer-events: none;
+        text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
     }
   </style>
