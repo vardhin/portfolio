@@ -219,10 +219,12 @@
       );
   
       // Add sun glow effect
-      const sunGlowGeometry = new THREE.CircleGeometry(0.6, 32);
+      const sunGlowGeometry = new THREE.CircleGeometry(1.2, 32);  // Increased size
       const sunGlowMaterial = new THREE.ShaderMaterial({
         uniforms: {
-          color: { value: new THREE.Color(0xFFAA33) }
+          color: { value: new THREE.Color(0xFFAA33) },
+          time: { value: 0 },
+          isNight: { value: true }  // Add new uniform for night state
         },
         vertexShader: `
           varying vec2 vUv;
@@ -233,12 +235,35 @@
         `,
         fragmentShader: `
           uniform vec3 color;
+          uniform float time;
+          uniform bool isNight;
           varying vec2 vUv;
+
+          float noise(vec2 p) {
+            return fract(sin(dot(p, vec2(12.9898, 78.233))) * 43758.5453);
+          }
+
           void main() {
-            float dist = length(vUv - vec2(0.5, 0.5)) * 2.0;
-            float alpha = 1.0 - smoothstep(0.0, 1.0, dist);
-            alpha = pow(alpha, 2.0);
-            gl_FragColor = vec4(color, alpha * 0.5);
+            vec2 center = vec2(0.5, 0.5);
+            float dist = length(vUv - center) * 2.0;
+            
+            // Create base corona shape
+            float corona = 1.0 - smoothstep(0.0, 1.0, dist);
+            corona = pow(corona, 1.5);
+            
+            // Add subtle noise variation
+            float noiseVal = noise(vUv * 5.0 + time * 0.1) * 0.1;
+            corona *= (1.0 + noiseVal);
+            
+            // Different colors for day/night
+            vec3 innerColor = isNight ? vec3(0.95, 0.95, 1.0) : vec3(1.0, 0.95, 0.8);
+            vec3 outerColor = isNight ? vec3(0.7, 0.7, 0.9) : color;
+            vec3 finalColor = mix(outerColor, innerColor, corona);
+            
+            // Reduced opacity at night
+            float alpha = corona * (isNight ? 0.2 : 0.4);
+            
+            gl_FragColor = vec4(finalColor, alpha);
           }
         `,
         transparent: true,
@@ -473,7 +498,7 @@
             scene.background.lerp(currentSkyColor, 0.05);
         }
 
-        // Make sure isNightTime is calculated correctly
+        // Calculate hour and isNightTime once
         const hour = ((fogMaterial.uniforms.sunPosition.value.x + 1) * 12);
         isNightTime = hour < 5 || hour > 19;
 
@@ -484,13 +509,25 @@
 
         // Update stars
         if (stars.length > 0) {
-            const hour = ((fogMaterial.uniforms.sunPosition.value.x + 1) * 12);
-            isNightTime = hour < 5 || hour > 19;
-            
             stars.forEach(star => {
                 star.update(deltaTime);
             });
         }
+
+        // Update sun glow time uniform
+        sunGlowMaterial.uniforms.time.value = time * 0.5;
+
+        // Update sun/moon appearance using the already calculated isNightTime
+        if (isNightTime) {
+            sunMaterial.color.setHex(0xEEEEFF); // Cooler white for moon
+            sunMaterial.opacity = 0.9;
+        } else {
+            sunMaterial.color.setHex(0xFFF7E6); // Warm white for sun
+            sunMaterial.opacity = 1.0;
+        }
+
+        // Update glow effect
+        sunGlowMaterial.uniforms.isNight.value = isNightTime;
 
         renderer.render(scene, camera);
       };
