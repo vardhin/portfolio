@@ -2,22 +2,41 @@
   import CloudRenderer from '$lib/components/CloudRenderer.svelte';
   import CosmicCanvas from '$lib/components/CosmicCanvas.svelte';
   
-  // Add mobile detection
   let isMobile = false;
+  let showMobileContent = false;
+  let showWarning = true;
   
   function checkMobile() {
     isMobile = window.innerWidth <= 768;
+  }
+
+  // Check for mobile immediately and set up delayed content
+  if (typeof window !== 'undefined') {
+    checkMobile();
+    if (isMobile) {
+      setTimeout(() => {
+        showMobileContent = true;
+      }, 1000);
+      // Hide warning after 3 seconds
+      setTimeout(() => {
+        showWarning = false;
+      }, 3000);
+    }
   }
 </script>
 
 <svelte:window on:resize={checkMobile}/>
 
 {#if isMobile}
-  <div class="mobile-warning">
-    <p>This website looks best on a desktop device.</p>
-    <p>Switching to lite version...</p>
-  </div>
-  <CosmicCanvas />
+  {#if showWarning}
+    <div class="mobile-warning" class:fade-out={!showWarning}>
+      <p>This website looks best on a desktop device.</p>
+      <p>Switching to lite version...</p>
+    </div>
+  {/if}
+  {#if showMobileContent}
+    <CosmicCanvas />
+  {/if}
 {:else}
   <CloudRenderer />
 {/if}
@@ -82,6 +101,11 @@
     text-align: center;
     z-index: 1000;
     animation: slideDown 0.5s ease-out;
+    transition: opacity 0.5s ease-out;
+  }
+
+  .fade-out {
+    opacity: 0;
   }
 
   @keyframes slideDown {
