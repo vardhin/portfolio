@@ -42,13 +42,10 @@
 {/if}
 
 <svelte:head>
+  <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400&display=swap" rel="stylesheet">
   <title>Vardhin</title>
   <style>
     body {
-      -webkit-user-select: none;
-      -moz-user-select: none;
-      -ms-user-select: none;
-      user-select: none;
       margin: 0;
       overflow: hidden;
       background: black;
@@ -56,38 +53,57 @@
   </style>
 </svelte:head>
 
-
-<main on:contextmenu|preventDefault>
-  <div class="content">
-    <h1>Welcome to the Clouds</h1>
-  </div>
-</main>
+<div class="heading-container">
+  <h1>Surya Vardhin Gamidi</h1>
+</div>
 
 <style>
-  main {
-    position: absolute;
+  .heading-container {
+    position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
+    z-index: 1001;
     pointer-events: none;
-  }
-
-  .content {
-    color: white;
-    padding: 2rem;
-    text-align: center;
-    text-shadow: 0 0 10px rgba(255,255,255,0.5);
-    pointer-events: all;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 
   h1 {
-    animation: fadeIn 2s ease-out;
+    animation: fadeIn 2.5s ease-out;
+    color: rgba(255, 255, 255, 0.85);
+    pointer-events: auto;
+    user-select: none;
+    margin: 0;
+    font-size: 3.8rem;
+    font-weight: 300;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    text-shadow: 
+      0 0 25px rgba(255, 255, 255, 0.4),
+      0 0 45px rgba(255, 255, 255, 0.2),
+      0 0 65px rgba(255, 255, 255, 0.1);
+    font-family: 'Quicksand', sans-serif;
   }
 
   @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(20px); }
-    to { opacity: 1; transform: translateY(0); }
+    from { 
+      opacity: 0; 
+      transform: translateY(30px); 
+      letter-spacing: 0.4em;
+      text-shadow: 0 0 0 rgba(255, 255, 255, 0);
+    }
+    to { 
+      opacity: 1; 
+      transform: translateY(0);
+      letter-spacing: 0.25em;
+      text-shadow: 
+        0 0 25px rgba(255, 255, 255, 0.4),
+        0 0 45px rgba(255, 255, 255, 0.2),
+        0 0 65px rgba(255, 255, 255, 0.1);
+    }
   }
 
   .mobile-warning {

@@ -14,7 +14,7 @@
     };
   
     // Add new variable to store coordinates
-    let sunCoordinates = { x: -0.7, y: -0.2 };  // Changed from -0.5 to -0.7
+    let sunCoordinates = { x: -0.6, y: -0.2 };  // Changed from -0.5, -0.3
   
     // Add new variables for time display
     let currentTime = "02:30 AM";  // Updated to match new position
@@ -198,12 +198,41 @@
         }
     }
   
+    // Add these variables near the top with other state variables
+    let keyState = {
+        left: false,
+        right: false,
+        up: false,
+        down: false
+    };
+    const MOVEMENT_SPEED = 0.2; // Reduced from 0.5
+
+    // Add these new variables near the top with other state variables
+    let scrollY = 0;
+    let maxScroll = 2000; // Adjust this value based on your needs
+    let viewportHeight;
+
+    // Update the scroll handler to be more responsive
+    function handleScroll() {
+        scrollY = window.scrollY;
+        const scrollProgress = Math.min(scrollY / (maxScroll - viewportHeight), 1);
+        
+        // Map scroll progress to sun Y position (adjust ranges as needed)
+        const newY = THREE.MathUtils.lerp(0.8, -0.8, scrollProgress);
+        
+        // Update sun position if fogMaterial exists
+        if (fogMaterial && fogMaterial.uniforms.sunPosition) {
+            fogMaterial.uniforms.sunPosition.value.y = newY;
+            sunCoordinates.y = newY.toFixed(3);
+        }
+    }
+
     onMount(() => {
       // Scene setup
       const scene = new THREE.Scene();
       
       // Force initial sky color for night time
-      scene.background = skyColors.nightLight.clone();
+      scene.background = skyColors.nightDeep.clone();
   
       // Adjust frustum size to match screen proportions
       const frustumSize = 10;  // Increased from 2 to cover more area
@@ -218,7 +247,7 @@
       });
       const sunMesh = new THREE.Mesh(sunGeometry, sunMaterial);
       sunMesh.position.set(
-        -0.7 * (frustumSize * aspect / 2),
+        -0.6 * (frustumSize * aspect / 2),
         -0.2 * (frustumSize / 2),
         -6
       );
@@ -277,7 +306,7 @@
       });
       const sunGlowMesh = new THREE.Mesh(sunGlowGeometry, sunGlowMaterial);
       sunGlowMesh.position.set(
-        -0.7 * (frustumSize * aspect / 2),
+        -0.6 * (frustumSize * aspect / 2),
         -0.2 * (frustumSize / 2),
         -6
       );
@@ -332,7 +361,7 @@
           seed: { value: Math.random() * 100.0 },
           fogTexture: { value: fogTexture },
           resolution: { value: new THREE.Vector2(window.innerWidth, window.innerHeight) },
-          sunPosition: { value: new THREE.Vector2(-0.7, -0.2) },  // Changed from -0.5 to -0.7
+          sunPosition: { value: new THREE.Vector2(-0.6, -0.2) },  // Changed from -0.5, -0.3
           cloudDensity: { value: weatherState.cloudDensity },
           windSpeed: { value: weatherState.windSpeed },
           stormIntensity: { value: weatherState.stormIntensity },
@@ -538,6 +567,52 @@
       // Add lastTime variable at the top of onMount
       let lastTime;
       
+      // Add keyboard event listeners
+      const handleKeyDown = (event) => {
+          switch(event.key.toLowerCase()) {
+              case 'arrowleft':
+              case 'a':
+                  keyState.left = true;
+                  break;
+              case 'arrowright':
+              case 'd':
+                  keyState.right = true;
+                  break;
+              case 'arrowup':
+              case 'w':
+                  keyState.up = true;
+                  break;
+              case 'arrowdown':
+              case 's':
+                  keyState.down = true;
+                  break;
+          }
+      };
+
+      const handleKeyUp = (event) => {
+          switch(event.key.toLowerCase()) {
+              case 'arrowleft':
+              case 'a':
+                  keyState.left = false;
+                  break;
+              case 'arrowright':
+              case 'd':
+                  keyState.right = false;
+                  break;
+              case 'arrowup':
+              case 'w':
+                  keyState.up = false;
+                  break;
+              case 'arrowdown':
+              case 's':
+                  keyState.down = false;
+                  break;
+          }
+      };
+
+      window.addEventListener('keydown', handleKeyDown);
+      window.addEventListener('keyup', handleKeyUp);
+
       const animate = () => {
         animationFrameId = requestAnimationFrame(animate);
         
@@ -582,8 +657,8 @@
         isNightTime = hour < 5 || hour > 19;
 
         // Calculate delta time for smooth animations
-        const currentTime = performance.now() / 1000;  // Convert to seconds
-        const deltaTime = currentTime - (lastTime || currentTime);
+        let currentTime = performance.now() / 1000;  // Convert to seconds
+        let deltaTime = currentTime - (lastTime || currentTime);
         lastTime = currentTime;
 
         // Update stars
@@ -609,6 +684,27 @@
         sunGlowMaterial.uniforms.isNight.value = isNightTime;
 
         fogMaterial.uniforms.hour.value = hour;
+
+        // Handle keyboard movement
+        if (keyState.left || keyState.right || keyState.up || keyState.down) {
+            const deltaX = ((keyState.right ? 1 : 0) - (keyState.left ? 1 : 0)) * MOVEMENT_SPEED * deltaTime;
+            const deltaY = ((keyState.up ? 1 : 0) - (keyState.down ? 1 : 0)) * MOVEMENT_SPEED * deltaTime;
+
+            const newX = THREE.MathUtils.clamp(
+                fogMaterial.uniforms.sunPosition.value.x + deltaX,
+                -1,
+                1
+            );
+            const newY = THREE.MathUtils.clamp(
+                fogMaterial.uniforms.sunPosition.value.y + deltaY,
+                -1,
+                1
+            );
+
+            fogMaterial.uniforms.sunPosition.value.set(newX, newY);
+            sunCoordinates = { x: newX.toFixed(3), y: newY.toFixed(3) };
+            currentTime = getTimeFromX(newX);
+        }
 
         renderer.render(scene, camera);
       };
@@ -650,8 +746,11 @@
           if (isDragging) {
               updateMousePosition(event);
               const aspect = container.clientWidth / container.clientHeight;
-              const newX = mouse.x / aspect;
-              const newY = mouse.y;
+              
+              // Clamp X between -1 and 1, but allow Y to move more freely
+              const newX = THREE.MathUtils.clamp(mouse.x / aspect, -1, 1);
+              const newY = THREE.MathUtils.clamp(mouse.y, -1, 1); // Allow full vertical range
+              
               fogMaterial.uniforms.sunPosition.value.set(newX, newY);
               
               // Update coordinates and time display
@@ -695,8 +794,11 @@
               const touch = event.touches[0];
               updateMousePosition(touch);
               const aspect = container.clientWidth / container.clientHeight;
-              const newX = mouse.x / aspect;
-              const newY = mouse.y;
+              
+              // Clamp X between -1 and 1, but allow Y to move more freely
+              const newX = THREE.MathUtils.clamp(mouse.x / aspect, -1, 1);
+              const newY = THREE.MathUtils.clamp(mouse.y, -1, 1); // Allow full vertical range
+              
               fogMaterial.uniforms.sunPosition.value.set(newX, newY);
               
               // Update coordinates and time display
@@ -714,8 +816,10 @@
       container.addEventListener('touchend', onMouseUp);
       container.addEventListener('touchcancel', onMouseUp);
   
-      // After everything is set up
-      isLoading = false;
+      // After everything is set up, add a delay before hiding loading screen
+      setTimeout(() => {
+          isLoading = false;
+      }, 1000);  // 1000ms = 1 second delay
   
       // Create stars and add them to the scene
       for (let i = 0; i < TOTAL_STARS; i++) {
@@ -726,6 +830,22 @@
   
       // Force initial night time state
       isNightTime = true;
+  
+      // Add these lines after scene setup
+      viewportHeight = window.innerHeight;
+      
+      // Create a scrollable container
+      const scrollContainer = document.createElement('div');
+      scrollContainer.style.height = `${maxScroll}px`;
+      scrollContainer.style.position = 'absolute';
+      scrollContainer.style.width = '100%';
+      scrollContainer.style.top = '0';
+      scrollContainer.style.left = '0';
+      scrollContainer.style.zIndex = '-1';
+      document.body.appendChild(scrollContainer);
+
+      // Add scroll event listener
+      window.addEventListener('scroll', handleScroll, { passive: true });
   
       // Cleanup
       return () => {
@@ -755,6 +875,10 @@
             star.mesh.geometry.dispose();
             star.material.dispose();
         });
+        window.removeEventListener('keydown', handleKeyDown);
+        window.removeEventListener('keyup', handleKeyUp);
+        window.removeEventListener('scroll', handleScroll);
+        document.body.removeChild(scrollContainer);
       };
     });
   
@@ -797,78 +921,102 @@
     }
   </script>
   
-  <div bind:this={container}>
+  <div class="main-container">
     {#if isLoading}
-        <div class="loading-container">
+        <div class="loading-container fade-in">
             <div class="loading-spinner"></div>
             <div class="loading-text">Loading clouds...</div>
         </div>
     {/if}
-    <div class="controls">
-        <button 
-            class="control-button" 
-            title={showClouds ? 'Hide Clouds' : 'Show Clouds'} 
-            on:click={() => showClouds = !showClouds}
-            on:touchstart|preventDefault={(e) => {
-                showClouds = !showClouds;
-                e.stopPropagation();
-            }}
-        >
-            {showClouds ? '☁️' : '🌤️'}
-        </button>
-        <button 
-            class="control-button" 
-            title={enableCloudMovement ? 'Stop Movement' : 'Start Movement'} 
-            on:click={() => enableCloudMovement = !enableCloudMovement}
-            on:touchstart|preventDefault={(e) => {
-                enableCloudMovement = !enableCloudMovement;
-                e.stopPropagation();
-            }}
-        >
-            {enableCloudMovement ? '⏸️' : '▶️'}
-        </button>
+    <div bind:this={container} class="canvas-container" class:fade-in={!isLoading}>
+        <div class="controls">
+            <button 
+                class="control-button" 
+                title={showClouds ? 'Hide Clouds' : 'Show Clouds'} 
+                on:click={() => showClouds = !showClouds}
+                on:touchstart|preventDefault={(e) => {
+                    showClouds = !showClouds;
+                    e.stopPropagation();
+                }}
+            >
+                {showClouds ? '☁️' : '🌤️'}
+            </button>
+            <button 
+                class="control-button" 
+                title={enableCloudMovement ? 'Stop Movement' : 'Start Movement'} 
+                on:click={() => enableCloudMovement = !enableCloudMovement}
+                on:touchstart|preventDefault={(e) => {
+                    enableCloudMovement = !enableCloudMovement;
+                    e.stopPropagation();
+                }}
+            >
+                {enableCloudMovement ? '⏸️' : '▶️'}
+            </button>
+        </div>
     </div>
   </div>
   
   <style>
-    div {
+    .main-container {
         width: 100%;
         height: 100vh;
         margin: 0;
         padding: 0;
         overflow: hidden;
+        position: fixed;
+        top: 0;
+        left: 0;
+        z-index: 1;
     }
 
-    .loading-container {
+    .canvas-container {
+        width: 100%;
+        height: 100%;
         position: absolute;
         top: 0;
         left: 0;
-        width: 100%;
-        height: 100%;
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 1s ease-in-out, visibility 1s ease-in-out;
+    }
+
+    .fade-in {
+        opacity: 1;
+        visibility: visible;
+    }
+
+    .loading-container {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        background: linear-gradient(135deg, #87CEEB, #E0F6FF);
+        background: linear-gradient(135deg, #f5f5f5, #e6e9f0);
         z-index: 1000;
+        opacity: 0;
+        transition: opacity 0.5s ease-in-out;
     }
 
     .loading-spinner {
         width: 60px;
         height: 60px;
-        border: 4px solid rgba(255, 255, 255, 0.3);
+        border: 4px solid rgba(0, 0, 0, 0.1);
         border-radius: 50%;
-        border-top-color: white;
+        border-top-color: #666;
         animation: spin 1s ease-in-out infinite;
         margin-bottom: 20px;
     }
 
     .loading-text {
-        color: white;
+        color: #666;
+        font-family: 'Quicksand', sans-serif;
         font-size: 1.4rem;
-        font-weight: 500;
-        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        letter-spacing: 1px;
+        font-weight: 300;
+        letter-spacing: 2px;
         text-align: center;
         padding: 0 20px;
     }
