@@ -200,32 +200,46 @@
   
     // Add these variables near the top with other state variables
     let keyState = {
-        left: false,
-        right: false,
         up: false,
         down: false
     };
     const MOVEMENT_SPEED = 0.2; // Reduced from 0.5
 
-    // Add these new variables near the top with other state variables
-    let scrollY = 0;
-    let maxScroll = 2000; // Adjust this value based on your needs
-    let viewportHeight;
+    // Remove scroll-related variables and keep only camera position
+    let cameraPosition = { x: 0, y: 0 };
+    const CAMERA_MOVEMENT_SPEED = 8.0;  // Increased from 2.0
 
-    // Update the scroll handler to be more responsive
-    function handleScroll() {
-        scrollY = window.scrollY;
-        const scrollProgress = Math.min(scrollY / (maxScroll - viewportHeight), 1);
-        
-        // Map scroll progress to sun Y position (adjust ranges as needed)
-        const newY = THREE.MathUtils.lerp(0.8, -0.8, scrollProgress);
-        
-        // Update sun position if fogMaterial exists
-        if (fogMaterial && fogMaterial.uniforms.sunPosition) {
-            fogMaterial.uniforms.sunPosition.value.y = newY;
-            sunCoordinates.y = newY.toFixed(3);
+    // Add near the top with other state variables
+    let isDebugView = false;
+    let originalFrustumSize = 10;
+    let debugFrustumSize = 60; // This will show 6x more area
+
+    // Add these new variables near the top with other state variables
+    let targetCameraY = 0;
+    const CAMERA_SMOOTHING = 0.1;  // Adjust this value between 0-1 (lower = smoother)
+
+    // Add these functions before the onMount
+    const handleNavButtonPress = (direction) => {
+        switch(direction) {
+            case 'up':
+                keyState.up = true;
+                break;
+            case 'down':
+                keyState.down = true;
+                break;
         }
-    }
+    };
+
+    const handleNavButtonRelease = (direction) => {
+        switch(direction) {
+            case 'up':
+                keyState.up = false;
+                break;
+            case 'down':
+                keyState.down = false;
+                break;
+        }
+    };
 
     onMount(() => {
       // Scene setup
@@ -235,7 +249,7 @@
       scene.background = skyColors.nightDeep.clone();
   
       // Adjust frustum size to match screen proportions
-      const frustumSize = 10;  // Increased from 2 to cover more area
+      const frustumSize = 10;  // Back to default zoom
       const aspect = window.innerWidth / window.innerHeight;
   
       // Add sun mesh
@@ -315,8 +329,8 @@
   
       // Add thin fog layer
       const thinFogGeometry = new THREE.PlaneGeometry(
-        frustumSize * aspect,
-        frustumSize
+        frustumSize * aspect * 6,
+        frustumSize * 6
       );
       const thinFogMaterial = new THREE.MeshBasicMaterial({
         color: 0xFFFFFF,
@@ -361,12 +375,13 @@
           seed: { value: Math.random() * 100.0 },
           fogTexture: { value: fogTexture },
           resolution: { value: new THREE.Vector2(window.innerWidth, window.innerHeight) },
-          sunPosition: { value: new THREE.Vector2(-0.6, -0.2) },  // Changed from -0.5, -0.3
+          sunPosition: { value: new THREE.Vector2(-0.6, -0.2) },
           cloudDensity: { value: weatherState.cloudDensity },
           windSpeed: { value: weatherState.windSpeed },
           stormIntensity: { value: weatherState.stormIntensity },
           rainIntensity: { value: weatherState.rainIntensity },
-          hour: { value: 0.0 }
+          hour: { value: 0.0 },
+          cameraOffset: { value: new THREE.Vector2(0, 0) }
         },
         vertexShader: `
           varying vec3 vPosition;
@@ -383,6 +398,7 @@
           uniform vec2 resolution;
           uniform vec2 sunPosition;
           uniform float hour;
+          uniform vec2 cameraOffset;
           varying vec3 vPosition;
           varying vec2 vUv;
   
@@ -420,10 +436,11 @@
           }
   
           void main() {
-            vec2 moveUV = vPosition.xy;
+            // Calculate world-space position by adding camera offset
+            vec2 worldPos = vPosition.xy + cameraOffset;
             
-            moveUV -= vec2(time * 0.08, 0.0);
-            
+            // Use world position for cloud generation
+            vec2 moveUV = worldPos + vec2(-time * 0.08, 0.0);
             moveUV *= 0.5;
             
             float baseLayer = fbm(moveUV * 0.7);
@@ -533,16 +550,16 @@
         transparent: true,
       });
   
-      // Create a plane that matches the camera frustum
+      // Create a plane that's larger than the camera frustum
       const planeGeometry = new THREE.PlaneGeometry(
-          frustumSize * aspect,
-          frustumSize
+        frustumSize * aspect * 6, // Increased from 3 to 6
+        frustumSize * 6           // Increased from 3 to 6
       );
       const fogPlane = new THREE.Mesh(planeGeometry, fogMaterial);
       fogPlane.position.z = -5;
       scene.add(fogPlane);
   
-      // Position camera
+      // Position camera closer
       camera.position.z = 5;
   
       // Update resize handler
@@ -570,14 +587,6 @@
       // Add keyboard event listeners
       const handleKeyDown = (event) => {
           switch(event.key.toLowerCase()) {
-              case 'arrowleft':
-              case 'a':
-                  keyState.left = true;
-                  break;
-              case 'arrowright':
-              case 'd':
-                  keyState.right = true;
-                  break;
               case 'arrowup':
               case 'w':
                   keyState.up = true;
@@ -591,14 +600,6 @@
 
       const handleKeyUp = (event) => {
           switch(event.key.toLowerCase()) {
-              case 'arrowleft':
-              case 'a':
-                  keyState.left = false;
-                  break;
-              case 'arrowright':
-              case 'd':
-                  keyState.right = false;
-                  break;
               case 'arrowup':
               case 'w':
                   keyState.up = false;
@@ -616,11 +617,32 @@
       const animate = () => {
         animationFrameId = requestAnimationFrame(animate);
         
+        // Calculate delta time
+        let currentTime = performance.now() / 1000;
+        let deltaTime = currentTime - (lastTime || currentTime);
+        lastTime = currentTime;
+        
+        // Update target camera position based on key state
+        if (keyState.up || keyState.down) {
+            const moveDirection = (keyState.up ? 1 : 0) - (keyState.down ? 1 : 0);
+            targetCameraY += moveDirection * CAMERA_MOVEMENT_SPEED * deltaTime;
+        }
+        
+        // Smoothly interpolate camera position
+        cameraPosition.y += (targetCameraY - cameraPosition.y) * CAMERA_SMOOTHING;
+        
+        // Update positions with smoothed camera position
+        camera.position.y = cameraPosition.y;
+        fogPlane.position.y = cameraPosition.y;
+        thinFogPlane.position.y = cameraPosition.y;
+        
+        // Update camera offset uniform in shader with smoothed position
+        fogMaterial.uniforms.cameraOffset.value.set(0, cameraPosition.y);
+        
         const currentSunX = fogMaterial.uniforms.sunPosition.value.x;
         const sunMovementSpeed = Math.abs(currentSunX - previousSunX);
         previousSunX = currentSunX;
         
-        // Only increment time if cloud movement is enabled
         if (enableCloudMovement) {
             const baseTimeIncrement = 0.015;
             const timeIncrement = baseTimeIncrement + (sunMovementSpeed * speedMultiplier);
@@ -629,22 +651,28 @@
         
         fogMaterial.uniforms.time.value = time;
         
-        // Update cloud visibility
         if (fogPlane) {
             fogPlane.visible = showClouds;
         }
         
-        // Update the wind speed uniform with a much higher multiplier
         fogMaterial.uniforms.windSpeed.value = weatherState.windSpeed * (1.0 + sunMovementSpeed * speedMultiplier * 2);
         
-        // Update sun and glow position
+        // Update sun and glow position - remove camera position offset
         const aspect = container.clientWidth / container.clientHeight;
         const sunX = fogMaterial.uniforms.sunPosition.value.x * (frustumSize * aspect / 2);
         const sunY = fogMaterial.uniforms.sunPosition.value.y * (frustumSize / 2);
-        sunMesh.position.x = sunX;
-        sunMesh.position.y = sunY;
-        sunGlowMesh.position.x = sunX;
-        sunGlowMesh.position.y = sunY;
+        
+        // Update sun position without adding camera offset
+        sunMesh.position.set(
+            sunX + camera.position.x,  // Add camera offset to keep sun fixed relative to view
+            sunY + camera.position.y,
+            sunMesh.position.z
+        );
+        sunGlowMesh.position.set(
+            sunX + camera.position.x,
+            sunY + camera.position.y,
+            sunGlowMesh.position.z
+        );
 
         // Much gentler sky color transitions
         const currentSkyColor = getSkyColor(fogMaterial.uniforms.sunPosition.value.x);
@@ -655,11 +683,6 @@
         // Calculate hour and isNightTime once
         const hour = ((fogMaterial.uniforms.sunPosition.value.x + 1) * 12);
         isNightTime = hour < 5 || hour > 19;
-
-        // Calculate delta time for smooth animations
-        let currentTime = performance.now() / 1000;  // Convert to seconds
-        let deltaTime = currentTime - (lastTime || currentTime);
-        lastTime = currentTime;
 
         // Update stars
         if (stars.length > 0) {
@@ -685,26 +708,19 @@
 
         fogMaterial.uniforms.hour.value = hour;
 
-        // Handle keyboard movement
-        if (keyState.left || keyState.right || keyState.up || keyState.down) {
-            const deltaX = ((keyState.right ? 1 : 0) - (keyState.left ? 1 : 0)) * MOVEMENT_SPEED * deltaTime;
-            const deltaY = ((keyState.up ? 1 : 0) - (keyState.down ? 1 : 0)) * MOVEMENT_SPEED * deltaTime;
-
-            const newX = THREE.MathUtils.clamp(
-                fogMaterial.uniforms.sunPosition.value.x + deltaX,
-                -1,
-                1
-            );
-            const newY = THREE.MathUtils.clamp(
-                fogMaterial.uniforms.sunPosition.value.y + deltaY,
-                -1,
-                1
-            );
-
-            fogMaterial.uniforms.sunPosition.value.set(newX, newY);
-            sunCoordinates = { x: newX.toFixed(3), y: newY.toFixed(3) };
-            currentTime = getTimeFromX(newX);
+        // Update camera frustum based on debug view
+        if (isDebugView) {
+            camera.left = debugFrustumSize * aspect / -2;
+            camera.right = debugFrustumSize * aspect / 2;
+            camera.top = debugFrustumSize / 2;
+            camera.bottom = debugFrustumSize / -2;
+        } else {
+            camera.left = originalFrustumSize * aspect / -2;
+            camera.right = originalFrustumSize * aspect / 2;
+            camera.top = originalFrustumSize / 2;
+            camera.bottom = originalFrustumSize / -2;
         }
+        camera.updateProjectionMatrix();
 
         renderer.render(scene, camera);
       };
@@ -747,10 +763,11 @@
               updateMousePosition(event);
               const aspect = container.clientWidth / container.clientHeight;
               
-              // Clamp X between -1 and 1, but allow Y to move more freely
+              // Calculate new sun position in view space
               const newX = THREE.MathUtils.clamp(mouse.x / aspect, -1, 1);
-              const newY = THREE.MathUtils.clamp(mouse.y, -1, 1); // Allow full vertical range
+              const newY = THREE.MathUtils.clamp(mouse.y, -1, 1);
               
+              // Update sun position without considering camera position
               fogMaterial.uniforms.sunPosition.value.set(newX, newY);
               
               // Update coordinates and time display
@@ -795,10 +812,11 @@
               updateMousePosition(touch);
               const aspect = container.clientWidth / container.clientHeight;
               
-              // Clamp X between -1 and 1, but allow Y to move more freely
+              // Calculate new sun position in view space
               const newX = THREE.MathUtils.clamp(mouse.x / aspect, -1, 1);
-              const newY = THREE.MathUtils.clamp(mouse.y, -1, 1); // Allow full vertical range
+              const newY = THREE.MathUtils.clamp(mouse.y, -1, 1);
               
+              // Update sun position without considering camera position
               fogMaterial.uniforms.sunPosition.value.set(newX, newY);
               
               // Update coordinates and time display
@@ -831,22 +849,6 @@
       // Force initial night time state
       isNightTime = true;
   
-      // Add these lines after scene setup
-      viewportHeight = window.innerHeight;
-      
-      // Create a scrollable container
-      const scrollContainer = document.createElement('div');
-      scrollContainer.style.height = `${maxScroll}px`;
-      scrollContainer.style.position = 'absolute';
-      scrollContainer.style.width = '100%';
-      scrollContainer.style.top = '0';
-      scrollContainer.style.left = '0';
-      scrollContainer.style.zIndex = '-1';
-      document.body.appendChild(scrollContainer);
-
-      // Add scroll event listener
-      window.addEventListener('scroll', handleScroll, { passive: true });
-  
       // Cleanup
       return () => {
         cancelAnimationFrame(animationFrameId);
@@ -877,8 +879,6 @@
         });
         window.removeEventListener('keydown', handleKeyDown);
         window.removeEventListener('keyup', handleKeyUp);
-        window.removeEventListener('scroll', handleScroll);
-        document.body.removeChild(scrollContainer);
       };
     });
   
@@ -934,10 +934,6 @@
                 class="control-button" 
                 title={showClouds ? 'Hide Clouds' : 'Show Clouds'} 
                 on:click={() => showClouds = !showClouds}
-                on:touchstart|preventDefault={(e) => {
-                    showClouds = !showClouds;
-                    e.stopPropagation();
-                }}
             >
                 {showClouds ? '☁️' : '🌤️'}
             </button>
@@ -945,12 +941,39 @@
                 class="control-button" 
                 title={enableCloudMovement ? 'Stop Movement' : 'Start Movement'} 
                 on:click={() => enableCloudMovement = !enableCloudMovement}
-                on:touchstart|preventDefault={(e) => {
-                    enableCloudMovement = !enableCloudMovement;
-                    e.stopPropagation();
-                }}
             >
                 {enableCloudMovement ? '⏸️' : '▶️'}
+            </button>
+            <button 
+                class="control-button" 
+                title={isDebugView ? 'Normal View' : 'Debug View'} 
+                on:click={() => isDebugView = !isDebugView}
+            >
+                {isDebugView ? '🔍' : '🔎'}
+            </button>
+        </div>
+        
+        <!-- Add navigation controls -->
+        <div class="navigation-controls">
+            <button 
+                class="nav-button up"
+                on:mousedown={() => handleNavButtonPress('up')}
+                on:mouseup={() => handleNavButtonRelease('up')}
+                on:mouseleave={() => handleNavButtonRelease('up')}
+                on:touchstart|preventDefault={() => handleNavButtonPress('up')}
+                on:touchend|preventDefault={() => handleNavButtonRelease('up')}
+            >
+                ↑
+            </button>
+            <button 
+                class="nav-button down"
+                on:mousedown={() => handleNavButtonPress('down')}
+                on:mouseup={() => handleNavButtonRelease('down')}
+                on:mouseleave={() => handleNavButtonRelease('down')}
+                on:touchstart|preventDefault={() => handleNavButtonPress('down')}
+                on:touchend|preventDefault={() => handleNavButtonRelease('down')}
+            >
+                ↓
             </button>
         </div>
     </div>
@@ -1075,6 +1098,59 @@
         .controls {
             top: 24px;
             left: 24px;
+            gap: 16px;
+        }
+    }
+
+    .navigation-controls {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        z-index: 1000;
+    }
+
+    .nav-button {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        color: white;
+        font-size: 24px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        backdrop-filter: blur(8px);
+        transition: all 0.2s ease;
+        padding: 0;
+        -webkit-tap-highlight-color: transparent;
+        touch-action: manipulation;
+    }
+
+    .nav-button:hover {
+        background: rgba(255, 255, 255, 0.2);
+        transform: scale(1.05);
+    }
+
+    .nav-button:active {
+        transform: scale(0.95);
+    }
+
+    /* Make buttons larger on touch devices */
+    @media (pointer: coarse) {
+        .nav-button {
+            width: 60px;
+            height: 60px;
+            font-size: 28px;
+        }
+        
+        .navigation-controls {
+            bottom: 24px;
+            right: 24px;
             gap: 16px;
         }
     }
