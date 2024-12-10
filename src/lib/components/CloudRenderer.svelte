@@ -3,9 +3,17 @@
     import * as THREE from 'three';
     import { spring } from 'svelte/motion';
     import { fade, fly } from 'svelte/transition';
+    import Cloud from 'lucide-svelte/icons/cloud';
+    import CloudSun from 'lucide-svelte/icons/cloud-sun';
+    import Pause from 'lucide-svelte/icons/pause';
+    import Play from 'lucide-svelte/icons/play';
+    import ChevronUp from 'lucide-svelte/icons/chevron-up';
+    import ChevronDown from 'lucide-svelte/icons/chevron-down';
+    import Link from 'lucide-svelte/icons/link';
+    import Github from 'lucide-svelte/icons/github';
   
     let container;
-    let isLoading = true;
+    let showIntro = true;
   
     // Add weather state
     let weatherState = {
@@ -220,20 +228,30 @@
     let targetCameraY = 0;
     const CAMERA_SMOOTHING = 0.1;  // Adjust this value between 0-1 (lower = smoother)
 
-    // Add these functions before the onMount
+    // Add these constants near the top with other state variables
+    const MIN_SECTION = 0;
+    const MAX_SECTION = 3;  // sections.length - 1
+
+    // Update the handleNavButtonPress function
     const handleNavButtonPress = (direction) => {
         switch(direction) {
             case 'up':
                 keyState.up = true;
-                if (currentSection > 0) currentSection--;
+                if (currentSection > MIN_SECTION) {
+                    currentSection--;
+                    // Update spring store
+                    sectionSpring.set({ y: currentSection * -100 });
+                }
                 break;
             case 'down':
                 keyState.down = true;
-                if (currentSection < sections.length - 1) currentSection++;
+                if (currentSection < MAX_SECTION) {
+                    currentSection++;
+                    // Update spring store
+                    sectionSpring.set({ y: currentSection * -100 });
+                }
                 break;
         }
-        // Update spring store
-        sectionSpring.set({ y: currentSection * -100 });
     };
 
     const handleNavButtonRelease = (direction) => {
@@ -247,9 +265,81 @@
         }
     };
 
+    // Modify the mouse interaction variables
+    let mousePosition = { x: 0, y: 0 };
+    let normalizedMousePosition = { x: 0, y: 0 };
+    let isDragging = false;
+
+    // Update the mouse handlers
+    const updateMousePosition = (event) => {
+        const rect = container.getBoundingClientRect();
+        
+        // Calculate normalized coordinates (-1 to 1)
+        normalizedMousePosition.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+        normalizedMousePosition.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+    };
+
+    const onMouseDown = (event) => {
+        updateMousePosition(event);
+        const sunPos = fogMaterial.uniforms.sunPosition.value;
+        
+        // Calculate distance in normalized coordinates
+        const distance = Math.sqrt(
+            Math.pow((normalizedMousePosition.x - sunPos.x), 2) + 
+            Math.pow(normalizedMousePosition.y - sunPos.y, 2)
+        );
+        
+        // Reduced hit area from 0.6 to 0.3
+        if (distance < 0.06) {
+            isDragging = true;
+            container.style.cursor = 'grabbing';
+        }
+    };
+
+    const onMouseMove = (event) => {
+        updateMousePosition(event);
+        
+        if (isDragging && fogMaterial) {
+            // Update sun position directly with normalized coordinates
+            const newX = THREE.MathUtils.clamp(normalizedMousePosition.x, -1, 1);
+            const newY = THREE.MathUtils.clamp(normalizedMousePosition.y, -1, 1);
+            
+            // Update sun position
+            fogMaterial.uniforms.sunPosition.value.set(newX, newY);
+            
+            // Update coordinates and time display
+            sunCoordinates = { x: newX.toFixed(3), y: newY.toFixed(3) };
+            currentTime = getTimeFromX(newX);
+            
+            // Update sky color
+            scene.background = getSkyColor(newX);
+        }
+    };
+
+    const onMouseUp = () => {
+        isDragging = false;
+        container.style.cursor = 'default';
+    };
+
+    // Add fogMaterial to component scope
+    let fogMaterial;
+    let scene;  // Also add scene to component scope
+
+    // Add these lerp helper functions near the top
+    function lerp(start, end, t) {
+        return start * (1 - t) + end * t;
+    }
+
+    function lerpVector2(v1, v2, t) {
+        return {
+            x: lerp(v1.x, v2.x, t),
+            y: lerp(v1.y, v2.y, t)
+        };
+    }
+
     onMount(() => {
       // Scene setup
-      const scene = new THREE.Scene();
+      scene = new THREE.Scene();  // Remove 'const' to use component-scoped variable
       
       // Force initial sky color for night time
       scene.background = skyColors.nightDeep.clone();
@@ -375,7 +465,8 @@
       fogTexture.unpackAlignment = 1;
       fogTexture.needsUpdate = true;
   
-      const fogMaterial = new THREE.ShaderMaterial({
+      // Create fog material and store in component-scoped variable
+      fogMaterial = new THREE.ShaderMaterial({
         uniforms: {
           time: { value: 0 },
           seed: { value: Math.random() * 100.0 },
@@ -387,7 +478,7 @@
           stormIntensity: { value: weatherState.stormIntensity },
           rainIntensity: { value: weatherState.rainIntensity },
           hour: { value: 0.0 },
-          cameraOffset: { value: new THREE.Vector2(0, 0) }
+          cameraOffset: { value: new THREE.Vector2(0, 0) },
         },
         vertexShader: `
           varying vec3 vPosition;
@@ -445,7 +536,7 @@
             // Calculate world-space position by adding camera offset
             vec2 worldPos = vPosition.xy + cameraOffset;
             
-            // Use world position for cloud generation
+            // Use normal coordinates for cloud movement (removed mouse distortion)
             vec2 moveUV = worldPos + vec2(-time * 0.08, 0.0);
             moveUV *= 0.5;
             
@@ -463,7 +554,7 @@
             float secondarySparsity = fbm(moveUV * 0.3);
             f *= smoothstep(0.6, 0.95, secondarySparsity);
             
-            // Define cloud colors for different times with smoother transitions
+            // Define cloud colors with smoother transitions
             vec3 cloudBright;
             vec3 cloudDark;
             
@@ -596,10 +687,18 @@
               case 'arrowup':
               case 'w':
                   keyState.up = true;
+                  if (currentSection > MIN_SECTION) {
+                      currentSection--;
+                      sectionSpring.set({ y: currentSection * -100 });
+                  }
                   break;
               case 'arrowdown':
               case 's':
                   keyState.down = true;
+                  if (currentSection < MAX_SECTION) {
+                      currentSection++;
+                      sectionSpring.set({ y: currentSection * -100 });
+                  }
                   break;
           }
       };
@@ -609,10 +708,12 @@
               case 'arrowup':
               case 'w':
                   keyState.up = false;
+                  handleNavButtonRelease('up');
                   break;
               case 'arrowdown':
               case 's':
                   keyState.down = false;
+                  handleNavButtonRelease('down');
                   break;
           }
       };
@@ -663,7 +764,7 @@
             previousSunX = currentSunX;
             
             if (enableCloudMovement) {
-                const baseTimeIncrement = 0.015;
+                const baseTimeIncrement = 0.018;
                 const timeIncrement = baseTimeIncrement + (sunMovementSpeed * speedMultiplier);
                 time += timeIncrement;
             }
@@ -727,137 +828,24 @@
 
             fogMaterial.uniforms.hour.value = hour;
 
-            // Update camera frustum based on debug view
-            if (isDebugView) {
-                camera.left = debugFrustumSize * aspect / -2;
-                camera.right = debugFrustumSize * aspect / 2;
-                camera.top = debugFrustumSize / 2;
-                camera.bottom = debugFrustumSize / -2;
-            } else {
-                camera.left = originalFrustumSize * aspect / -2;
-                camera.right = originalFrustumSize * aspect / 2;
-                camera.top = originalFrustumSize / 2;
-                camera.bottom = originalFrustumSize / -2;
-            }
-            camera.updateProjectionMatrix();
-
             // Render the scene
             renderer.render(scene, camera);
         }
       };
       animate();
   
-      // Add mouse interaction handling
-      let isDragging = false;
-      const mouse = new THREE.Vector2();
-      
-      // Update mouse position calculation
-      const updateMousePosition = (event) => {
-          const rect = container.getBoundingClientRect();
-          const aspect = rect.width / rect.height;
-          
-          // Map to scene coordinates with aspect ratio correction
-          const x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
-          const y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
-          
-          mouse.x = x * aspect;
-          mouse.y = y;
-      };
-
-      const onMouseDown = (event) => {
-          updateMousePosition(event);
-          const sunPos = fogMaterial.uniforms.sunPosition.value;
-          const aspect = container.clientWidth / container.clientHeight;
-          
-          const distance = Math.sqrt(
-              Math.pow((mouse.x - sunPos.x * aspect), 2) + 
-              Math.pow(mouse.y - sunPos.y, 2)
-          );
-          
-          if (distance < 0.45) {
-              isDragging = true;
-          }
-      };
-
-      const onMouseMove = (event) => {
-          if (isDragging) {
-              updateMousePosition(event);
-              const aspect = container.clientWidth / container.clientHeight;
-              
-              // Calculate new sun position in view space
-              const newX = THREE.MathUtils.clamp(mouse.x / aspect, -1, 1);
-              const newY = THREE.MathUtils.clamp(mouse.y, -1, 1);
-              
-              // Update sun position without considering camera position
-              fogMaterial.uniforms.sunPosition.value.set(newX, newY);
-              
-              // Update coordinates and time display
-              sunCoordinates = { x: newX.toFixed(3), y: newY.toFixed(3) };
-              currentTime = getTimeFromX(newX);
-              
-              // Update sky color
-              scene.background = getSkyColor(newX);
-          }
-      };
-
-      const onMouseUp = () => {
-          isDragging = false;
-      };
-
+      // Add touch event listeners
       container.addEventListener('mousedown', onMouseDown);
       container.addEventListener('mousemove', onMouseMove);
       container.addEventListener('mouseup', onMouseUp);
       container.addEventListener('mouseleave', onMouseUp);
   
-      const onTouchStart = (event) => {
-          event.preventDefault();
-          const touch = event.touches[0];
-          updateMousePosition(touch);
-          const sunPos = fogMaterial.uniforms.sunPosition.value;
-          const aspect = container.clientWidth / container.clientHeight;
-          
-          const distance = Math.sqrt(
-              Math.pow((mouse.x - sunPos.x * aspect), 2) + 
-              Math.pow(mouse.y - sunPos.y, 2)
-          );
-          
-          if (distance < 0.45) {
-              isDragging = true;
-          }
-      };
-
-      const onTouchMove = (event) => {
-          event.preventDefault();
-          if (isDragging) {
-              const touch = event.touches[0];
-              updateMousePosition(touch);
-              const aspect = container.clientWidth / container.clientHeight;
-              
-              // Calculate new sun position in view space
-              const newX = THREE.MathUtils.clamp(mouse.x / aspect, -1, 1);
-              const newY = THREE.MathUtils.clamp(mouse.y, -1, 1);
-              
-              // Update sun position without considering camera position
-              fogMaterial.uniforms.sunPosition.value.set(newX, newY);
-              
-              // Update coordinates and time display
-              sunCoordinates = { x: newX.toFixed(3), y: newY.toFixed(3) };
-              currentTime = getTimeFromX(newX);
-              
-              // Update sky color
-              scene.background = getSkyColor(newX);
-          }
-      };
-
-      // Add touch event listeners
-      container.addEventListener('touchstart', onTouchStart);
-      container.addEventListener('touchmove', onTouchMove);
-      container.addEventListener('touchend', onMouseUp);
-      container.addEventListener('touchcancel', onMouseUp);
-  
       // After everything is set up, add a delay before hiding loading screen
       setTimeout(() => {
-          isLoading = false;
+          showIntro = true;
+          if (container) {
+              container.style.opacity = '1';
+          }
       }, 1000);  // 1000ms = 1 second delay
   
       // Create stars and add them to the scene
@@ -869,6 +857,9 @@
   
       // Force initial night time state
       isNightTime = true;
+  
+      // Add mousemove event listener
+      container.addEventListener('mousemove', updateMousePosition);
   
       // Cleanup
       return () => {
@@ -900,6 +891,7 @@
         });
         window.removeEventListener('keydown', handleKeyDown);
         window.removeEventListener('keyup', handleKeyUp);
+        container.removeEventListener('mousemove', updateMousePosition);
       };
     });
   
@@ -944,7 +936,7 @@
     // Add new state variables
     let currentSection = 0;
     const sections = [
-        { id: 'intro', title: 'Your Name' },
+        { id: 'intro', title: 'Surya Vardhin Gamidi' },
         { id: 'projects', title: 'Projects' },
         { id: 'about', title: 'About' },
         { id: 'contact', title: 'Contact' }
@@ -955,37 +947,37 @@
         stiffness: 0.1,
         damping: 0.7
     });
-  </script>
+
+    // Create a sequence of transitions
+    const startSequence = async () => {
+        if (container) {
+            container.style.opacity = '1';
+        }
+    };
+
+    startSequence();
+</script>
   
   <div class="main-container">
-    {#if isLoading}
-        <div class="loading-container fade-in">
-            <div class="loading-spinner"></div>
-            <div class="loading-text">Loading clouds...</div>
-        </div>
-    {/if}
-    <div bind:this={container} class="canvas-container" class:fade-in={!isLoading}>
+    <div bind:this={container} 
+         class="canvas-container" 
+         style="opacity: 0; 
+                transition: opacity 1s ease-in-out;
+                background: #000000;">
         <div class="controls">
             <button 
                 class="control-button" 
                 title={showClouds ? 'Hide Clouds' : 'Show Clouds'} 
                 on:click={() => showClouds = !showClouds}
             >
-                {showClouds ? '☁️' : '🌤️'}
+                <svelte:component this={showClouds ? Cloud : CloudSun} size={20} />
             </button>
             <button 
                 class="control-button" 
                 title={enableCloudMovement ? 'Stop Movement' : 'Start Movement'} 
                 on:click={() => enableCloudMovement = !enableCloudMovement}
             >
-                {enableCloudMovement ? '⏸️' : '▶️'}
-            </button>
-            <button 
-                class="control-button" 
-                title={isDebugView ? 'Normal View' : 'Debug View'} 
-                on:click={() => isDebugView = !isDebugView}
-            >
-                {isDebugView ? '🔍' : '🔎'}
+                <svelte:component this={enableCloudMovement ? Pause : Play} size={20} />
             </button>
         </div>
         
@@ -999,7 +991,7 @@
                 on:touchstart|preventDefault={() => handleNavButtonPress('up')}
                 on:touchend|preventDefault={() => handleNavButtonRelease('up')}
             >
-                ↑
+                <ChevronUp size={24} />
             </button>
             <button 
                 class="nav-button down"
@@ -1009,35 +1001,84 @@
                 on:touchstart|preventDefault={() => handleNavButtonPress('down')}
                 on:touchend|preventDefault={() => handleNavButtonRelease('down')}
             >
-                ↓
+                <ChevronDown size={24} />
             </button>
         </div>
     </div>
 
-    <!-- Add new content overlay -->
-    <div class="content-overlay" style="transform: translateY({$sectionSpring.y}vh)">
+    <!-- Modified content overlay -->
+    <div class="content-overlay" 
+         style="transform: translateY({$sectionSpring.y}vh)">
         {#each sections as section, i}
             <section 
                 class="portfolio-section" 
                 class:active={currentSection === i}
             >
-                {#if section.id === 'intro'}
+                {#if section.id === 'intro' && showIntro}
                     <div class="intro-content" 
                          in:fly="{{ y: 50, duration: 1000, delay: 500 }}"
                          out:fade>
-                        <h1>Your Name</h1>
+                        <div class="particle-container">
+                            {#each Array(100) as _, i}
+                                <div
+                                    class="void-particle"
+                                    style="
+                                        left: 50%;
+                                        top: 50%;
+                                        width: {Math.random() * 3 + 1}px;
+                                        height: {Math.random() * 3 + 1}px;
+                                        --start-x: {(Math.random() - 0.5) * 1000}px;
+                                        --start-y: {(Math.random() - 0.5) * 1000}px;
+                                        --mid-x: {(Math.random() - 0.5) * 200}px;
+                                        --mid-y: {(Math.random() - 0.5) * 200}px;
+                                        --end-x: {(Math.random() - 0.5) * 50}px;
+                                        --end-y: {(Math.random() - 0.5) * 50}px;
+                                        animation: particleConverge 2.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+                                        animation-delay: {Math.random() * 0.5}s;
+                                    "
+                                />
+                            {/each}
+                        </div>
+                        <h1>
+                            {#each 'Surya Vardhin Gamidi' as char, i}
+                                <span style="animation-delay: {i * 0.08}s">
+                                    {char === ' ' ? '\u00A0' : char}
+                                </span>
+                            {/each}
+                        </h1>
                         <p>Web Developer & Designer</p>
                     </div>
                 {:else if section.id === 'projects'}
-                    <div class="projects-grid"
+                    <div class="projects-container"
                          in:fly="{{ y: 50, duration: 1000 }}"
                          out:fade>
-                        <!-- Add your project cards here -->
-                        <div class="project-card">
-                            <h3>Project 1</h3>
-                            <p>Description</p>
+                        <div class="projects-grid">
+                            <div class="project-card">
+                                <div class="project-image">
+                                    <div class="project-placeholder"></div>
+                                </div>
+                                <div class="project-content">
+                                    <h3>Project Name</h3>
+                                    <div class="tech-stack">
+                                        <span class="tech-tag">React</span>
+                                        <span class="tech-tag">Node.js</span>
+                                        <span class="tech-tag">MongoDB</span>
+                                    </div>
+                                    <p class="project-description">
+                                        A brief description of the project and its key features.
+                                    </p>
+                                    <div class="project-links">
+                                        <a href="/projects/demo" class="project-link" target="_blank" rel="noopener noreferrer">
+                                            <Link size={16} /> Live Demo
+                                        </a>
+                                        <a href="https://github.com/yourusername/projectname" class="project-link" target="_blank" rel="noopener noreferrer">
+                                            <Github size={16} /> GitHub
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Add more project cards with the same structure -->
                         </div>
-                        <!-- Add more project cards -->
                     </div>
                 {:else if section.id === 'about'}
                     <div class="about-content"
@@ -1060,6 +1101,23 @@
   </div>
   
   <style>
+    :global(*) {
+        font-family: 'Quicksand', sans-serif;
+        color: white;
+        box-sizing: border-box;
+    }
+
+    :global(body) {
+        overflow: hidden; /* Hide scrollbar */
+        margin: 0;
+        padding: 0;
+        background: #000000;  /* Pure black background */
+    }
+
+    :global(::-webkit-scrollbar) {
+        display: none; /* Hide scrollbar for Chrome/Safari/Opera */
+    }
+
     .main-container {
         width: 100%;
         height: 100vh;
@@ -1079,55 +1137,13 @@
         top: 0;
         left: 0;
         opacity: 0;
-        visibility: hidden;
-        transition: opacity 1s ease-in-out, visibility 1s ease-in-out;
+        transition: opacity 1s ease-in-out;
+        background: #000000;  /* Pure black background */
     }
 
     .fade-in {
         opacity: 1;
         visibility: visible;
-    }
-
-    .loading-container {
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        background: linear-gradient(135deg, #f5f5f5, #e6e9f0);
-        z-index: 1000;
-        opacity: 0;
-        transition: opacity 0.5s ease-in-out;
-    }
-
-    .loading-spinner {
-        width: 60px;
-        height: 60px;
-        border: 4px solid rgba(0, 0, 0, 0.1);
-        border-radius: 50%;
-        border-top-color: #666;
-        animation: spin 1s ease-in-out infinite;
-        margin-bottom: 20px;
-    }
-
-    .loading-text {
-        color: #666;
-        font-family: 'Quicksand', sans-serif;
-        font-size: 1.4rem;
-        font-weight: 300;
-        letter-spacing: 2px;
-        text-align: center;
-        padding: 0 20px;
-    }
-
-    @keyframes spin {
-        to {
-            transform: rotate(360deg);
-        }
     }
 
     .controls {
@@ -1243,6 +1259,8 @@
         height: 100vh;
         z-index: 2;
         transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        pointer-events: auto;
+        user-select: text;
     }
 
     .portfolio-section {
@@ -1263,52 +1281,415 @@
     .intro-content {
         text-align: center;
         color: white;
+        z-index: 10;
+        position: relative;
     }
 
     .intro-content h1 {
         font-family: 'Quicksand', sans-serif;
         font-weight: 300;
-        font-size: 8vw;
+        font-size: 3.5rem;
         margin: 0;
         letter-spacing: 0.2em;
-        text-shadow: 0 0 20px rgba(0,0,0,0.3);
+        position: relative;
+    }
+
+    .intro-content h1 span {
+        display: inline-block;
+        opacity: 0;
+        position: relative;
+        animation: emergeFromVoid 1.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
     }
 
     .intro-content p {
         font-family: 'Quicksand', sans-serif;
         font-weight: 300;
-        font-size: 2vw;
-        margin-top: 1rem;
-        opacity: 0.8;
+        font-size: 1.8rem;
+        margin-top: 2rem;
+        opacity: 0;
+        animation: fadeFromDistance 2s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        animation-delay: 2s;
+        letter-spacing: 0.1em;
+    }
+
+    @keyframes emergeFromVoid {
+        0% {
+            opacity: 0;
+            transform: perspective(1000px) translateZ(-300px) scale(3);
+            filter: blur(20px);
+            text-shadow: none;
+        }
+        60% {
+            opacity: 0.6;
+            transform: perspective(1000px) translateZ(-100px) scale(1.5);
+            filter: blur(10px);
+            text-shadow: 
+                0 0 20px rgba(255,255,255,0.5),
+                0 0 40px rgba(255,255,255,0.3);
+        }
+        100% {
+            opacity: 1;
+            transform: perspective(1000px) translateZ(0) scale(1);
+            filter: blur(0);
+            text-shadow: 
+                0 0 10px rgba(255,255,255,0.3),
+                0 0 20px rgba(255,255,255,0.2);
+        }
+    }
+
+    @keyframes fadeFromDistance {
+        0% {
+            opacity: 0;
+            transform: perspective(1000px) translateZ(-200px);
+            filter: blur(15px);
+        }
+        100% {
+            opacity: 0.9;
+            transform: perspective(1000px) translateZ(0);
+            filter: blur(0);
+        }
+    }
+
+    .particle-container {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+    }
+
+    .void-particle {
+        position: absolute;
+        background: white;
+        border-radius: 50%;
+        opacity: 0;
+    }
+
+    @keyframes particleConverge {
+        0% {
+            opacity: 0.8;
+            transform: translate(var(--start-x), var(--start-y)) scale(1);
+        }
+        60% {
+            opacity: 0.4;
+            transform: translate(var(--mid-x), var(--mid-y)) scale(0.6);
+        }
+        100% {
+            opacity: 0;
+            transform: translate(var(--end-x), var(--end-y)) scale(0);
+        }
     }
 
     .projects-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-        gap: 2rem;
+        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+        gap: 2.5rem;
         width: 100%;
-        max-width: 1200px;
+        max-width: 1400px;
+        padding: 2rem;
+        margin: 0 auto;
+        will-change: transform;
+        isolation: isolate;
+        position: relative;
+    }
+
+    .projects-container {
+        width: 100%;
+        height: 100%;
         padding: 2rem;
     }
 
     .project-card {
-        background: rgba(255, 255, 255, 0.1);
-        backdrop-filter: blur(10px);
-        border-radius: 15px;
-        padding: 2rem;
-        color: white;
+        position: relative;
+        background: rgba(255, 255, 255, 0.15);
+        border-radius: 20px;
+        overflow: hidden;
         border: 1px solid rgba(255, 255, 255, 0.2);
-        transition: transform 0.3s ease;
+        transform: perspective(1000px) translateZ(0);
+        transition: transform 0.4s cubic-bezier(0.165, 0.84, 0.44, 1),
+                    background-color 0.4s ease,
+                    box-shadow 0.4s ease;
+        will-change: transform;
+        z-index: 1;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
     }
 
     .project-card:hover {
-        transform: translateY(-5px);
+        transform: perspective(1000px) translateZ(20px) translateY(-5px);
+        background: rgba(255, 255, 255, 0.2);
+        border-color: rgba(255, 255, 255, 0.3);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
     }
 
-    .about-content,
-    .contact-content {
-        max-width: 800px;
-        color: white;
-        text-align: center;
+    .project-image {
+        width: 100%;
+        height: 200px;
+        overflow: hidden;
+        position: relative;
+        background: rgba(0,0,0,0.1);
     }
-  </style>
+
+    .project-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.5s ease;
+    }
+
+    .project-card:hover .project-image img {
+        transform: scale(1.05);
+    }
+
+    .project-content {
+        padding: 1.5rem;
+        color: white;
+        text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+    }
+
+    .project-content h3 {
+        font-family: 'Quicksand', sans-serif;
+        font-size: 1.5rem;
+        margin: 0 0 1rem 0;
+        font-weight: 500;
+        letter-spacing: 0.5px;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
+    }
+
+    .tech-stack {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin-bottom: 1rem;
+    }
+
+    .tech-tag {
+        background: rgba(255, 255, 255, 0.15);
+        padding: 0.3rem 0.8rem;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 400;
+        letter-spacing: 0.5px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .project-description {
+        font-size: 0.95rem;
+        line-height: 1.6;
+        margin-bottom: 1.5rem;
+        opacity: 0.95;
+        font-weight: 400;
+    }
+
+    .project-links {
+        display: flex;
+        gap: 1rem;
+    }
+
+    .project-link {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 1rem;
+        background: rgba(255, 255, 255, 0.15);
+        border-radius: 8px;
+        text-decoration: none;
+        color: white;
+        font-size: 0.9rem;
+        transition: all 0.2s ease;
+        pointer-events: auto;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+        font-weight: 500;
+    }
+
+    .project-link:hover {
+        background: rgba(255, 255, 255, 0.25);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+        .projects-grid {
+            grid-template-columns: 1fr;
+            padding: 1rem;
+            gap: 1.5rem;
+        }
+
+        .project-content {
+            padding: 1rem;
+        }
+
+        .project-content h3 {
+            font-size: 1.3rem;
+        }
+
+        .project-image {
+            height: 180px;
+        }
+    }
+
+    /* Dark mode optimization */
+    @media (prefers-color-scheme: dark) {
+        .project-card {
+            background: rgba(0, 0, 0, 0.3);
+        }
+
+        .project-card:hover {
+            background: rgba(0, 0, 0, 0.4);
+        }
+    }
+
+    .project-placeholder {
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05));
+        transition: transform 0.5s ease;
+    }
+
+    .project-card:hover .project-placeholder {
+        transform: scale(1.05);
+    }
+
+    /* Add subtle animation to loading spinner */
+    .loading-spinner {
+        /* ... existing styles ... */
+        animation: spin 1s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+    }
+
+    /* Enhance section transitions */
+    .portfolio-section {
+        /* ... existing styles ... */
+        transition: opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* Add subtle floating animation to content */
+    @keyframes float {
+        0% { transform: translateY(0); }
+        50% { transform: translateY(-10px); }
+        100% { transform: translateY(0); }
+    }
+
+    .intro-content {
+        /* animation: float 6s ease-in-out infinite; <- Remove this line */
+    }
+
+    /* Enhanced hover effects for interactive elements */
+    .control-button:hover,
+    .nav-button:hover {
+        text-shadow: 0 4px 8px rgba(0,0,0,0.3);
+    }
+
+    /* Add smooth transitions to all elements */
+    :global(*) {
+        transition: color 0.3s ease, 
+                   background-color 0.3s ease, 
+                   transform 0.3s ease, 
+                   opacity 0.3s ease,
+                   text-shadow 0.3s ease;
+    }
+
+    .project-card {
+        /* ... existing styles ... */
+        transform: perspective(1000px) translateZ(0);
+        transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+    }
+
+    .project-card:hover {
+        transform: perspective(1000px) translateZ(20px) translateY(-5px);
+        box-shadow: 0 15px 30px rgba(0,0,0,0.2);
+    }
+
+    .intro-content h1 {
+        font-weight: 300;
+        letter-spacing: 0.2em;
+        text-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        transform: translateY(0);
+        transition: all 0.3s ease;
+    }
+
+    .intro-content h1:hover {
+        transform: translateY(-5px);
+        text-shadow: 0 8px 16px rgba(0,0,0,0.3);
+    }
+
+    .intro-content p {
+        font-weight: 300;
+        letter-spacing: 0.15em;
+        text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        opacity: 0.9;
+        transition: all 0.3s ease;
+    }
+
+    .intro-content p:hover {
+        opacity: 1;
+        transform: translateY(-3px);
+    }
+
+    .project-content h3 {
+        font-weight: 400;
+        letter-spacing: 0.1em;
+        text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        transition: all 0.3s ease;
+    }
+
+    .project-content h3:hover {
+        transform: translateX(5px);
+    }
+
+    .tech-tag {
+        font-weight: 400;
+        letter-spacing: 0.08em;
+        text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+        transition: all 0.2s ease;
+    }
+
+    .tech-tag:hover {
+        transform: translateY(-2px);
+        background: rgba(255, 255, 255, 0.2);
+    }
+
+    .project-description {
+        font-weight: 300;
+        letter-spacing: 0.05em;
+        line-height: 1.8;
+        text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+    }
+
+    .project-link {
+        /* ... existing styles ... */
+        font-weight: 400;
+        letter-spacing: 0.08em;
+        text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+    }
+
+    .project-link:hover {
+        /* ... existing styles ... */
+        text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    }
+
+    /* Add new animation for name reveal */
+    @keyframes nameReveal {
+        0% {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        100% {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .intro-content h1 {
+        opacity: 0;  /* Start hidden */
+        animation: nameReveal 1.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    }
+
+    .intro-content p {
+        opacity: 0;
+        animation: nameReveal 1.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        animation-delay: 0.3s;
+    }
+</style>
+
+<link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&display=swap" rel="stylesheet">
