@@ -1,6 +1,8 @@
 <script>
     import { onMount } from 'svelte';
     import * as THREE from 'three';
+    import { spring } from 'svelte/motion';
+    import { fade, fly } from 'svelte/transition';
   
     let container;
     let isLoading = true;
@@ -223,11 +225,15 @@
         switch(direction) {
             case 'up':
                 keyState.up = true;
+                if (currentSection > 0) currentSection--;
                 break;
             case 'down':
                 keyState.down = true;
+                if (currentSection < sections.length - 1) currentSection++;
                 break;
         }
+        // Update spring store
+        sectionSpring.set({ y: currentSection * -100 });
     };
 
     const handleNavButtonRelease = (direction) => {
@@ -329,8 +335,8 @@
   
       // Add thin fog layer
       const thinFogGeometry = new THREE.PlaneGeometry(
-        frustumSize * aspect * 6,
-        frustumSize * 6
+        frustumSize * aspect * 2,
+        frustumSize * 2
       );
       const thinFogMaterial = new THREE.MeshBasicMaterial({
         color: 0xFFFFFF,
@@ -552,8 +558,8 @@
   
       // Create a plane that's larger than the camera frustum
       const planeGeometry = new THREE.PlaneGeometry(
-        frustumSize * aspect * 6, // Increased from 3 to 6
-        frustumSize * 6           // Increased from 3 to 6
+        frustumSize * aspect * 2, // Reduced from 3 to 2
+        frustumSize * 2          // Reduced from 3 to 2
       );
       const fogPlane = new THREE.Mesh(planeGeometry, fogMaterial);
       fogPlane.position.z = -5;
@@ -614,115 +620,130 @@
       window.addEventListener('keydown', handleKeyDown);
       window.addEventListener('keyup', handleKeyUp);
 
+      // Add FPS limiting variables
+      const fps = 30;
+      const fpsInterval = 1000 / fps;
+      let then = performance.now();
+
+      // Update the animate function
       const animate = () => {
         animationFrameId = requestAnimationFrame(animate);
-        
-        // Calculate delta time
-        let currentTime = performance.now() / 1000;
-        let deltaTime = currentTime - (lastTime || currentTime);
-        lastTime = currentTime;
-        
-        // Update target camera position based on key state
-        if (keyState.up || keyState.down) {
-            const moveDirection = (keyState.up ? 1 : 0) - (keyState.down ? 1 : 0);
-            targetCameraY += moveDirection * CAMERA_MOVEMENT_SPEED * deltaTime;
+
+        // Calculate elapsed time since last frame
+        const now = performance.now();
+        const elapsed = now - then;
+
+        // Only render if enough time has passed
+        if (elapsed > fpsInterval) {
+            // Adjust for drift by updating 'then' based on intervals
+            then = now - (elapsed % fpsInterval);
+
+            // Calculate delta time
+            let deltaTime = elapsed / 1000; // Convert to seconds
+
+            // Update target camera position based on key state
+            if (keyState.up || keyState.down) {
+                const moveDirection = (keyState.up ? 1 : 0) - (keyState.down ? 1 : 0);
+                targetCameraY += moveDirection * CAMERA_MOVEMENT_SPEED * deltaTime;
+            }
+            
+            // Smoothly interpolate camera position
+            cameraPosition.y += (targetCameraY - cameraPosition.y) * CAMERA_SMOOTHING;
+            
+            // Update positions with smoothed camera position
+            camera.position.y = cameraPosition.y;
+            fogPlane.position.y = cameraPosition.y;
+            thinFogPlane.position.y = cameraPosition.y;
+            
+            // Update camera offset uniform in shader with smoothed position
+            fogMaterial.uniforms.cameraOffset.value.set(0, cameraPosition.y);
+            
+            const currentSunX = fogMaterial.uniforms.sunPosition.value.x;
+            const sunMovementSpeed = Math.abs(currentSunX - previousSunX);
+            previousSunX = currentSunX;
+            
+            if (enableCloudMovement) {
+                const baseTimeIncrement = 0.015;
+                const timeIncrement = baseTimeIncrement + (sunMovementSpeed * speedMultiplier);
+                time += timeIncrement;
+            }
+            
+            fogMaterial.uniforms.time.value = time;
+            
+            if (fogPlane) {
+                fogPlane.visible = showClouds;
+            }
+            
+            fogMaterial.uniforms.windSpeed.value = weatherState.windSpeed * (1.0 + sunMovementSpeed * speedMultiplier * 2);
+            
+            // Update sun and glow position - remove camera position offset
+            const aspect = container.clientWidth / container.clientHeight;
+            const sunX = fogMaterial.uniforms.sunPosition.value.x * (frustumSize * aspect / 2);
+            const sunY = fogMaterial.uniforms.sunPosition.value.y * (frustumSize / 2);
+            
+            // Update sun position without adding camera offset
+            sunMesh.position.set(
+                sunX + camera.position.x,  // Add camera offset to keep sun fixed relative to view
+                sunY + camera.position.y,
+                sunMesh.position.z
+            );
+            sunGlowMesh.position.set(
+                sunX + camera.position.x,
+                sunY + camera.position.y,
+                sunGlowMesh.position.z
+            );
+
+            // Much gentler sky color transitions
+            const currentSkyColor = getSkyColor(fogMaterial.uniforms.sunPosition.value.x);
+            if (scene.background) {
+                scene.background.lerp(currentSkyColor, 0.01);
+            }
+
+            // Calculate hour and isNightTime once
+            const hour = ((fogMaterial.uniforms.sunPosition.value.x + 1) * 12);
+            isNightTime = hour < 5 || hour > 19;
+
+            // Update stars
+            if (stars.length > 0) {
+                stars.forEach(star => {
+                    star.update(deltaTime);
+                });
+            }
+
+            // Update sun glow time uniform
+            sunGlowMaterial.uniforms.time.value = time * 0.5;
+
+            // Gentler sun/moon transitions
+            if (isNightTime) {
+                sunMaterial.color.lerp(new THREE.Color(0xEEEEFF), 0.01);
+                sunMaterial.opacity = THREE.MathUtils.lerp(sunMaterial.opacity, 0.9, 0.01);
+            } else {
+                sunMaterial.color.lerp(new THREE.Color(0xFFF7E6), 0.01);
+                sunMaterial.opacity = THREE.MathUtils.lerp(sunMaterial.opacity, 1.0, 0.01);
+            }
+
+            // Update glow effect
+            sunGlowMaterial.uniforms.isNight.value = isNightTime;
+
+            fogMaterial.uniforms.hour.value = hour;
+
+            // Update camera frustum based on debug view
+            if (isDebugView) {
+                camera.left = debugFrustumSize * aspect / -2;
+                camera.right = debugFrustumSize * aspect / 2;
+                camera.top = debugFrustumSize / 2;
+                camera.bottom = debugFrustumSize / -2;
+            } else {
+                camera.left = originalFrustumSize * aspect / -2;
+                camera.right = originalFrustumSize * aspect / 2;
+                camera.top = originalFrustumSize / 2;
+                camera.bottom = originalFrustumSize / -2;
+            }
+            camera.updateProjectionMatrix();
+
+            // Render the scene
+            renderer.render(scene, camera);
         }
-        
-        // Smoothly interpolate camera position
-        cameraPosition.y += (targetCameraY - cameraPosition.y) * CAMERA_SMOOTHING;
-        
-        // Update positions with smoothed camera position
-        camera.position.y = cameraPosition.y;
-        fogPlane.position.y = cameraPosition.y;
-        thinFogPlane.position.y = cameraPosition.y;
-        
-        // Update camera offset uniform in shader with smoothed position
-        fogMaterial.uniforms.cameraOffset.value.set(0, cameraPosition.y);
-        
-        const currentSunX = fogMaterial.uniforms.sunPosition.value.x;
-        const sunMovementSpeed = Math.abs(currentSunX - previousSunX);
-        previousSunX = currentSunX;
-        
-        if (enableCloudMovement) {
-            const baseTimeIncrement = 0.015;
-            const timeIncrement = baseTimeIncrement + (sunMovementSpeed * speedMultiplier);
-            time += timeIncrement;
-        }
-        
-        fogMaterial.uniforms.time.value = time;
-        
-        if (fogPlane) {
-            fogPlane.visible = showClouds;
-        }
-        
-        fogMaterial.uniforms.windSpeed.value = weatherState.windSpeed * (1.0 + sunMovementSpeed * speedMultiplier * 2);
-        
-        // Update sun and glow position - remove camera position offset
-        const aspect = container.clientWidth / container.clientHeight;
-        const sunX = fogMaterial.uniforms.sunPosition.value.x * (frustumSize * aspect / 2);
-        const sunY = fogMaterial.uniforms.sunPosition.value.y * (frustumSize / 2);
-        
-        // Update sun position without adding camera offset
-        sunMesh.position.set(
-            sunX + camera.position.x,  // Add camera offset to keep sun fixed relative to view
-            sunY + camera.position.y,
-            sunMesh.position.z
-        );
-        sunGlowMesh.position.set(
-            sunX + camera.position.x,
-            sunY + camera.position.y,
-            sunGlowMesh.position.z
-        );
-
-        // Much gentler sky color transitions
-        const currentSkyColor = getSkyColor(fogMaterial.uniforms.sunPosition.value.x);
-        if (scene.background) {
-            scene.background.lerp(currentSkyColor, 0.01);
-        }
-
-        // Calculate hour and isNightTime once
-        const hour = ((fogMaterial.uniforms.sunPosition.value.x + 1) * 12);
-        isNightTime = hour < 5 || hour > 19;
-
-        // Update stars
-        if (stars.length > 0) {
-            stars.forEach(star => {
-                star.update(deltaTime);
-            });
-        }
-
-        // Update sun glow time uniform
-        sunGlowMaterial.uniforms.time.value = time * 0.5;
-
-        // Gentler sun/moon transitions
-        if (isNightTime) {
-            sunMaterial.color.lerp(new THREE.Color(0xEEEEFF), 0.01);
-            sunMaterial.opacity = THREE.MathUtils.lerp(sunMaterial.opacity, 0.9, 0.01);
-        } else {
-            sunMaterial.color.lerp(new THREE.Color(0xFFF7E6), 0.01);
-            sunMaterial.opacity = THREE.MathUtils.lerp(sunMaterial.opacity, 1.0, 0.01);
-        }
-
-        // Update glow effect
-        sunGlowMaterial.uniforms.isNight.value = isNightTime;
-
-        fogMaterial.uniforms.hour.value = hour;
-
-        // Update camera frustum based on debug view
-        if (isDebugView) {
-            camera.left = debugFrustumSize * aspect / -2;
-            camera.right = debugFrustumSize * aspect / 2;
-            camera.top = debugFrustumSize / 2;
-            camera.bottom = debugFrustumSize / -2;
-        } else {
-            camera.left = originalFrustumSize * aspect / -2;
-            camera.right = originalFrustumSize * aspect / 2;
-            camera.top = originalFrustumSize / 2;
-            camera.bottom = originalFrustumSize / -2;
-        }
-        camera.updateProjectionMatrix();
-
-        renderer.render(scene, camera);
       };
       animate();
   
@@ -919,6 +940,21 @@
         const t = Math.max(0, Math.min(1, (x - edge0) / (edge1 - edge0)));
         return t * t * (3 - 2 * t);
     }
+
+    // Add new state variables
+    let currentSection = 0;
+    const sections = [
+        { id: 'intro', title: 'Your Name' },
+        { id: 'projects', title: 'Projects' },
+        { id: 'about', title: 'About' },
+        { id: 'contact', title: 'Contact' }
+    ];
+    
+    // Create spring store for section transitions
+    const sectionSpring = spring({ y: 0 }, {
+        stiffness: 0.1,
+        damping: 0.7
+    });
   </script>
   
   <div class="main-container">
@@ -976,6 +1012,50 @@
                 ↓
             </button>
         </div>
+    </div>
+
+    <!-- Add new content overlay -->
+    <div class="content-overlay" style="transform: translateY({$sectionSpring.y}vh)">
+        {#each sections as section, i}
+            <section 
+                class="portfolio-section" 
+                class:active={currentSection === i}
+            >
+                {#if section.id === 'intro'}
+                    <div class="intro-content" 
+                         in:fly="{{ y: 50, duration: 1000, delay: 500 }}"
+                         out:fade>
+                        <h1>Your Name</h1>
+                        <p>Web Developer & Designer</p>
+                    </div>
+                {:else if section.id === 'projects'}
+                    <div class="projects-grid"
+                         in:fly="{{ y: 50, duration: 1000 }}"
+                         out:fade>
+                        <!-- Add your project cards here -->
+                        <div class="project-card">
+                            <h3>Project 1</h3>
+                            <p>Description</p>
+                        </div>
+                        <!-- Add more project cards -->
+                    </div>
+                {:else if section.id === 'about'}
+                    <div class="about-content"
+                         in:fly="{{ y: 50, duration: 1000 }}"
+                         out:fade>
+                        <h2>About Me</h2>
+                        <p>Your bio here...</p>
+                    </div>
+                {:else if section.id === 'contact'}
+                    <div class="contact-content"
+                         in:fly="{{ y: 50, duration: 1000 }}"
+                         out:fade>
+                        <h2>Get in Touch</h2>
+                        <!-- Add contact information or form -->
+                    </div>
+                {/if}
+            </section>
+        {/each}
     </div>
   </div>
   
@@ -1153,5 +1233,82 @@
             right: 24px;
             gap: 16px;
         }
+    }
+
+    .content-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100vh;
+        z-index: 2;
+        transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .portfolio-section {
+        height: 100vh;
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        transition: opacity 0.5s ease;
+        padding: 2rem;
+    }
+
+    .portfolio-section.active {
+        opacity: 1;
+    }
+
+    .intro-content {
+        text-align: center;
+        color: white;
+    }
+
+    .intro-content h1 {
+        font-family: 'Quicksand', sans-serif;
+        font-weight: 300;
+        font-size: 8vw;
+        margin: 0;
+        letter-spacing: 0.2em;
+        text-shadow: 0 0 20px rgba(0,0,0,0.3);
+    }
+
+    .intro-content p {
+        font-family: 'Quicksand', sans-serif;
+        font-weight: 300;
+        font-size: 2vw;
+        margin-top: 1rem;
+        opacity: 0.8;
+    }
+
+    .projects-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 2rem;
+        width: 100%;
+        max-width: 1200px;
+        padding: 2rem;
+    }
+
+    .project-card {
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        border-radius: 15px;
+        padding: 2rem;
+        color: white;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        transition: transform 0.3s ease;
+    }
+
+    .project-card:hover {
+        transform: translateY(-5px);
+    }
+
+    .about-content,
+    .contact-content {
+        max-width: 800px;
+        color: white;
+        text-align: center;
     }
   </style>
