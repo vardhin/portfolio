@@ -239,7 +239,8 @@
                 keyState.up = true;
                 if (currentSection > MIN_SECTION) {
                     currentSection--;
-                    // Update spring store
+                    // Add immediate position update
+                    targetCameraY = currentSection * -10; // Adjust multiplier as needed
                     sectionSpring.set({ y: currentSection * -100 });
                 }
                 break;
@@ -247,7 +248,8 @@
                 keyState.down = true;
                 if (currentSection < MAX_SECTION) {
                     currentSection++;
-                    // Update spring store
+                    // Add immediate position update
+                    targetCameraY = currentSection * -10; // Adjust multiplier as needed
                     sectionSpring.set({ y: currentSection * -100 });
                 }
                 break;
@@ -1076,6 +1078,8 @@
             on:mousedown={() => handleNavButtonPress('up')}
             on:mouseup={() => handleNavButtonRelease('up')}
             on:mouseleave={() => handleNavButtonRelease('up')}
+            on:touchstart|preventDefault={() => handleNavButtonPress('up')}
+            on:touchend|preventDefault={() => handleNavButtonRelease('up')}
             disabled={currentSection <= MIN_SECTION}
         >
             <svelte:component this={ChevronUp} size={20} />
@@ -1085,6 +1089,8 @@
             on:mousedown={() => handleNavButtonPress('down')}
             on:mouseup={() => handleNavButtonRelease('down')}
             on:mouseleave={() => handleNavButtonRelease('down')}
+            on:touchstart|preventDefault={() => handleNavButtonPress('down')}
+            on:touchend|preventDefault={() => handleNavButtonRelease('down')}
             disabled={currentSection >= MAX_SECTION}
         >
             <svelte:component this={ChevronDown} size={20} />
@@ -1218,6 +1224,7 @@
         right: 20px;
         bottom: 20px;
         flex-direction: column;
+        touch-action: none; /* Prevent default touch actions */
     }
 
     .control-button {
@@ -1237,6 +1244,8 @@
         justify-content: center;
         -webkit-tap-highlight-color: transparent;
         z-index: 1002;
+        touch-action: manipulation; /* Optimize for touch */
+        user-select: none; /* Prevent text selection */
     }
 
     .control-button:disabled {
@@ -1332,29 +1341,43 @@
     .intro-content h1 {
         font-size: 3rem;
         margin-bottom: 1rem;
+        font-weight: 300;  /* Made lighter */
+        letter-spacing: 0.05em;  /* Increased letter spacing */
+        text-shadow: 0 0 20px rgba(255, 255, 255, 0.3);  /* Added glow effect */
     }
 
     .intro-content h1 span {
         display: inline-block;
         opacity: 0;
-        animation: fadeIn 0.5s forwards;
+        animation: dreamyFadeIn 1.2s forwards cubic-bezier(0.4, 0, 0.2, 1);  /* Slower, smoother animation */
+        filter: blur(0);
+        transform-origin: bottom;
     }
 
     .intro-content p {
         font-size: 1.5rem;
+        font-weight: 200;  /* Made even lighter */
+        letter-spacing: 0.08em;  /* Increased letter spacing */
         opacity: 0;
-        animation: fadeIn 0.5s forwards;
-        animation-delay: 1s;
+        animation: dreamyFadeIn 1.5s forwards cubic-bezier(0.4, 0, 0.2, 1);
+        animation-delay: 1.5s;  /* Increased delay */
+        text-shadow: 0 0 15px rgba(255, 255, 255, 0.2);  /* Added subtle glow */
     }
 
-    @keyframes fadeIn {
-        from {
+    @keyframes dreamyFadeIn {
+        0% {
             opacity: 0;
-            transform: translateY(20px);
+            transform: translateY(30px) scale(0.95);
+            filter: blur(10px);
         }
-        to {
+        60% {
+            opacity: 0.5;
+            filter: blur(5px);
+        }
+        100% {
             opacity: 1;
-            transform: translateY(0);
+            transform: translateY(0) scale(1);
+            filter: blur(0);
         }
     }
 
@@ -1374,6 +1397,113 @@
         opacity: 0;
         transition: opacity 300ms ease;
     }
+
+    /* Project card styles */
+    .project-content h3 {
+        font-weight: 400;  /* Changed from 600 to 400 */
+        font-size: 1.5rem;
+        margin-bottom: 0.5rem;
+        letter-spacing: 0.01em;  /* Added slight tracking */
+    }
+
+    .project-description {
+        font-weight: 300;  /* Changed from 400 to 300 */
+        line-height: 1.7;  /* Increased from 1.6 for better readability */
+        font-size: 1rem;
+    }
+
+    .tech-tag {
+        font-weight: 400;  /* Changed from 500 to 400 */
+        font-size: 0.875rem;
+    }
+
+    .project-link {
+        font-weight: 400;  /* Changed from 500 to 400 */
+        font-size: 0.875rem;
+        letter-spacing: 0.02em;
+    }
+
+    /* About section */
+    .about-content h2 {
+        font-weight: 400;  /* Changed from 600 to 400 */
+        font-size: 2.5rem;
+        margin-bottom: 1.5rem;
+        letter-spacing: 0.01em;  /* Changed to positive tracking */
+    }
+
+    .about-content p {
+        font-weight: 300;  /* Changed from 400 to 300 */
+        font-size: 1.125rem;
+        line-height: 1.8;  /* Increased from 1.7 */
+        letter-spacing: 0.02em;
+    }
+
+    /* Contact section */
+    .contact-content h2 {
+        font-weight: 400;  /* Changed from 600 to 400 */
+        font-size: 2.5rem;
+        margin-bottom: 1.5rem;
+        letter-spacing: 0.01em;
+    }
+
+    /* Typography helper classes */
+    .text-light {
+        font-weight: 300;
+    }
+
+    .text-regular {
+        font-weight: 400;
+    }
+
+    .text-medium {
+        font-weight: 400;  /* Changed from 500 */
+    }
+
+    .text-semibold {
+        font-weight: 500;  /* Changed from 600 */
+    }
+
+    .text-bold {
+        font-weight: 600;  /* Changed from 700 */
+    }
+
+    /* Text size helpers */
+    .text-sm {
+        font-size: 0.875rem;
+    }
+
+    .text-base {
+        font-size: 1rem;
+    }
+
+    .text-lg {
+        font-size: 1.125rem;
+    }
+
+    .text-xl {
+        font-size: 1.25rem;
+    }
+
+    .text-2xl {
+        font-size: 1.5rem;
+    }
+
+    .text-3xl {
+        font-size: 2rem;
+    }
+
+    /* Line height helpers */
+    .leading-tight {
+        line-height: 1.25;
+    }
+
+    .leading-normal {
+        line-height: 1.5;
+    }
+
+    .leading-relaxed {
+        line-height: 1.7;
+    }
 </style>
 
-<link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&display=swap" rel="stylesheet" crossorigin="anonymous">
