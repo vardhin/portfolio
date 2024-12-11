@@ -97,7 +97,7 @@
 
     // Add star system variables
     let stars = [];
-    const TOTAL_STARS = 350;  // Reduced from 800
+    const TOTAL_STARS = 500;  // Reduced from 800
 
     class Star {
         constructor() {
@@ -139,22 +139,16 @@
         }
 
         setNewPosition() {
-            // Use spherical distribution for more uniform star placement
-            const u = Math.random();
-            const v = Math.random();
-            const theta = 2 * Math.PI * u;  // Azimuthal angle
-            const phi = Math.acos(2 * v - 1);  // Polar angle
-            const radius = 12;  // Increased from 8 to 12 - Distance from camera
+            // Changed from spherical to rectangular distribution
+            const width = 24;  // Increased from previous radius * 2
+            const height = 50; // Increased height for taller sky
 
-            // Convert spherical coordinates to Cartesian
+            // Random position within rectangle
             this.mesh.position.set(
-                radius * Math.sin(phi) * Math.cos(theta),
-                radius * Math.sin(phi) * Math.sin(theta),
-                -4.5
+                (Math.random() - 0.5) * width,    // X: -12 to 12
+                (Math.random() - 0.5) * height,   // Y: -8 to 8
+                -4.5 + (Math.random() - 0.5) * 2  // Z: Keep existing depth variation
             );
-
-            // Add slight random variation to z-position for depth
-            this.mesh.position.z += (Math.random() - 0.5) * 2;
         }
 
         update(deltaTime) {
@@ -226,7 +220,7 @@
 
     // Add these new variables near the top with other state variables
     let targetCameraY = 0;
-    const CAMERA_SMOOTHING = 0.05;  // Keep this smooth value
+    const CAMERA_SMOOTHING = 0.05;  // Reduced from default value for smoother movement
 
     // Add these constants near the top with other state variables
     const MIN_SECTION = 0;
@@ -850,7 +844,11 @@
             }
 
             // Smoothly interpolate camera position
-            cameraPosition.y += (targetCameraY - cameraPosition.y) * CAMERA_SMOOTHING;
+            cameraPosition.y = THREE.MathUtils.lerp(
+                cameraPosition.y, 
+                targetCameraY, 
+                CAMERA_SMOOTHING
+            );
             
             // Update positions with smoothed camera position
             camera.position.y = cameraPosition.y;
@@ -1051,7 +1049,8 @@
     // Create spring store for section transitions
     const sectionSpring = spring({ y: 0 }, {
         stiffness: 0.15,
-        damping: 0.65
+        damping: 0.65,
+        precision: 0.001  // Added precision for smoother small movements
     });
 
     // Create a sequence of transitions
