@@ -217,7 +217,7 @@
 
     // Remove scroll-related variables and keep only camera position
     let cameraPosition = { x: 0, y: 0 };
-    const CAMERA_MOVEMENT_SPEED = 8.0;  // Increased from 2.0
+    const CAMERA_MOVEMENT_SPEED = 4.0;  // Increased from 2.0, decreased from original 8.0
 
     // Add near the top with other state variables
     let isDebugView = false;
@@ -226,31 +226,43 @@
 
     // Add these new variables near the top with other state variables
     let targetCameraY = 0;
-    const CAMERA_SMOOTHING = 0.1;  // Adjust this value between 0-1 (lower = smoother)
+    const CAMERA_SMOOTHING = 0.05;  // Keep this smooth value
 
     // Add these constants near the top with other state variables
     const MIN_SECTION = 0;
     const MAX_SECTION = 3;  // sections.length - 1
 
+    // Add these variables to track navigation state
+    let isNavigating = false;
+    let navigationTimeout;
+
     // Update the handleNavButtonPress function
     const handleNavButtonPress = (direction) => {
+        if (isNavigating) return;
+        
         switch(direction) {
             case 'up':
-                keyState.up = true;
                 if (currentSection > MIN_SECTION) {
+                    isNavigating = true;
                     currentSection--;
-                    // Add immediate position update
-                    targetCameraY = currentSection * -10; // Adjust multiplier as needed
+                    targetCameraY = currentSection * -5;
                     sectionSpring.set({ y: currentSection * -100 });
+                    
+                    navigationTimeout = setTimeout(() => {
+                        isNavigating = false;
+                    }, 500);
                 }
                 break;
             case 'down':
-                keyState.down = true;
                 if (currentSection < MAX_SECTION) {
+                    isNavigating = true;
                     currentSection++;
-                    // Add immediate position update
-                    targetCameraY = currentSection * -10; // Adjust multiplier as needed
+                    targetCameraY = currentSection * -5;
                     sectionSpring.set({ y: currentSection * -100 });
+                    
+                    navigationTimeout = setTimeout(() => {
+                        isNavigating = false;
+                    }, 500);
                 }
                 break;
         }
@@ -773,22 +785,16 @@
       
       // Add keyboard event listeners
       const handleKeyDown = (event) => {
+          if (isNavigating) return; // Prevent multiple navigations
+          
           switch(event.key.toLowerCase()) {
               case 'arrowup':
               case 'w':
-                  keyState.up = true;
-                  if (currentSection > MIN_SECTION) {
-                      currentSection--;
-                      sectionSpring.set({ y: currentSection * -100 });
-                  }
+                  handleNavButtonPress('up');
                   break;
               case 'arrowdown':
               case 's':
-                  keyState.down = true;
-                  if (currentSection < MAX_SECTION) {
-                      currentSection++;
-                      sectionSpring.set({ y: currentSection * -100 });
-                  }
+                  handleNavButtonPress('down');
                   break;
           }
       };
@@ -832,12 +838,17 @@
             // Calculate delta time
             let deltaTime = elapsed / 1000; // Convert to seconds
 
-            // Update target camera position based on key state
-            if (keyState.up || keyState.down) {
-                const moveDirection = (keyState.up ? 1 : 0) - (keyState.down ? 1 : 0);
-                targetCameraY += moveDirection * CAMERA_MOVEMENT_SPEED * deltaTime;
+            // Update section based on key state
+            if (keyState.up && currentSection > MIN_SECTION) {
+                currentSection--;
+                targetCameraY = currentSection * -7.5;
+                sectionSpring.set({ y: currentSection * -100 });
+            } else if (keyState.down && currentSection < MAX_SECTION) {
+                currentSection++;
+                targetCameraY = currentSection * -7.5;
+                sectionSpring.set({ y: currentSection * -100 });
             }
-            
+
             // Smoothly interpolate camera position
             cameraPosition.y += (targetCameraY - cameraPosition.y) * CAMERA_SMOOTHING;
             
@@ -986,6 +997,7 @@
         window.removeEventListener('keydown', handleKeyDown);
         window.removeEventListener('keyup', handleKeyUp);
         container.removeEventListener('mousemove', updateMousePosition);
+        clearTimeout(navigationTimeout);
       };
     });
   
@@ -1038,8 +1050,8 @@
     
     // Create spring store for section transitions
     const sectionSpring = spring({ y: 0 }, {
-        stiffness: 0.1,
-        damping: 0.7
+        stiffness: 0.15,
+        damping: 0.65
     });
 
     // Create a sequence of transitions
