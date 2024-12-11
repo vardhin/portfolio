@@ -358,6 +358,73 @@
         };
     }
 
+    // Add these touch event handlers near the other mouse handlers
+    const onTouchStart = (event) => {
+        // Check if the touch target is a control button
+        if (event.target.closest('.controls')) {
+            return; // Let the button handle the touch event
+        }
+        
+        event.preventDefault(); // Prevent scrolling only for canvas interactions
+        const touch = event.touches[0];
+        const rect = container.getBoundingClientRect();
+        
+        normalizedMousePosition.x = ((touch.clientX - rect.left) / rect.width) * 2 - 1;
+        normalizedMousePosition.y = -((touch.clientY - rect.top) / rect.height) * 2 + 1;
+        
+        if (fogMaterial) {
+            const sunPos = fogMaterial.uniforms.sunPosition.value;
+            const distance = Math.sqrt(
+                Math.pow((normalizedMousePosition.x - sunPos.x), 2) + 
+                Math.pow((normalizedMousePosition.y - sunPos.y), 2)
+            );
+            
+            if (distance < 0.3) {
+                isDragging = true;
+            }
+        }
+    };
+
+    const onTouchMove = (event) => {
+        // Don't prevent default if touching controls
+        if (event.target.closest('.controls')) {
+            return;
+        }
+        
+        if (!isDragging) return;
+        event.preventDefault();
+        
+        const touch = event.touches[0];
+        const rect = container.getBoundingClientRect();
+        
+        normalizedMousePosition.x = ((touch.clientX - rect.left) / rect.width) * 2 - 1;
+        normalizedMousePosition.y = -((touch.clientY - rect.top) / rect.height) * 2 + 1;
+        
+        if (fogMaterial) {
+            // Update sun position directly with normalized coordinates
+            const newX = THREE.MathUtils.clamp(normalizedMousePosition.x, -1, 1);
+            const newY = THREE.MathUtils.clamp(normalizedMousePosition.y, -1, 1);
+            
+            // Update sun position
+            fogMaterial.uniforms.sunPosition.value.set(newX, newY);
+            
+            // Update coordinates and time display
+            sunCoordinates = { x: newX, y: newY };
+            currentTime = getTimeFromX(newX);
+            
+            // Update sky color
+            scene.background = getSkyColor(newX);
+            
+            // Update isNightTime based on hour
+            const hour = ((newX + 1) * 12);
+            isNightTime = hour < 5 || hour > 19;
+        }
+    };
+
+    const onTouchEnd = () => {
+        isDragging = false;
+    };
+
     onMount(() => {
       // Scene setup
       scene = new THREE.Scene();  // Remove 'const' to use component-scoped variable
@@ -860,6 +927,10 @@
       container.addEventListener('mousemove', onMouseMove);
       container.addEventListener('mouseup', onMouseUp);
       container.addEventListener('mouseleave', onMouseUp);
+      container.addEventListener('touchstart', onTouchStart, { passive: false });
+      container.addEventListener('touchmove', onTouchMove, { passive: false });
+      container.addEventListener('touchend', onTouchEnd);
+      container.addEventListener('touchcancel', onTouchEnd);
   
       // After everything is set up, add a delay before hiding loading screen
       setTimeout(() => {
@@ -892,8 +963,8 @@
         container.removeEventListener('mouseleave', onMouseUp);
         container.removeEventListener('touchstart', onTouchStart);
         container.removeEventListener('touchmove', onTouchMove);
-        container.removeEventListener('touchend', onMouseUp);
-        container.removeEventListener('touchcancel', onMouseUp);
+        container.removeEventListener('touchend', onTouchEnd);
+        container.removeEventListener('touchcancel', onTouchEnd);
         container.removeChild(renderer.domElement);
         renderer.dispose();
         fogTexture.dispose();
@@ -980,51 +1051,52 @@
 </script>
   
   <div class="main-container">
+    <!-- Cloud and movement controls -->
+    <div class="controls top-left">
+        <button 
+            class="control-button" 
+            title={showClouds ? 'Hide Clouds' : 'Show Clouds'} 
+            on:click={() => showClouds = !showClouds}
+        >
+            <svelte:component this={showClouds ? Cloud : CloudSun} size={20} />
+        </button>
+        <button 
+            class="control-button" 
+            title={enableCloudMovement ? 'Stop Movement' : 'Start Movement'} 
+            on:click={() => enableCloudMovement = !enableCloudMovement}
+        >
+            <svelte:component this={enableCloudMovement ? Pause : Play} size={20} />
+        </button>
+    </div>
+
+    <!-- Navigation controls -->
+    <div class="controls nav-controls">
+        <button 
+            class="control-button nav-button"
+            on:mousedown={() => handleNavButtonPress('up')}
+            on:mouseup={() => handleNavButtonRelease('up')}
+            on:mouseleave={() => handleNavButtonRelease('up')}
+            disabled={currentSection <= MIN_SECTION}
+        >
+            <svelte:component this={ChevronUp} size={20} />
+        </button>
+        <button 
+            class="control-button nav-button"
+            on:mousedown={() => handleNavButtonPress('down')}
+            on:mouseup={() => handleNavButtonRelease('down')}
+            on:mouseleave={() => handleNavButtonRelease('down')}
+            disabled={currentSection >= MAX_SECTION}
+        >
+            <svelte:component this={ChevronDown} size={20} />
+        </button>
+    </div>
+
     <div bind:this={container} 
          class="canvas-container" 
          style="opacity: 0; 
                 transition: opacity 1s ease-in-out;
                 background: #000000;">
-        <div class="controls">
-            <button 
-                class="control-button" 
-                title={showClouds ? 'Hide Clouds' : 'Show Clouds'} 
-                on:click={() => showClouds = !showClouds}
-            >
-                <svelte:component this={showClouds ? Cloud : CloudSun} size={20} />
-            </button>
-            <button 
-                class="control-button" 
-                title={enableCloudMovement ? 'Stop Movement' : 'Start Movement'} 
-                on:click={() => enableCloudMovement = !enableCloudMovement}
-            >
-                <svelte:component this={enableCloudMovement ? Pause : Play} size={20} />
-            </button>
-        </div>
-        
-        <!-- Add navigation controls -->
-        <div class="navigation-controls">
-            <button 
-                class="nav-button up"
-                on:mousedown={() => handleNavButtonPress('up')}
-                on:mouseup={() => handleNavButtonRelease('up')}
-                on:mouseleave={() => handleNavButtonRelease('up')}
-                on:touchstart|preventDefault={() => handleNavButtonPress('up')}
-                on:touchend|preventDefault={() => handleNavButtonRelease('up')}
-            >
-                <ChevronUp size={24} />
-            </button>
-            <button 
-                class="nav-button down"
-                on:mousedown={() => handleNavButtonPress('down')}
-                on:mouseup={() => handleNavButtonRelease('down')}
-                on:mouseleave={() => handleNavButtonRelease('down')}
-                on:touchstart|preventDefault={() => handleNavButtonPress('down')}
-                on:touchend|preventDefault={() => handleNavButtonRelease('down')}
-            >
-                <ChevronDown size={24} />
-            </button>
-        </div>
+        <!-- Canvas will be added here by Three.js -->
     </div>
 
     <!-- Modified content overlay -->
@@ -1039,27 +1111,6 @@
                     <div class="intro-content" 
                          in:fly="{{ y: 50, duration: 1000, delay: 500 }}"
                          out:fade>
-                        <div class="particle-container">
-                            {#each Array(100) as _, i}
-                                <div
-                                    class="void-particle"
-                                    style="
-                                        left: 50%;
-                                        top: 50%;
-                                        width: {Math.random() * 3 + 1}px;
-                                        height: {Math.random() * 3 + 1}px;
-                                        --start-x: {(Math.random() - 0.5) * 1000}px;
-                                        --start-y: {(Math.random() - 0.5) * 1000}px;
-                                        --mid-x: {(Math.random() - 0.5) * 200}px;
-                                        --mid-y: {(Math.random() - 0.5) * 200}px;
-                                        --end-x: {(Math.random() - 0.5) * 50}px;
-                                        --end-y: {(Math.random() - 0.5) * 50}px;
-                                        animation: particleConverge 2.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
-                                        animation-delay: {Math.random() * 0.5}s;
-                                    "
-                                />
-                            {/each}
-                        </div>
                         <h1>
                             {#each 'Surya Vardhin Gamidi' as char, i}
                                 <span style="animation-delay: {i * 0.08}s">
@@ -1151,29 +1202,22 @@
         z-index: 1;
     }
 
-    .canvas-container {
-        width: 100%;
-        height: 100%;
-        position: absolute;
-        top: 0;
-        left: 0;
-        opacity: 0;
-        transition: opacity 1s ease-in-out;
-        background: #000000;  /* Pure black background */
-    }
-
-    .fade-in {
-        opacity: 1;
-        visibility: visible;
-    }
-
     .controls {
         position: fixed;
-        top: 20px;
-        left: 20px;
         display: flex;
         gap: 10px;
-        z-index: 1000;
+        z-index: 1002;
+    }
+
+    .top-left {
+        top: 20px;
+        left: 20px;
+    }
+
+    .nav-controls {
+        right: 20px;
+        bottom: 20px;
+        flex-direction: column;
     }
 
     .control-button {
@@ -1191,20 +1235,44 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        -webkit-tap-highlight-color: transparent; /* Removes tap highlight on iOS */
-        touch-action: manipulation; /* Improves touch handling */
+        -webkit-tap-highlight-color: transparent;
+        z-index: 1002;
     }
 
-    .control-button:hover {
-        background: rgba(255, 255, 255, 0.2);
-        transform: scale(1.05);
+    .control-button:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        pointer-events: none; /* Prevent any interaction when disabled */
     }
 
-    .control-button:active {
-        transform: scale(0.95);
+    .nav-button {
+        background: rgba(255, 255, 255, 0.15);
+        transition: opacity 0.3s ease, background-color 0.3s ease;
     }
 
-    /* Make buttons larger on touch devices */
+    .nav-button:disabled {
+        opacity: 0.3;
+        background: rgba(255, 255, 255, 0.05);
+    }
+
+    .canvas-container {
+        width: 100%;
+        height: 100%;
+        position: absolute;
+        top: 0;
+        left: 0;
+        opacity: 0;
+        transition: opacity 1s ease-in-out;
+        background: #000000;
+        z-index: 1;
+    }
+
+    .fade-in {
+        opacity: 1;
+        visibility: visible;
+    }
+
+    /* Mobile optimizations */
     @media (pointer: coarse) {
         .control-button {
             width: 48px;
@@ -1212,63 +1280,20 @@
             font-size: 20px;
         }
         
-        .controls {
+        .top-left {
             top: 24px;
             left: 24px;
             gap: 16px;
         }
-    }
 
-    .navigation-controls {
-        position: fixed;
-        bottom: 20px;
-        right: 20px;
-        display: flex;
-        flex-direction: column;
-        gap: 10px;
-        z-index: 1000;
-    }
-
-    .nav-button {
-        width: 50px;
-        height: 50px;
-        border-radius: 50%;
-        background: rgba(255, 255, 255, 0.1);
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        color: white;
-        font-size: 24px;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        backdrop-filter: blur(8px);
-        transition: all 0.2s ease;
-        padding: 0;
-        -webkit-tap-highlight-color: transparent;
-        touch-action: manipulation;
-    }
-
-    .nav-button:hover {
-        background: rgba(255, 255, 255, 0.2);
-        transform: scale(1.05);
-    }
-
-    .nav-button:active {
-        transform: scale(0.95);
-    }
-
-    /* Make buttons larger on touch devices */
-    @media (pointer: coarse) {
-        .nav-button {
-            width: 60px;
-            height: 60px;
-            font-size: 28px;
-        }
-        
-        .navigation-controls {
-            bottom: 24px;
+        .nav-controls {
             right: 24px;
+            bottom: 24px;
             gap: 16px;
+        }
+
+        canvas {
+            touch-action: none;
         }
     }
 
@@ -1301,435 +1326,53 @@
 
     .intro-content {
         text-align: center;
-        color: white;
-        z-index: 10;
-        position: relative;
         pointer-events: none;
     }
 
     .intro-content h1 {
-        font-family: 'Quicksand', sans-serif;
-        font-weight: 300;
-        font-size: 3.5rem;
-        margin: 0;
-        letter-spacing: 0.2em;
-        position: relative;
-        pointer-events: none;
+        font-size: 3rem;
+        margin-bottom: 1rem;
     }
 
     .intro-content h1 span {
         display: inline-block;
         opacity: 0;
-        position: relative;
-        animation: emergeFromVoid 1.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        animation: fadeIn 0.5s forwards;
     }
 
     .intro-content p {
-        font-family: 'Quicksand', sans-serif;
-        font-weight: 300;
-        font-size: 1.8rem;
-        margin-top: 2rem;
-        opacity: 0;
-        animation: fadeFromDistance 2s cubic-bezier(0.4, 0, 0.2, 1) forwards;
-        animation-delay: 2s;
-        letter-spacing: 0.1em;
-        pointer-events: none;
-    }
-
-    @keyframes emergeFromVoid {
-        0% {
-            opacity: 0;
-            transform: perspective(1000px) translateZ(-300px) scale(3);
-            filter: blur(20px);
-            text-shadow: none;
-        }
-        60% {
-            opacity: 0.6;
-            transform: perspective(1000px) translateZ(-100px) scale(1.5);
-            filter: blur(10px);
-            text-shadow: 
-                0 0 20px rgba(255,255,255,0.5),
-                0 0 40px rgba(255,255,255,0.3);
-        }
-        100% {
-            opacity: 1;
-            transform: perspective(1000px) translateZ(0) scale(1);
-            filter: blur(0);
-            text-shadow: 
-                0 0 10px rgba(255,255,255,0.3),
-                0 0 20px rgba(255,255,255,0.2);
-        }
-    }
-
-    @keyframes fadeFromDistance {
-        0% {
-            opacity: 0;
-            transform: perspective(1000px) translateZ(-200px);
-            filter: blur(15px);
-        }
-        100% {
-            opacity: 0.9;
-            transform: perspective(1000px) translateZ(0);
-            filter: blur(0);
-        }
-    }
-
-    .particle-container {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        pointer-events: none;
-    }
-
-    .void-particle {
-        position: absolute;
-        background: white;
-        border-radius: 50%;
-        opacity: 0;
-    }
-
-    @keyframes particleConverge {
-        0% {
-            opacity: 0.8;
-            transform: translate(var(--start-x), var(--start-y)) scale(1);
-        }
-        60% {
-            opacity: 0.4;
-            transform: translate(var(--mid-x), var(--mid-y)) scale(0.6);
-        }
-        100% {
-            opacity: 0;
-            transform: translate(var(--end-x), var(--end-y)) scale(0);
-        }
-    }
-
-    .projects-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-        gap: 2.5rem;
-        width: 100%;
-        max-width: 1400px;
-        padding: 2rem;
-        margin: 0 auto;
-        will-change: transform;
-        isolation: isolate;
-        position: relative;
-    }
-
-    .projects-container {
-        width: 100%;
-        height: 100%;
-        padding: 2rem;
-    }
-
-    .project-card {
-        position: relative;
-        background: rgba(255, 255, 255, 0.15);
-        border-radius: 20px;
-        overflow: hidden;
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        transform: perspective(1000px) translateZ(0);
-        transition: transform 0.4s cubic-bezier(0.165, 0.84, 0.44, 1),
-                    background-color 0.4s ease,
-                    box-shadow 0.4s ease;
-        will-change: transform;
-        z-index: 1;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-    }
-
-    .project-card:hover {
-        transform: perspective(1000px) translateZ(20px) translateY(-5px);
-        background: rgba(255, 255, 255, 0.2);
-        border-color: rgba(255, 255, 255, 0.3);
-        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-    }
-
-    .project-image {
-        width: 100%;
-        height: 200px;
-        overflow: hidden;
-        position: relative;
-        background: rgba(0,0,0,0.1);
-    }
-
-    .project-image img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        transition: transform 0.5s ease;
-    }
-
-    .project-card:hover .project-image img {
-        transform: scale(1.05);
-    }
-
-    .project-content {
-        padding: 1.5rem;
-        color: white;
-        text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
-    }
-
-    .project-content h3 {
-        font-family: 'Quicksand', sans-serif;
         font-size: 1.5rem;
-        margin: 0 0 1rem 0;
-        font-weight: 500;
-        letter-spacing: 0.5px;
-        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
+        opacity: 0;
+        animation: fadeIn 0.5s forwards;
+        animation-delay: 1s;
     }
 
-    .tech-stack {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 0.5rem;
-        margin-bottom: 1rem;
-    }
-
-    .tech-tag {
-        background: rgba(255, 255, 255, 0.15);
-        padding: 0.3rem 0.8rem;
-        border-radius: 20px;
-        font-size: 0.8rem;
-        font-weight: 400;
-        letter-spacing: 0.5px;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    }
-
-    .project-description {
-        font-size: 0.95rem;
-        line-height: 1.6;
-        margin-bottom: 1.5rem;
-        opacity: 0.95;
-        font-weight: 400;
-    }
-
-    .project-links {
-        display: flex;
-        gap: 1rem;
-    }
-
-    .project-link {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        padding: 0.5rem 1rem;
-        background: rgba(255, 255, 255, 0.15);
-        border-radius: 8px;
-        text-decoration: none;
-        color: white;
-        font-size: 0.9rem;
-        transition: all 0.2s ease;
-        pointer-events: auto;
-        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-        font-weight: 500;
-    }
-
-    .project-link:hover {
-        background: rgba(255, 255, 255, 0.25);
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-    }
-
-    /* Responsive adjustments */
-    @media (max-width: 768px) {
-        .projects-grid {
-            grid-template-columns: 1fr;
-            padding: 1rem;
-            gap: 1.5rem;
-        }
-
-        .project-content {
-            padding: 1rem;
-        }
-
-        .project-content h3 {
-            font-size: 1.3rem;
-        }
-
-        .project-image {
-            height: 180px;
-        }
-    }
-
-    /* Dark mode optimization */
-    @media (prefers-color-scheme: dark) {
-        .project-card {
-            background: rgba(0, 0, 0, 0.3);
-        }
-
-        .project-card:hover {
-            background: rgba(0, 0, 0, 0.4);
-        }
-    }
-
-    .project-placeholder {
-        width: 100%;
-        height: 100%;
-        background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05));
-        transition: transform 0.5s ease;
-    }
-
-    .project-card:hover .project-placeholder {
-        transform: scale(1.05);
-    }
-
-    /* Add subtle animation to loading spinner */
-    .loading-spinner {
-        /* ... existing styles ... */
-        animation: spin 1s cubic-bezier(0.4, 0, 0.2, 1) infinite;
-    }
-
-    /* Enhance section transitions */
-    .portfolio-section {
-        /* ... existing styles ... */
-        transition: opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-
-    /* Add subtle floating animation to content */
-    @keyframes float {
-        0% { transform: translateY(0); }
-        50% { transform: translateY(-10px); }
-        100% { transform: translateY(0); }
-    }
-
-    .intro-content {
-        /* animation: float 6s ease-in-out infinite; <- Remove this line */
-    }
-
-    /* Enhanced hover effects for interactive elements */
-    .control-button:hover,
-    .nav-button:hover {
-        text-shadow: 0 4px 8px rgba(0,0,0,0.3);
-    }
-
-    /* Add smooth transitions to all elements */
-    :global(*) {
-        transition: color 0.3s ease, 
-                   background-color 0.3s ease, 
-                   transform 0.3s ease, 
-                   opacity 0.3s ease,
-                   text-shadow 0.3s ease;
-    }
-
-    .project-card {
-        /* ... existing styles ... */
-        transform: perspective(1000px) translateZ(0);
-        transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
-    }
-
-    .project-card:hover {
-        transform: perspective(1000px) translateZ(20px) translateY(-5px);
-        box-shadow: 0 15px 30px rgba(0,0,0,0.2);
-    }
-
-    .intro-content h1 {
-        font-weight: 300;
-        letter-spacing: 0.2em;
-        text-shadow: 0 4px 8px rgba(0,0,0,0.2);
-        transform: translateY(0);
-        transition: all 0.3s ease;
-    }
-
-    .intro-content h1:hover {
-        transform: translateY(-5px);
-        text-shadow: 0 8px 16px rgba(0,0,0,0.3);
-    }
-
-    .intro-content p {
-        font-weight: 300;
-        letter-spacing: 0.15em;
-        text-shadow: 0 2px 4px rgba(0,0,0,0.2);
-        opacity: 0.9;
-        transition: all 0.3s ease;
-    }
-
-    .intro-content p:hover {
-        opacity: 1;
-        transform: translateY(-3px);
-    }
-
-    .project-content h3 {
-        font-weight: 400;
-        letter-spacing: 0.1em;
-        text-shadow: 0 2px 4px rgba(0,0,0,0.2);
-        transition: all 0.3s ease;
-    }
-
-    .project-content h3:hover {
-        transform: translateX(5px);
-    }
-
-    .tech-tag {
-        font-weight: 400;
-        letter-spacing: 0.08em;
-        text-shadow: 0 1px 2px rgba(0,0,0,0.2);
-        transition: all 0.2s ease;
-    }
-
-    .tech-tag:hover {
-        transform: translateY(-2px);
-        background: rgba(255, 255, 255, 0.2);
-    }
-
-    .project-description {
-        font-weight: 300;
-        letter-spacing: 0.05em;
-        line-height: 1.8;
-        text-shadow: 0 1px 2px rgba(0,0,0,0.2);
-    }
-
-    .project-link {
-        /* ... existing styles ... */
-        font-weight: 400;
-        letter-spacing: 0.08em;
-        text-shadow: 0 1px 2px rgba(0,0,0,0.2);
-    }
-
-    .project-link:hover {
-        /* ... existing styles ... */
-        text-shadow: 0 2px 4px rgba(0,0,0,0.3);
-    }
-
-    /* Add new animation for name reveal */
-    @keyframes nameReveal {
-        0% {
+    @keyframes fadeIn {
+        from {
             opacity: 0;
-            transform: translateY(30px);
+            transform: translateY(20px);
         }
-        100% {
+        to {
             opacity: 1;
             transform: translateY(0);
         }
     }
 
-    .intro-content h1 {
-        opacity: 0;  /* Start hidden */
-        animation: nameReveal 1.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
-    }
-
-    .intro-content p {
+    /* Add any missing animation styles */
+    :global(.fly-enter) {
         opacity: 0;
-        animation: nameReveal 1.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
-        animation-delay: 0.3s;
+        transform: translateY(50px);
     }
 
-    /* Allow pointer events only on specific interactive elements */
-    .project-link,
-    .nav-button,
-    .control-button {
-        pointer-events: auto;
+    :global(.fly-enter-active) {
+        opacity: 1;
+        transform: translateY(0);
+        transition: all 1000ms ease;
     }
 
-    /* Make sure text elements don't capture pointer events */
-    .intro-content {
-        pointer-events: none;
-    }
-
-    .intro-content h1,
-    .intro-content p {
-        pointer-events: none;
+    :global(.fade-out) {
+        opacity: 0;
+        transition: opacity 300ms ease;
     }
 </style>
 
