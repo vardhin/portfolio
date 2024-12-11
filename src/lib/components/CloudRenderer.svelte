@@ -1515,6 +1515,107 @@
     .leading-relaxed {
         line-height: 1.7;
     }
+
+    /* Add these media queries at the end of your style section */
+
+    @media screen and (max-width: 768px) {
+        /* Intro content mobile adjustments */
+        .intro-content h1 {
+            font-size: 2rem; /* Reduced from 3rem */
+        }
+
+        .intro-content p {
+            font-size: 1.125rem; /* Reduced from 1.5rem */
+        }
+
+        /* Project content mobile adjustments */
+        .project-content h3 {
+            font-size: 1.25rem; /* Reduced from 1.5rem */
+        }
+
+        .project-description {
+            font-size: 0.875rem; /* Reduced from 1rem */
+        }
+
+        .tech-tag {
+            font-size: 0.75rem; /* Reduced from 0.875rem */
+        }
+
+        .project-link {
+            font-size: 0.75rem; /* Reduced from 0.875rem */
+        }
+
+        /* About section mobile adjustments */
+        .about-content h2 {
+            font-size: 1.875rem; /* Reduced from 2.5rem */
+        }
+
+        .about-content p {
+            font-size: 1rem; /* Reduced from 1.125rem */
+        }
+
+        /* Contact section mobile adjustments */
+        .contact-content h2 {
+            font-size: 1.875rem; /* Reduced from 2.5rem */
+        }
+
+        /* Text size helper classes mobile adjustments */
+        .text-sm {
+            font-size: 0.75rem;
+        }
+
+        .text-base {
+            font-size: 0.875rem;
+        }
+
+        .text-lg {
+            font-size: 1rem;
+        }
+
+        .text-xl {
+            font-size: 1.125rem;
+        }
+
+        .text-2xl {
+            font-size: 1.25rem;
+        }
+
+        .text-3xl {
+            font-size: 1.5rem;
+        }
+    }
+
+    /* Additional adjustments for very small screens */
+    @media screen and (max-width: 480px) {
+        .intro-content h1 {
+            font-size: 1.75rem;
+        }
+
+        .intro-content p {
+            font-size: 1rem;
+        }
+
+        /* Adjust section padding for smaller screens */
+        .portfolio-section {
+            padding: 1rem;
+        }
+    }
+
+    /* Landscape orientation adjustments */
+    @media screen and (max-height: 480px) and (orientation: landscape) {
+        .intro-content h1 {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .intro-content p {
+            font-size: 0.875rem;
+        }
+
+        .portfolio-section {
+            padding: 0.75rem;
+        }
+    }
 </style>
 
 <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&display=swap" rel="stylesheet" crossorigin="anonymous">
