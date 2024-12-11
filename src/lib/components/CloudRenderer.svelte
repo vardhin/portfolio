@@ -277,22 +277,39 @@
         // Calculate normalized coordinates (-1 to 1)
         normalizedMousePosition.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
         normalizedMousePosition.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+
+        // Update cursor if near sun
+        if (fogMaterial) {
+            const sunPos = fogMaterial.uniforms.sunPosition.value;
+            const distance = Math.sqrt(
+                Math.pow((normalizedMousePosition.x - sunPos.x), 2) + 
+                Math.pow((normalizedMousePosition.y - sunPos.y), 2)
+            );
+            
+            if (distance < 0.2) {
+                container.style.cursor = 'grab';
+            } else {
+                container.style.cursor = 'default';
+            }
+        }
     };
 
     const onMouseDown = (event) => {
         updateMousePosition(event);
-        const sunPos = fogMaterial.uniforms.sunPosition.value;
-        
-        // Calculate distance in normalized coordinates
-        const distance = Math.sqrt(
-            Math.pow((normalizedMousePosition.x - sunPos.x), 2) + 
-            Math.pow(normalizedMousePosition.y - sunPos.y, 2)
-        );
-        
-        // Reduced hit area from 0.6 to 0.3
-        if (distance < 0.06) {
-            isDragging = true;
-            container.style.cursor = 'grabbing';
+        if (fogMaterial) {
+            const sunPos = fogMaterial.uniforms.sunPosition.value;
+            
+            // Calculate distance in normalized coordinates
+            const distance = Math.sqrt(
+                Math.pow((normalizedMousePosition.x - sunPos.x), 2) + 
+                Math.pow((normalizedMousePosition.y - sunPos.y), 2)
+            );
+            
+            // Increased hit area from 0.06 to 0.2
+            if (distance < 0.2) {
+                isDragging = true;
+                container.style.cursor = 'grabbing';
+            }
         }
     };
 
@@ -308,11 +325,15 @@
             fogMaterial.uniforms.sunPosition.value.set(newX, newY);
             
             // Update coordinates and time display
-            sunCoordinates = { x: newX.toFixed(3), y: newY.toFixed(3) };
+            sunCoordinates = { x: newX, y: newY };
             currentTime = getTimeFromX(newX);
             
             // Update sky color
             scene.background = getSkyColor(newX);
+            
+            // Update isNightTime based on hour
+            const hour = ((newX + 1) * 12);
+            isNightTime = hour < 5 || hour > 19;
         }
     };
 
@@ -1259,8 +1280,7 @@
         height: 100vh;
         z-index: 2;
         transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
-        pointer-events: auto;
-        user-select: text;
+        pointer-events: none;
     }
 
     .portfolio-section {
@@ -1272,6 +1292,7 @@
         opacity: 0;
         transition: opacity 0.5s ease;
         padding: 2rem;
+        pointer-events: none;
     }
 
     .portfolio-section.active {
@@ -1283,6 +1304,7 @@
         color: white;
         z-index: 10;
         position: relative;
+        pointer-events: none;
     }
 
     .intro-content h1 {
@@ -1292,6 +1314,7 @@
         margin: 0;
         letter-spacing: 0.2em;
         position: relative;
+        pointer-events: none;
     }
 
     .intro-content h1 span {
@@ -1310,6 +1333,7 @@
         animation: fadeFromDistance 2s cubic-bezier(0.4, 0, 0.2, 1) forwards;
         animation-delay: 2s;
         letter-spacing: 0.1em;
+        pointer-events: none;
     }
 
     @keyframes emergeFromVoid {
@@ -1689,6 +1713,23 @@
         opacity: 0;
         animation: nameReveal 1.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
         animation-delay: 0.3s;
+    }
+
+    /* Allow pointer events only on specific interactive elements */
+    .project-link,
+    .nav-button,
+    .control-button {
+        pointer-events: auto;
+    }
+
+    /* Make sure text elements don't capture pointer events */
+    .intro-content {
+        pointer-events: none;
+    }
+
+    .intro-content h1,
+    .intro-content p {
+        pointer-events: none;
     }
 </style>
 
