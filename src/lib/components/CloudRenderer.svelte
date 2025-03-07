@@ -1559,7 +1559,7 @@
         backdrop-filter: blur(10px);
         width: 100%;
         max-width: 600px;
-        height: 300px; /* Fixed height for card */
+        height: 300px; /* Fixed height */
         margin: 0 auto;
         box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
         transition: all 0.3s ease;
@@ -1572,7 +1572,7 @@
         min-width: 0;
         display: flex;
         flex-direction: column;
-        overflow: hidden; /* Prevent content overflow */
+        height: 100%; /* Ensure full height */
     }
 
     .project-header {
@@ -1585,31 +1585,36 @@
     }
 
     .scrollable-content {
+        flex: 1; /* Take remaining space */
         overflow-y: auto;
-        flex-grow: 1;
-        padding-right: 0.5rem; /* Space for scrollbar */
+        min-height: 0; /* Critical for Firefox */
+        padding-right: 0.5rem;
     }
 
-    /* Customize scrollbar */
+    .project-details {
+        height: 100%;
+    }
+
+    /* Make scrollbar visible but subtle */
     .scrollable-content::-webkit-scrollbar {
-        width: 6px;
+        width: 4px;
     }
 
     .scrollable-content::-webkit-scrollbar-track {
         background: rgba(255, 255, 255, 0.05);
-        border-radius: 3px;
+        border-radius: 2px;
     }
 
     .scrollable-content::-webkit-scrollbar-thumb {
         background: rgba(255, 255, 255, 0.2);
-        border-radius: 3px;
+        border-radius: 2px;
     }
 
     .scrollable-content::-webkit-scrollbar-thumb:hover {
         background: rgba(255, 255, 255, 0.3);
     }
 
-    /* For Firefox */
+    /* Firefox scrollbar */
     .scrollable-content {
         scrollbar-width: thin;
         scrollbar-color: rgba(255, 255, 255, 0.2) rgba(255, 255, 255, 0.05);
@@ -1722,9 +1727,13 @@
 
     @media (max-width: 768px) {
         .project-card {
-            height: 400px; /* Slightly taller on mobile */
+            height: 400px;
         }
-
+        
+        .scrollable-content {
+            padding-right: 0.25rem; /* Smaller padding on mobile */
+        }
+        
         .tech-stack {
             flex-direction: row;
             flex-wrap: wrap;
