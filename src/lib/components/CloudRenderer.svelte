@@ -1139,88 +1139,171 @@
                     </div>
                 {:else if section.id === 'projects'}
                     <div class="projects-container" in:fly="{{ y: 50, duration: 1000 }}" out:fade>
-                        <div class="projects-grid">
-                            <!-- Projects Section -->
-                            <section class="project-section">
-                                <div class="project-card">
-                                    <div class="project-content">
-                                        <h3>Decentralized Cloud Computing - Decloud</h3>
-                                        <div class="tech-stack">
-                                            {#each ['Electron', 'Svelte', 'IPFS', 'Docker', 'TypeScript'] as tech}
-                                                <span class="tech-tag">{tech}</span>
-                                            {/each}
-                                        </div>
-                                        <p class="project-description">
-                                            Developed a desktop application enabling secure, decentralized sharing of computing resources. 
-                                            Implemented a two-way communication protocol over IPFS PubSub for tamper-proof records. 
-                                            Automated Docker container deployment for dynamic client resource provisioning.
-                                        </p>
-                                        <ProjectLink href="https://github.com/yourusername/decloud" />
-                                    </div>
-                                </div>
-                            </section>
+                        {#each sections as section, i}
+                            {#if section.id === 'projects' && currentSection === i}
+                                <div class="project-card" in:fly="{{ y: 50, duration: 1000 }}" out:fade>
+                                    {#if currentSection === 1}
+                                        <div class="project-content">
+                                            <div class="project-header">
+                                                <h2>Decentralized Cloud Computing</h2>
+                                                <h3>Decloud</h3>
+                                            </div>
+                                            
+                                            <div class="tech-stack">
+                                                {#each ['Electron', 'Svelte', 'IPFS', 'Docker', 'TypeScript'] as tech}
+                                                    <button class="tech-button">{tech}</button>
+                                                {/each}
+                                            </div>
 
-                            <!-- Research Projects Section -->
-                            <section class="project-section">
-                                <div class="project-card">
-                                    <div class="project-content">
-                                        <h3>Decentralized Messaging - Recon</h3>
-                                        <div class="tech-stack">
-                                            {#each ['Svelte', 'Capacitor', 'GunJs', 'TypeScript'] as tech}
-                                                <span class="tech-tag">{tech}</span>
-                                            {/each}
-                                        </div>
-                                        <p class="project-description">
-                                            Developed a decentralized mobile app using Svelte and GunJs for private and secure communication 
-                                            without centralized servers. Created a custom event-driven protocol in TypeScript for seamless 
-                                            integration and rapid development. Deployed as APK using Capacitor and Android Studio.
-                                        </p>
-                                        <ProjectLink href="https://github.com/yourusername/recon" />
-                                    </div>
-                                </div>
-                            </section>
+                                            <div class="project-details">
+                                                <h4>Overview</h4>
+                                                <p>A desktop application enabling secure, decentralized sharing of computing resources.</p>
+                                                
+                                                <h4>Key Features</h4>
+                                                <ul>
+                                                    <li>Two-way communication protocol over IPFS PubSub for tamper-proof records</li>
+                                                    <li>Automated Docker container deployment for dynamic resource provisioning</li>
+                                                    <li>Decentralized architecture ensuring data privacy and security</li>
+                                                </ul>
 
-                            <!-- Competition Projects Section -->
-                            <section class="project-section">
-                                <div class="project-card">
-                                    <div class="project-content">
-                                        <h3>Disaster Resistant Shelter - Yantra</h3>
-                                        <div class="tech-stack">
-                                            {#each ['Python', 'NumPy', 'Matplotlib'] as tech}
-                                                <span class="tech-tag">{tech}</span>
-                                            {/each}
-                                        </div>
-                                        <p class="project-description">
-                                            Winner of Design-a-thon by Indian Geotechnical Society. Designed and constructed a 
-                                            disaster resistant safe shelter utilizing mechanical contraptions. Performed stress 
-                                            and fluid analysis using NumPy and Matplotlib Python libraries.
-                                        </p>
-                                        <ProjectLink href="https://github.com/yourusername/yantra-shelter" />
-                                    </div>
-                                </div>
-                            </section>
+                                                <h4>Implementation</h4>
+                                                <p>Built using Electron and Svelte for the frontend, with IPFS for decentralized communication 
+                                                and Docker for containerization. TypeScript ensures type safety and better development experience.</p>
+                                            </div>
 
-                            <!-- Hackathon Projects Section -->
-                            <section class="project-section">
-                                <div class="project-card">
-                                    <div class="project-content">
-                                        <h3>Carbon Credit Marketplace - Code4Change</h3>
-                                        <div class="tech-stack">
-                                            {#each ['React Native', 'Ethereum', 'Blockchain'] as tech}
-                                                <span class="tech-tag">{tech}</span>
-                                            {/each}
+                                            <div class="project-links">
+                                                <a href="https://github.com/yourusername/decloud" 
+                                                   class="github-button" 
+                                                   target="_blank" 
+                                                   rel="noopener noreferrer">
+                                                    <Github size={20} />
+                                                    <span>View Repository</span>
+                                                </a>
+                                            </div>
                                         </div>
-                                        <p class="project-description">
-                                            Finalist in IEEE Code4Change 2.0. Created a tamper-proof and transparent carbon credit 
-                                            marketplace enabling individuals to invest in green companies. Implemented as a native 
-                                            multiplatform app using React Native with secure transactions through Ethereum blockchain 
-                                            and smart contracts.
-                                        </p>
-                                        <ProjectLink href="https://github.com/yourusername/carbon-credits" />
-                                    </div>
+                                    {:else if currentSection === 2}
+                                        <div class="project-content">
+                                            <div class="project-header">
+                                                <h2>Decentralized Messaging</h2>
+                                                <h3>Recon</h3>
+                                            </div>
+                                            
+                                            <div class="tech-stack">
+                                                {#each ['Svelte', 'Capacitor', 'GunJs', 'TypeScript'] as tech}
+                                                    <button class="tech-button">{tech}</button>
+                                                {/each}
+                                            </div>
+
+                                            <div class="project-details">
+                                                <h4>Overview</h4>
+                                                <p>A decentralized mobile messaging application ensuring private and secure communication.</p>
+                                                
+                                                <h4>Key Features</h4>
+                                                <ul>
+                                                    <li>Serverless architecture using GunJs for peer-to-peer data sync</li>
+                                                    <li>Custom event-driven protocol for seamless integration</li>
+                                                    <li>Cross-platform mobile deployment using Capacitor</li>
+                                                </ul>
+
+                                                <h4>Implementation</h4>
+                                                <p>Developed using Svelte for the UI, GunJs for decentralized data management, 
+                                                and Capacitor for native mobile deployment. TypeScript ensures robust type checking 
+                                                and better code organization.</p>
+                                            </div>
+
+                                            <div class="project-links">
+                                                <a href="https://github.com/yourusername/recon" 
+                                                   class="github-button" 
+                                                   target="_blank" 
+                                                   rel="noopener noreferrer">
+                                                    <Github size={20} />
+                                                    <span>View Repository</span>
+                                                </a>
+                                            </div>
+                                        </div>
+                                    {:else if currentSection === 3}
+                                        <div class="project-content">
+                                            <div class="project-header">
+                                                <h2>Disaster Resistant Shelter</h2>
+                                                <h3>Yantra</h3>
+                                            </div>
+                                            
+                                            <div class="tech-stack">
+                                                {#each ['Python', 'NumPy', 'Matplotlib'] as tech}
+                                                    <button class="tech-button">{tech}</button>
+                                                {/each}
+                                            </div>
+
+                                            <div class="project-details">
+                                                <h4>Overview</h4>
+                                                <p>Winner of Design-a-thon by Indian Geotechnical Society. A innovative shelter design 
+                                                with advanced safety features.</p>
+                                                
+                                                <h4>Key Features</h4>
+                                                <ul>
+                                                    <li>Advanced structural analysis using Python</li>
+                                                    <li>Comprehensive stress and fluid analysis</li>
+                                                    <li>Mechanical contraptions for enhanced safety</li>
+                                                </ul>
+
+                                                <h4>Implementation</h4>
+                                                <p>Utilized Python with NumPy for computational analysis and Matplotlib for 
+                                                visualization of stress distributions and fluid dynamics.</p>
+                                            </div>
+
+                                            <div class="project-links">
+                                                <a href="https://github.com/yourusername/yantra" 
+                                                   class="github-button" 
+                                                   target="_blank" 
+                                                   rel="noopener noreferrer">
+                                                    <Github size={20} />
+                                                    <span>View Repository</span>
+                                                </a>
+                                            </div>
+                                        </div>
+                                    {:else if currentSection === 4}
+                                        <div class="project-content">
+                                            <div class="project-header">
+                                                <h2>Carbon Credit Marketplace</h2>
+                                                <h3>Code4Change</h3>
+                                            </div>
+                                            
+                                            <div class="tech-stack">
+                                                {#each ['React Native', 'Ethereum', 'Blockchain'] as tech}
+                                                    <button class="tech-button">{tech}</button>
+                                                {/each}
+                                            </div>
+
+                                            <div class="project-details">
+                                                <h4>Overview</h4>
+                                                <p>Finalist in IEEE Code4Change 2.0. A blockchain-based marketplace for carbon credits.</p>
+                                                
+                                                <h4>Key Features</h4>
+                                                <ul>
+                                                    <li>Transparent carbon credit trading system</li>
+                                                    <li>Secure blockchain transactions</li>
+                                                    <li>Cross-platform mobile application</li>
+                                                </ul>
+
+                                                <h4>Implementation</h4>
+                                                <p>Built using React Native for cross-platform compatibility, with Ethereum blockchain 
+                                                for secure and transparent transactions.</p>
+                                            </div>
+
+                                            <div class="project-links">
+                                                <a href="https://github.com/yourusername/carbon-credits" 
+                                                   class="github-button" 
+                                                   target="_blank" 
+                                                   rel="noopener noreferrer">
+                                                    <Github size={20} />
+                                                    <span>View Repository</span>
+                                                </a>
+                                            </div>
+                                        </div>
+                                    {/if}
                                 </div>
-                            </section>
-                        </div>
+                            {/if}
+                        {/each}
                     </div>
                 {:else if section.id === 'about'}
                     <div class="about-content"
@@ -1842,6 +1925,164 @@
     @keyframes fadeIn {
         from { opacity: 0; transform: translateY(20px); }
         to { opacity: 1; transform: translateY(0); }
+    }
+
+    .projects-container {
+        width: 100%;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 2rem;
+        height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .project-card {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 20px;
+        padding: 2.5rem;
+        backdrop-filter: blur(10px);
+        width: 100%;
+        max-width: 800px;
+        margin: 0 auto;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+    }
+
+    .project-header {
+        margin-bottom: 2rem;
+        text-align: center;
+    }
+
+    .project-header h2 {
+        font-size: 2.5rem;
+        font-weight: 300;
+        margin: 0;
+        letter-spacing: 0.05em;
+    }
+
+    .project-header h3 {
+        font-size: 1.5rem;
+        font-weight: 400;
+        margin: 0.5rem 0 0;
+        color: rgba(255, 255, 255, 0.8);
+    }
+
+    .tech-stack {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+        margin-bottom: 2rem;
+        justify-content: center;
+    }
+
+    .tech-button {
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 20px;
+        padding: 0.5rem 1rem;
+        color: white;
+        font-size: 0.9rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .tech-button:hover {
+        background: rgba(255, 255, 255, 0.2);
+        transform: translateY(-2px);
+    }
+
+    .project-details {
+        margin-bottom: 2rem;
+    }
+
+    .project-details h4 {
+        font-size: 1.2rem;
+        font-weight: 500;
+        margin: 1.5rem 0 1rem;
+        color: rgba(255, 255, 255, 0.9);
+    }
+
+    .project-details p {
+        font-size: 1rem;
+        line-height: 1.6;
+        color: rgba(255, 255, 255, 0.8);
+        margin-bottom: 1rem;
+    }
+
+    .project-details ul {
+        list-style-type: none;
+        padding: 0;
+        margin: 0 0 1rem;
+    }
+
+    .project-details li {
+        position: relative;
+        padding-left: 1.5rem;
+        margin-bottom: 0.5rem;
+        line-height: 1.6;
+        color: rgba(255, 255, 255, 0.8);
+    }
+
+    .project-details li::before {
+        content: "•";
+        position: absolute;
+        left: 0;
+        color: rgba(255, 255, 255, 0.6);
+    }
+
+    .project-links {
+        display: flex;
+        justify-content: center;
+        margin-top: 2rem;
+    }
+
+    .github-button {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 25px;
+        padding: 0.75rem 1.5rem;
+        color: white;
+        text-decoration: none;
+        font-size: 1rem;
+        transition: all 0.2s ease;
+    }
+
+    .github-button:hover {
+        background: rgba(255, 255, 255, 0.2);
+        transform: translateY(-2px);
+    }
+
+    @media (max-width: 768px) {
+        .projects-container {
+            padding: 1rem;
+        }
+
+        .project-card {
+            padding: 1.5rem;
+        }
+
+        .project-header h2 {
+            font-size: 2rem;
+        }
+
+        .project-header h3 {
+            font-size: 1.25rem;
+        }
+
+        .tech-stack {
+            gap: 0.5rem;
+        }
+
+        .tech-button {
+            font-size: 0.8rem;
+            padding: 0.4rem 0.8rem;
+        }
     }
 </style>
 
