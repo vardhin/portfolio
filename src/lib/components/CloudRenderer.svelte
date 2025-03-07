@@ -236,29 +236,53 @@
     const handleNavButtonPress = (direction) => {
         if (isNavigating) return;
         
+        const sections = document.querySelectorAll('.portfolio-section');
+        const currentSectionEl = sections[currentSection];
+        let nextSection;
+        
         switch(direction) {
             case 'up':
                 if (currentSection > MIN_SECTION) {
                     isNavigating = true;
-                    currentSection--;
-                    targetCameraY = currentSection * -5;
-                    sectionSpring.set({ y: currentSection * -100 });
+                    nextSection = currentSection - 1;
                     
-                    navigationTimeout = setTimeout(() => {
-                        isNavigating = false;
-                    }, 500);
+                    // Add fade out animation to current section
+                    currentSectionEl.style.animation = 'dreamyFadeOut 0.8s forwards';
+                    
+                    setTimeout(() => {
+                        currentSection = nextSection;
+                        targetCameraY = currentSection * -5;
+                        
+                        // Add fade in animation to new section
+                        const nextSectionEl = sections[nextSection];
+                        nextSectionEl.style.animation = 'dreamyFadeIn 0.8s forwards';
+                        
+                        navigationTimeout = setTimeout(() => {
+                            isNavigating = false;
+                        }, 500);
+                    }, 800);
                 }
                 break;
             case 'down':
                 if (currentSection < MAX_SECTION) {
                     isNavigating = true;
-                    currentSection++;
-                    targetCameraY = currentSection * -5;
-                    sectionSpring.set({ y: currentSection * -100 });
+                    nextSection = currentSection + 1;
                     
-                    navigationTimeout = setTimeout(() => {
-                        isNavigating = false;
-                    }, 500);
+                    // Add fade out animation to current section
+                    currentSectionEl.style.animation = 'dreamyFadeOut 0.8s forwards';
+                    
+                    setTimeout(() => {
+                        currentSection = nextSection;
+                        targetCameraY = currentSection * -5;
+                        
+                        // Add fade in animation to new section
+                        const nextSectionEl = sections[nextSection];
+                        nextSectionEl.style.animation = 'dreamyFadeIn 0.8s forwards';
+                        
+                        navigationTimeout = setTimeout(() => {
+                            isNavigating = false;
+                        }, 500);
+                    }, 800);
                 }
                 break;
         }
@@ -1050,8 +1074,8 @@
     
     // Create spring store for section transitions
     const sectionSpring = spring({ y: 0 }, {
-        stiffness: 0.15,
-        damping: 0.65,
+        stiffness: 0.08,  // Reduced from 0.15 for smoother movement
+        damping: 0.8,     // Increased from 0.65 for more fluid motion
         precision: 0.001  // Added precision for smoother small movements
     });
 
@@ -1380,7 +1404,7 @@
         width: 100%;
         height: 100vh;
         z-index: 2;
-        transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        transition: transform 1.2s cubic-bezier(0.4, 0, 0.2, 1);
         pointer-events: none;
     }
 
@@ -1393,11 +1417,16 @@
         justify-content: flex-start;
         padding: 4rem 2rem;
         opacity: 0;
-        transition: opacity 0.5s ease;
+        transition: opacity 1.2s cubic-bezier(0.4, 0, 0.2, 1),
+                    transform 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+        transform: translateY(30px);
+        filter: blur(10px);
     }
 
     .portfolio-section.active {
         opacity: 1;
+        transform: translateY(0);
+        filter: blur(0);
     }
 
     .section-title {
@@ -1453,6 +1482,23 @@
             opacity: 1;
             transform: translateY(0) scale(1);
             filter: blur(0);
+        }
+    }
+
+    @keyframes dreamyFadeOut {
+        0% {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+            filter: blur(0);
+        }
+        40% {
+            opacity: 0.4;
+            filter: blur(5px);
+        }
+        100% {
+            opacity: 0;
+            transform: translateY(-30px) scale(0.95);
+            filter: blur(10px);
         }
     }
 
