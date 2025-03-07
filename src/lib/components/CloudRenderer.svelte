@@ -1405,8 +1405,7 @@
         width: 100%;
         height: 100vh;
         z-index: 2;
-        transition: transform 1.2s cubic-bezier(0.4, 0, 0.2, 1);
-        pointer-events: none;
+        pointer-events: none; /* Only disable pointer events at this level */
     }
 
     .portfolio-section {
@@ -1415,21 +1414,83 @@
         display: flex;
         flex-direction: column;
         align-items: center;
-        justify-content: center; /* Center vertically */
+        justify-content: center;
         padding: 2rem;
         opacity: 0;
+        visibility: hidden; /* Add visibility property */
         transition: opacity 1.2s cubic-bezier(0.4, 0, 0.2, 1),
-                    transform 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+                    transform 1.2s cubic-bezier(0.4, 0, 0.2, 1),
+                    visibility 1.2s cubic-bezier(0.4, 0, 0.2, 1);
         transform: translateY(30px);
         filter: blur(10px);
-        pointer-events: none; /* Add this to prevent interaction with inactive sections */
     }
 
     .portfolio-section.active {
         opacity: 1;
+        visibility: visible;
         transform: translateY(0);
         filter: blur(0);
-        pointer-events: auto; /* Enable interaction for active section */
+        pointer-events: auto;
+    }
+
+    /* Update card styles to ensure visibility */
+    .project-card, .about-card, .contact-card {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 20px;
+        padding: 2rem;
+        backdrop-filter: blur(10px);
+        width: 100%;
+        max-width: 700px;
+        margin: 0 auto;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        pointer-events: auto;
+        opacity: 1; /* Ensure opacity is set to 1 */
+        visibility: visible; /* Ensure visibility is visible */
+    }
+
+    /* Update content styles */
+    .project-content, .about-content, .contact-content {
+        opacity: 1;
+        visibility: visible;
+        pointer-events: auto;
+    }
+
+    /* Update section pages */
+    .project-page, .about-page, .contact-page {
+        height: 100%;
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem;
+        opacity: 1;
+        visibility: visible;
+        pointer-events: auto;
+    }
+
+    /* Ensure text is visible */
+    .section-title, h1, h2, h3, h4, p, li {
+        opacity: 1;
+        visibility: visible;
+        color: white;
+    }
+
+    /* Update button styles to ensure visibility */
+    .tech-button, .contact-button {
+        opacity: 1;
+        visibility: visible;
+        pointer-events: auto;
+        color: white;
+    }
+
+    /* Make sure links are visible and clickable */
+    a {
+        opacity: 1;
+        visibility: visible;
+        pointer-events: auto;
+        color: white;
     }
 
     .section-title {
@@ -2308,8 +2369,10 @@
         justify-content: center; /* Center vertically */
         padding: 2rem;
         opacity: 0;
+        visibility: hidden; /* Add visibility property */
         transition: opacity 1.2s cubic-bezier(0.4, 0, 0.2, 1),
-                    transform 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+                    transform 1.2s cubic-bezier(0.4, 0, 0.2, 1),
+                    visibility 1.2s cubic-bezier(0.4, 0, 0.2, 1);
         transform: translateY(30px);
         filter: blur(10px);
         pointer-events: none; /* Add this to prevent interaction with inactive sections */
@@ -2317,6 +2380,7 @@
 
     .portfolio-section.active {
         opacity: 1;
+        visibility: visible;
         transform: translateY(0);
         filter: blur(0);
         pointer-events: auto; /* Enable interaction for active section */
