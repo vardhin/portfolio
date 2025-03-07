@@ -1157,20 +1157,22 @@
                                 </a>
                             </div>
                             
-                            <div class="project-details">
-                                <h4>Overview</h4>
-                                <p>A desktop application enabling secure, decentralized sharing of computing resources.</p>
-                                
-                                <h4>Key Features</h4>
-                                <ul>
-                                    <li>Two-way communication protocol over IPFS PubSub for tamper-proof records</li>
-                                    <li>Automated Docker container deployment for dynamic resource provisioning</li>
-                                    <li>Decentralized architecture ensuring data privacy and security</li>
-                                </ul>
+                            <div class="scrollable-content">
+                                <div class="project-details">
+                                    <h4>Overview</h4>
+                                    <p>A desktop application enabling secure, decentralized sharing of computing resources.</p>
+                                    
+                                    <h4>Key Features</h4>
+                                    <ul>
+                                        <li>Two-way communication protocol over IPFS PubSub for tamper-proof records</li>
+                                        <li>Automated Docker container deployment for dynamic resource provisioning</li>
+                                        <li>Decentralized architecture ensuring data privacy and security</li>
+                                    </ul>
 
-                                <h4>Implementation</h4>
-                                <p>Built using Electron and Svelte for the frontend, with IPFS for decentralized communication 
-                                and Docker for containerization. TypeScript ensures type safety and better development experience.</p>
+                                    <h4>Implementation</h4>
+                                    <p>Built using Electron and Svelte for the frontend, with IPFS for decentralized communication 
+                                    and Docker for containerization. TypeScript ensures type safety and better development experience.</p>
+                                </div>
                             </div>
                         </div>
                         
@@ -1197,21 +1199,23 @@
                                 </a>
                             </div>
                             
-                            <div class="project-details">
-                                <h4>Overview</h4>
-                                <p>A decentralized mobile messaging application ensuring private and secure communication.</p>
-                                
-                                <h4>Key Features</h4>
-                                <ul>
-                                    <li>Serverless architecture using GunJs for peer-to-peer data sync</li>
-                                    <li>Custom event-driven protocol for seamless integration</li>
-                                    <li>Cross-platform mobile deployment using Capacitor</li>
-                                </ul>
+                            <div class="scrollable-content">
+                                <div class="project-details">
+                                    <h4>Overview</h4>
+                                    <p>A decentralized mobile messaging application ensuring private and secure communication.</p>
+                                    
+                                    <h4>Key Features</h4>
+                                    <ul>
+                                        <li>Serverless architecture using GunJs for peer-to-peer data sync</li>
+                                        <li>Custom event-driven protocol for seamless integration</li>
+                                        <li>Cross-platform mobile deployment using Capacitor</li>
+                                    </ul>
 
-                                <h4>Implementation</h4>
-                                <p>Developed using Svelte for the UI, GunJs for decentralized data management, 
-                                and Capacitor for native mobile deployment. TypeScript ensures robust type checking 
-                                and better code organization.</p>
+                                    <h4>Implementation</h4>
+                                    <p>Developed using Svelte for the UI, GunJs for decentralized data management, 
+                                    and Capacitor for native mobile deployment. TypeScript ensures robust type checking 
+                                    and better code organization.</p>
+                                </div>
                             </div>
                         </div>
                         
@@ -1238,21 +1242,23 @@
                                 </a>
                             </div>
                             
-                            <div class="project-details">
-                                <h4>Overview</h4>
-                                <p>Winner of Design-a-thon by Indian Geotechnical Society. A innovative shelter design 
-                                with advanced safety features.</p>
-                                
-                                <h4>Key Features</h4>
-                                <ul>
-                                    <li>Advanced structural analysis using Python</li>
-                                    <li>Comprehensive stress and fluid analysis</li>
-                                    <li>Mechanical contraptions for enhanced safety</li>
-                                </ul>
+                            <div class="scrollable-content">
+                                <div class="project-details">
+                                    <h4>Overview</h4>
+                                    <p>Winner of Design-a-thon by Indian Geotechnical Society. A innovative shelter design 
+                                    with advanced safety features.</p>
+                                    
+                                    <h4>Key Features</h4>
+                                    <ul>
+                                        <li>Advanced structural analysis using Python</li>
+                                        <li>Comprehensive stress and fluid analysis</li>
+                                        <li>Mechanical contraptions for enhanced safety</li>
+                                    </ul>
 
-                                <h4>Implementation</h4>
-                                <p>Utilized Python with NumPy for computational analysis and Matplotlib for 
-                                visualization of stress distributions and fluid dynamics.</p>
+                                    <h4>Implementation</h4>
+                                    <p>Utilized Python with NumPy for computational analysis and Matplotlib for 
+                                    visualization of stress distributions and fluid dynamics.</p>
+                                </div>
                             </div>
                         </div>
                         
@@ -1279,20 +1285,22 @@
                                 </a>
                             </div>
                             
-                            <div class="project-details">
-                                <h4>Overview</h4>
-                                <p>Finalist in IEEE Code4Change 2.0. A blockchain-based marketplace for carbon credits.</p>
-                                
-                                <h4>Key Features</h4>
-                                <ul>
-                                    <li>Transparent carbon credit trading system</li>
-                                    <li>Secure blockchain transactions</li>
-                                    <li>Cross-platform mobile application</li>
-                                </ul>
+                            <div class="scrollable-content">
+                                <div class="project-details">
+                                    <h4>Overview</h4>
+                                    <p>Finalist in IEEE Code4Change 2.0. A blockchain-based marketplace for carbon credits.</p>
+                                    
+                                    <h4>Key Features</h4>
+                                    <ul>
+                                        <li>Transparent carbon credit trading system</li>
+                                        <li>Secure blockchain transactions</li>
+                                        <li>Cross-platform mobile application</li>
+                                    </ul>
 
-                                <h4>Implementation</h4>
-                                <p>Built using React Native for cross-platform compatibility, with Ethereum blockchain 
-                                for secure and transparent transactions.</p>
+                                    <h4>Implementation</h4>
+                                    <p>Built using React Native for cross-platform compatibility, with Ethereum blockchain 
+                                    for secure and transparent transactions.</p>
+                                </div>
                             </div>
                         </div>
                         
@@ -1551,17 +1559,20 @@
         backdrop-filter: blur(10px);
         width: 100%;
         max-width: 600px;
+        height: 300px; /* Fixed height for card */
         margin: 0 auto;
         box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
         transition: all 0.3s ease;
-        overflow: hidden;
         display: flex;
         gap: 1rem;
     }
 
     .project-content {
         flex: 1;
-        min-width: 0; /* Prevent flex item from overflowing */
+        min-width: 0;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden; /* Prevent content overflow */
     }
 
     .project-header {
@@ -1570,6 +1581,38 @@
         align-items: flex-start;
         margin-bottom: 0.75rem;
         flex-wrap: wrap;
+        flex-shrink: 0; /* Prevent header from shrinking */
+    }
+
+    .scrollable-content {
+        overflow-y: auto;
+        flex-grow: 1;
+        padding-right: 0.5rem; /* Space for scrollbar */
+    }
+
+    /* Customize scrollbar */
+    .scrollable-content::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    .scrollable-content::-webkit-scrollbar-track {
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 3px;
+    }
+
+    .scrollable-content::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 3px;
+    }
+
+    .scrollable-content::-webkit-scrollbar-thumb:hover {
+        background: rgba(255, 255, 255, 0.3);
+    }
+
+    /* For Firefox */
+    .scrollable-content {
+        scrollbar-width: thin;
+        scrollbar-color: rgba(255, 255, 255, 0.2) rgba(255, 255, 255, 0.05);
     }
 
     .project-header-text {
@@ -1633,7 +1676,7 @@
     }
 
     .project-details {
-        margin-bottom: 0.75rem;
+        margin-bottom: 0; /* Remove bottom margin since we're scrolling */
         width: 100%;
     }
 
@@ -1679,9 +1722,7 @@
 
     @media (max-width: 768px) {
         .project-card {
-            flex-direction: column;
-            padding: 1rem;
-            margin: 0 0.5rem;
+            height: 400px; /* Slightly taller on mobile */
         }
 
         .tech-stack {
