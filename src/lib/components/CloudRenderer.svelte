@@ -1558,14 +1558,13 @@
         padding: 1.25rem;
         backdrop-filter: blur(10px);
         width: 100%;
-        max-width: 600px;
-        height: 300px; /* Fixed height */
+        max-width: 800px; /* Increased from 600px */
+        height: 300px;
         margin: 0 auto;
         box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
         transition: all 0.3s ease;
         display: flex;
         gap: 1rem;
-        overflow: hidden; /* Ensure card doesn't scroll */
     }
 
     .project-content {
@@ -1573,8 +1572,7 @@
         min-width: 0;
         display: flex;
         flex-direction: column;
-        height: 100%; /* Ensure full height */
-        overflow: hidden; /* Ensure only the content area scrolls */
+        height: 100%;
     }
 
     .project-header {
@@ -1583,49 +1581,7 @@
         align-items: flex-start;
         margin-bottom: 0.75rem;
         flex-wrap: wrap;
-        flex-shrink: 0; /* Prevent header from shrinking */
-    }
-
-    .scrollable-content {
-        flex: 1;
-        overflow-y: scroll; /* Force scroll instead of auto */
-        min-height: 0;
-        padding-right: 0.5rem;
-        -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
-        overscroll-behavior: contain; /* Prevent scroll chaining */
-        touch-action: pan-y; /* Enable touch scrolling */
-    }
-
-    .project-details {
-        height: 100%;
-    }
-
-    /* Make scrollbar visible but subtle */
-    .scrollable-content::-webkit-scrollbar {
-        display: block !important; /* Override global hide */
-        width: 4px;
-    }
-
-    .scrollable-content::-webkit-scrollbar-track {
-        background: rgba(255, 255, 255, 0.05);
-        border-radius: 2px;
-        display: block !important;
-    }
-
-    .scrollable-content::-webkit-scrollbar-thumb {
-        background: rgba(255, 255, 255, 0.2);
-        border-radius: 2px;
-        display: block !important;
-    }
-
-    .scrollable-content::-webkit-scrollbar-thumb:hover {
-        background: rgba(255, 255, 255, 0.3);
-    }
-
-    /* Firefox scrollbar - force show */
-    .scrollable-content {
-        scrollbar-width: thin !important;
-        scrollbar-color: rgba(255, 255, 255, 0.2) rgba(255, 255, 255, 0.05) !important;
+        flex-shrink: 0;
     }
 
     .project-header-text {
@@ -1635,38 +1591,54 @@
     }
 
     .project-header h2 {
-        font-size: 1.25rem; /* Reduced from 1.5rem */
+        font-size: 1.1rem; /* Reduced from 1.25rem */
         font-weight: 300;
         margin: 0;
         letter-spacing: 0.02em;
-        word-wrap: break-word;
-        overflow-wrap: break-word;
-        max-width: 100%;
     }
 
     .project-header h3 {
-        font-size: 0.9rem; /* Reduced from 1rem */
+        font-size: 0.85rem; /* Reduced from 0.9rem */
         font-weight: 400;
         margin: 0.15rem 0 0;
         color: rgba(255, 255, 255, 0.7);
-        word-wrap: break-word;
-        overflow-wrap: break-word;
     }
 
-    .github-button {
-        display: flex;
-        align-items: center;
-        gap: 0.4rem;
-        background: rgba(255, 255, 255, 0.08);
-        border: 1px solid rgba(255, 255, 255, 0.15);
-        border-radius: 8px;
-        padding: 0.4rem 0.75rem;
+    .project-details {
+        height: 100%;
+    }
+
+    .project-details h4 {
+        font-size: 0.85rem; /* Reduced from 0.9rem */
+        font-weight: 500;
+        margin: 0.75rem 0 0.5rem;
         color: rgba(255, 255, 255, 0.9);
-        text-decoration: none;
-        font-size: 0.85rem;
-        transition: all 0.2s ease;
-        white-space: nowrap;
-        flex-shrink: 0;
+    }
+
+    .project-details h4:first-child {
+        margin-top: 0;
+    }
+
+    .project-details p {
+        font-size: 0.8rem; /* Reduced from 0.85rem */
+        line-height: 1.5;
+        color: rgba(255, 255, 255, 0.8);
+        margin-bottom: 0.5rem;
+    }
+
+    .project-details ul {
+        list-style-type: none;
+        padding: 0;
+        margin: 0 0 0.5rem;
+    }
+
+    .project-details li {
+        position: relative;
+        padding-left: 1rem;
+        margin-bottom: 0.3rem;
+        line-height: 1.4;
+        font-size: 0.8rem; /* Reduced from 0.85rem */
+        color: rgba(255, 255, 255, 0.8);
     }
 
     .tech-stack {
@@ -1684,105 +1656,76 @@
         border-radius: 6px;
         padding: 0.25rem 0.5rem;
         color: rgba(255, 255, 255, 0.8);
-        font-size: 0.75rem; /* Slightly reduced */
+        font-size: 0.7rem; /* Reduced from 0.75rem */
         white-space: nowrap;
     }
 
-    .project-details {
-        margin-bottom: 0; /* Remove bottom margin since we're scrolling */
-        width: 100%;
-    }
-
-    .project-details h4 {
-        font-size: 0.9rem; /* Reduced from 0.95rem */
-        font-weight: 500;
-        margin: 0.75rem 0 0.5rem; /* Reduced top margin */
-        color: rgba(255, 255, 255, 0.9);
-        word-wrap: break-word;
-        overflow-wrap: break-word;
-    }
-
-    .project-details h4:first-child {
-        margin-top: 0;
-    }
-
-    .project-details p {
-        font-size: 0.85rem; /* Reduced from 0.9rem */
-        line-height: 1.5;
-        color: rgba(255, 255, 255, 0.8);
-        margin-bottom: 0.5rem;
-        word-wrap: break-word;
-        overflow-wrap: break-word;
-    }
-
-    .project-details ul {
-        list-style-type: none;
-        padding: 0;
-        margin: 0 0 0.5rem;
-        width: 100%;
-    }
-
-    .project-details li {
-        position: relative;
-        padding-left: 1rem;
-        margin-bottom: 0.3rem;
-        line-height: 1.4;
-        font-size: 0.85rem; /* Reduced from 0.9rem */
-        color: rgba(255, 255, 255, 0.8);
-        word-wrap: break-word;
-        overflow-wrap: break-word;
-    }
-
+    /* Mobile optimizations */
     @media (max-width: 768px) {
         .project-card {
-            height: 400px;
+            height: auto; /* Allow card to expand */
+            flex-direction: column;
+            padding: 1rem;
+            max-width: calc(100% - 2rem); /* Account for margins */
+            margin: 0 1rem;
         }
-        
-        .scrollable-content {
-            padding-right: 0.25rem; /* Smaller padding on mobile */
-        }
-        
-        .tech-stack {
-            flex-direction: row;
-            flex-wrap: wrap;
-            padding-left: 0;
-            border-left: none;
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-            padding-top: 0.5rem;
-            margin-top: 0.5rem;
+
+        .project-content {
+            height: auto;
         }
 
         .project-header {
-            flex-direction: column;
-            gap: 0.75rem;
+            margin-bottom: 1rem;
         }
 
         .project-header-text {
             margin-right: 0;
-            min-width: unset;
+            margin-bottom: 0.5rem;
+            width: 100%;
         }
 
         .github-button {
-            margin: 0;
-            align-self: flex-start;
+            width: 100%;
+            justify-content: center;
         }
 
-        .project-header h2 {
-            font-size: 1.1rem;
+        .tech-stack {
+            flex-direction: row;
+            flex-wrap: wrap;
+            padding: 0.75rem 0 0;
+            margin: 0.75rem 0 0;
+            border-left: none;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            width: 100%;
+            gap: 0.5rem;
         }
 
-        .project-header h3 {
-            font-size: 0.85rem;
+        .tech-button {
+            font-size: 0.7rem;
+            padding: 0.2rem 0.4rem;
         }
 
         .project-details {
             margin-bottom: 0.5rem;
         }
+
+        .project-details h4 {
+            font-size: 0.8rem;
+            margin: 0.5rem 0 0.4rem;
+        }
+
+        .project-details p,
+        .project-details li {
+            font-size: 0.75rem;
+            line-height: 1.4;
+        }
     }
 
-    @media (max-width: 320px) {
+    /* Small mobile devices */
+    @media (max-width: 480px) {
         .project-card {
-            padding: 0.75rem;
+            padding: 0.875rem;
+            margin: 0 0.5rem;
         }
 
         .project-header h2 {
@@ -1793,9 +1736,15 @@
             font-size: 0.8rem;
         }
 
+        .tech-stack {
+            padding-top: 0.5rem;
+            margin-top: 0.5rem;
+            gap: 0.4rem;
+        }
+
         .tech-button {
-            font-size: 0.7rem;
-            padding: 0.2rem 0.4rem;
+            font-size: 0.65rem;
+            padding: 0.2rem 0.35rem;
         }
     }
 
