@@ -1554,6 +1554,7 @@
         margin: 0 auto;
         box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
         transition: all 0.3s ease;
+        overflow: hidden; /* Prevent content overflow */
     }
 
     .project-header {
@@ -1561,10 +1562,13 @@
         justify-content: space-between;
         align-items: flex-start;
         margin-bottom: 1rem;
+        flex-wrap: wrap; /* Allow wrapping on small screens */
     }
 
     .project-header-text {
         flex: 1;
+        min-width: 200px; /* Ensure minimum width before wrapping */
+        margin-right: 1rem; /* Space between text and button */
     }
 
     .project-header h2 {
@@ -1572,6 +1576,9 @@
         font-weight: 300;
         margin: 0;
         letter-spacing: 0.02em;
+        word-wrap: break-word; /* Handle long words */
+        overflow-wrap: break-word;
+        max-width: 100%; /* Prevent overflow */
     }
 
     .project-header h3 {
@@ -1579,6 +1586,8 @@
         font-weight: 400;
         margin: 0.15rem 0 0;
         color: rgba(255, 255, 255, 0.7);
+        word-wrap: break-word;
+        overflow-wrap: break-word;
     }
 
     .github-button {
@@ -1593,12 +1602,8 @@
         text-decoration: none;
         font-size: 0.85rem;
         transition: all 0.2s ease;
-        margin-left: 1rem;
-    }
-
-    .github-button:hover {
-        background: rgba(255, 255, 255, 0.12);
-        transform: translateY(-1px);
+        white-space: nowrap; /* Keep button text in one line */
+        flex-shrink: 0; /* Prevent button from shrinking */
     }
 
     .tech-stack {
@@ -1606,6 +1611,7 @@
         flex-wrap: wrap;
         gap: 0.4rem;
         margin-bottom: 1rem;
+        width: 100%; /* Ensure full width */
     }
 
     .tech-button {
@@ -1615,10 +1621,12 @@
         padding: 0.25rem 0.5rem;
         color: rgba(255, 255, 255, 0.8);
         font-size: 0.8rem;
+        white-space: nowrap; /* Keep tech names in one line */
     }
 
     .project-details {
         margin-bottom: 0.75rem;
+        width: 100%; /* Ensure full width */
     }
 
     .project-details h4 {
@@ -1626,10 +1634,8 @@
         font-weight: 500;
         margin: 1rem 0 0.5rem;
         color: rgba(255, 255, 255, 0.9);
-    }
-
-    .project-details h4:first-child {
-        margin-top: 0;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
     }
 
     .project-details p {
@@ -1637,12 +1643,15 @@
         line-height: 1.5;
         color: rgba(255, 255, 255, 0.8);
         margin-bottom: 0.5rem;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
     }
 
     .project-details ul {
         list-style-type: none;
         padding: 0;
         margin: 0 0 0.5rem;
+        width: 100%;
     }
 
     .project-details li {
@@ -1652,26 +1661,29 @@
         line-height: 1.4;
         font-size: 0.9rem;
         color: rgba(255, 255, 255, 0.8);
-    }
-
-    .project-details li::before {
-        content: "•";
-        position: absolute;
-        left: 0;
-        color: rgba(255, 255, 255, 0.6);
+        word-wrap: break-word;
+        overflow-wrap: break-word;
     }
 
     @media (max-width: 768px) {
         .project-card {
             padding: 1rem;
+            margin: 0 0.5rem; /* Add some margin on small screens */
         }
 
         .project-header {
             flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .project-header-text {
+            margin-right: 0;
+            min-width: unset;
         }
 
         .github-button {
-            margin: 0.75rem 0 0;
+            margin: 0;
+            align-self: flex-start;
         }
 
         .project-header h2 {
@@ -1680,6 +1692,30 @@
 
         .project-header h3 {
             font-size: 0.9rem;
+        }
+
+        .project-details {
+            margin-bottom: 0.5rem;
+        }
+    }
+
+    /* Handle extremely small screens */
+    @media (max-width: 320px) {
+        .project-card {
+            padding: 0.75rem;
+        }
+
+        .project-header h2 {
+            font-size: 1.1rem;
+        }
+
+        .project-header h3 {
+            font-size: 0.85rem;
+        }
+
+        .tech-button {
+            font-size: 0.75rem;
+            padding: 0.2rem 0.4rem;
         }
     }
 
