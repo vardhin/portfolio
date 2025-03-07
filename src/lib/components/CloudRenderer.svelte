@@ -1142,31 +1142,88 @@
                          in:fly="{{ y: 50, duration: 1000 }}"
                          out:fade>
                         <div class="projects-grid">
+                            <!-- Decloud Project -->
                             <div class="project-card">
-                                <div class="project-image">
-                                    <div class="project-placeholder"></div>
-                                </div>
                                 <div class="project-content">
-                                    <h3>Project Name</h3>
+                                    <h3>Decentralized Cloud Computing App - Decloud</h3>
                                     <div class="tech-stack">
-                                        <span class="tech-tag">React</span>
-                                        <span class="tech-tag">Node.js</span>
-                                        <span class="tech-tag">MongoDB</span>
+                                        <span class="tech-tag">Electron</span>
+                                        <span class="tech-tag">Svelte</span>
+                                        <span class="tech-tag">IPFS</span>
+                                        <span class="tech-tag">Docker</span>
+                                        <span class="tech-tag">TypeScript</span>
                                     </div>
                                     <p class="project-description">
-                                        A brief description of the project and its key features.
+                                        Developed a desktop application enabling secure, decentralized sharing of computing resources. Implemented a two-way communication protocol over IPFS PubSub for tamper-proof records. Automated Docker container deployment for dynamic client resource provisioning.
                                     </p>
                                     <div class="project-links">
-                                        <a href="/projects/demo" class="project-link" target="_blank" rel="noopener noreferrer">
-                                            <Link size={16} /> Live Demo
-                                        </a>
-                                        <a href="https://github.com/yourusername/projectname" class="project-link" target="_blank" rel="noopener noreferrer">
+                                        <a href="https://github.com/yourusername/decloud" class="project-link" target="_blank" rel="noopener noreferrer">
                                             <Github size={16} /> GitHub
                                         </a>
                                     </div>
                                 </div>
                             </div>
-                            <!-- Add more project cards with the same structure -->
+
+                            <!-- Recon Project -->
+                            <div class="project-card">
+                                <div class="project-content">
+                                    <h3>Decentralized Messaging App - Recon</h3>
+                                    <div class="tech-stack">
+                                        <span class="tech-tag">Svelte</span>
+                                        <span class="tech-tag">Capacitor</span>
+                                        <span class="tech-tag">GunJs</span>
+                                        <span class="tech-tag">TypeScript</span>
+                                    </div>
+                                    <p class="project-description">
+                                        Developed a decentralized mobile app using Svelte and GunJs for private and secure communication without centralized servers. Created a custom event-driven protocol in TypeScript for seamless integration and rapid development. Deployed as APK using Capacitor and Android Studio.
+                                    </p>
+                                    <div class="project-links">
+                                        <a href="https://github.com/yourusername/recon" class="project-link" target="_blank" rel="noopener noreferrer">
+                                            <Github size={16} /> GitHub
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Design-a-thon Project -->
+                            <div class="project-card">
+                                <div class="project-content">
+                                    <h3>Disaster Resistant Shelter - Yantra</h3>
+                                    <div class="tech-stack">
+                                        <span class="tech-tag">Python</span>
+                                        <span class="tech-tag">NumPy</span>
+                                        <span class="tech-tag">Matplotlib</span>
+                                    </div>
+                                    <p class="project-description">
+                                        Winner of Design-a-thon by Indian Geotechnical Society. Designed and constructed a disaster resistant safe shelter utilizing mechanical contraptions. Performed stress and fluid analysis using NumPy and Matplotlib Python libraries.
+                                    </p>
+                                    <div class="project-links">
+                                        <a href="https://github.com/yourusername/yantra-shelter" class="project-link" target="_blank" rel="noopener noreferrer">
+                                            <Github size={16} /> GitHub
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Code4Change Project -->
+                            <div class="project-card">
+                                <div class="project-content">
+                                    <h3>Carbon Credit Marketplace - Code4Change</h3>
+                                    <div class="tech-stack">
+                                        <span class="tech-tag">React Native</span>
+                                        <span class="tech-tag">Ethereum</span>
+                                        <span class="tech-tag">Blockchain</span>
+                                    </div>
+                                    <p class="project-description">
+                                        Finalist in IEEE Code4Change 2.0. Created a tamper-proof and transparent carbon credit marketplace enabling individuals to invest in green companies. Implemented as a native multiplatform app using React Native with secure transactions through Ethereum blockchain and smart contracts.
+                                    </p>
+                                    <div class="project-links">
+                                        <a href="https://github.com/yourusername/carbon-credits" class="project-link" target="_blank" rel="noopener noreferrer">
+                                            <Github size={16} /> GitHub
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 {:else if section.id === 'about'}
@@ -1428,10 +1485,24 @@
         font-size: 0.875rem;
     }
 
+    .project-links {
+        display: flex;
+        gap: 1rem;
+        margin-top: 1rem;
+    }
+
     .project-link {
-        font-weight: 400;  /* Changed from 500 to 400 */
-        font-size: 0.875rem;
-        letter-spacing: 0.02em;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        text-decoration: none;
+        color: white;
+        opacity: 0.8;
+        transition: opacity 0.2s ease;
+    }
+
+    .project-link:hover {
+        opacity: 1;
     }
 
     /* About section */
@@ -1614,6 +1685,74 @@
 
         .portfolio-section {
             padding: 0.75rem;
+        }
+    }
+
+    /* Add to your existing style section */
+    .projects-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 2rem;
+        width: 100%;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 2rem;
+        pointer-events: auto;
+    }
+
+    .project-card {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 12px;
+        padding: 1.5rem;
+        backdrop-filter: blur(8px);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .project-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+    }
+
+    .tech-stack {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin: 0.75rem 0;
+    }
+
+    .tech-tag {
+        background: rgba(255, 255, 255, 0.1);
+        padding: 0.25rem 0.75rem;
+        border-radius: 1rem;
+        font-size: 0.75rem;
+    }
+
+    .project-links {
+        display: flex;
+        gap: 1rem;
+        margin-top: 1rem;
+    }
+
+    .project-link {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        text-decoration: none;
+        color: white;
+        opacity: 0.8;
+        transition: opacity 0.2s ease;
+    }
+
+    .project-link:hover {
+        opacity: 1;
+    }
+
+    /* Mobile responsiveness */
+    @media (max-width: 768px) {
+        .projects-grid {
+            grid-template-columns: 1fr;
+            padding: 1rem;
         }
     }
 </style>
