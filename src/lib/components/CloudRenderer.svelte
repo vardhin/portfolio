@@ -1177,7 +1177,7 @@
                                class="github-button" 
                                target="_blank" 
                                rel="noopener noreferrer">
-                                <Github size={12} />
+                                <Github size={12} /> <!-- Reduced from 16 -->
                                 <span>GitHub</span>
                             </a>
                         </div>
@@ -1558,325 +1558,43 @@
         padding: 1.25rem;
         backdrop-filter: blur(10px);
         width: 100%;
-        max-width: 1200px; /* Increased from 1000px */
-        height: 450px;
+        max-width: 1000px; /* Increased from 900px */
+        height: 450px; /* Increased from 400px */
         margin: 0 auto;
         box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
         transition: all 0.3s ease;
         display: flex;
-        flex-direction: column; /* Changed to column layout */
-    }
-
-    .project-content {
-        flex: 1;
-        overflow-y: auto;
-        padding-right: 0.75rem;
-    }
-
-    .tech-stack {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 0.3rem;
-        padding-top: 0.75rem;
-        margin-top: auto; /* Push to bottom */
-        border-top: 1px solid rgba(255, 255, 255, 0.1);
-    }
-
-    .tech-button, .github-button {
-        font-size: 0.6rem;
-        padding: 0.15rem 0.35rem;
-        background: rgba(255, 255, 255, 0.06);
-        border: 1px solid rgba(255, 255, 255, 0.12);
-        border-radius: 6px;
-        color: rgba(255, 255, 255, 0.8);
-        display: flex;
-        align-items: center;
-        gap: 0.3rem;
-    }
-
-    .github-button {
-        margin-left: auto; /* Push to right side */
-        text-decoration: none;
-    }
-
-    /* Mobile optimizations */
-    @media (max-width: 768px) {
-        .project-card {
-            height: auto;
-            max-width: calc(100% - 1.5rem);
-            margin: 0 0.75rem;
-            padding: 0.75rem;
-        }
-
-        .tech-stack {
-            flex-wrap: wrap;
-            padding-top: 0.5rem;
-            gap: 0.3rem;
-        }
-
-        .github-button {
-            margin-left: 0; /* Reset margin for mobile */
-            order: -1; /* Move to start of flex container */
-            width: 100%; /* Full width on mobile */
-            justify-content: center;
-            margin-bottom: 0.3rem;
-        }
-    }
-
-    /* About section */
-    .about-content h2 {
-        font-weight: 400;  /* Changed from 600 to 400 */
-        font-size: 2.5rem;
-        margin-bottom: 1.5rem;
-        letter-spacing: 0.01em;  /* Changed to positive tracking */
-    }
-
-    .about-content p {
-        font-weight: 300;  /* Changed from 400 to 300 */
-        font-size: 1.125rem;
-        line-height: 1.8;  /* Increased from 1.7 */
-        letter-spacing: 0.02em;
-    }
-
-    /* Contact section */
-    .contact-content h2 {
-        font-weight: 400;  /* Changed from 600 to 400 */
-        font-size: 2.5rem;
-        margin-bottom: 1.5rem;
-        letter-spacing: 0.01em;
-    }
-
-    /* Typography helper classes */
-    .text-light {
-        font-weight: 300;
-    }
-
-    .text-regular {
-        font-weight: 400;
-    }
-
-    .text-medium {
-        font-weight: 400;  /* Changed from 500 */
-    }
-
-    .text-semibold {
-        font-weight: 500;  /* Changed from 600 */
-    }
-
-    .text-bold {
-        font-weight: 600;  /* Changed from 700 */
-    }
-
-    /* Text size helpers */
-    .text-sm {
-        font-size: 0.875rem;
-    }
-
-    .text-base {
-        font-size: 1rem;
-    }
-
-    .text-lg {
-        font-size: 1.125rem;
-    }
-
-    .text-xl {
-        font-size: 1.25rem;
-    }
-
-    .text-2xl {
-        font-size: 1.5rem;
-    }
-
-    .text-3xl {
-        font-size: 2rem;
-    }
-
-    /* Line height helpers */
-    .leading-tight {
-        line-height: 1.25;
-    }
-
-    .leading-normal {
-        line-height: 1.5;
-    }
-
-    .leading-relaxed {
-        line-height: 1.7;
-    }
-
-    /* Add these media queries at the end of your style section */
-
-    @media screen and (max-width: 768px) {
-        /* Intro content mobile adjustments */
-        .intro-content h1 {
-            font-size: 2rem; /* Reduced from 3rem */
-        }
-
-        .intro-content p {
-            font-size: 1.125rem; /* Reduced from 1.5rem */
-        }
-
-        /* Project content mobile adjustments */
-        .project-content h3 {
-            font-size: 1.25rem; /* Reduced from 1.5rem */
-        }
-
-        .project-description {
-            font-size: 0.875rem; /* Reduced from 1rem */
-        }
-
-        .tech-tag {
-            font-size: 0.75rem; /* Reduced from 0.875rem */
-        }
-
-        .project-link {
-            font-size: 0.75rem; /* Reduced from 0.875rem */
-        }
-
-        /* About section mobile adjustments */
-        .about-content h2 {
-            font-size: 1.875rem; /* Reduced from 2.5rem */
-        }
-
-        .about-content p {
-            font-size: 1rem; /* Reduced from 1.125rem */
-        }
-
-        /* Contact section mobile adjustments */
-        .contact-content h2 {
-            font-size: 1.875rem; /* Reduced from 2.5rem */
-        }
-
-        /* Text size helper classes mobile adjustments */
-        .text-sm {
-            font-size: 0.75rem;
-        }
-
-        .text-base {
-            font-size: 0.875rem;
-        }
-
-        .text-lg {
-            font-size: 1rem;
-        }
-
-        .text-xl {
-            font-size: 1.125rem;
-        }
-
-        .text-2xl {
-            font-size: 1.25rem;
-        }
-
-        .text-3xl {
-            font-size: 1.5rem;
-        }
-    }
-
-    /* Additional adjustments for very small screens */
-    @media screen and (max-width: 480px) {
-        .intro-content h1 {
-            font-size: 1.75rem;
-        }
-
-        .intro-content p {
-            font-size: 1rem;
-        }
-
-        /* Adjust section padding for smaller screens */
-        .portfolio-section {
-            padding: 1rem;
-        }
-    }
-
-    /* Landscape orientation adjustments */
-    @media screen and (max-height: 480px) and (orientation: landscape) {
-        .intro-content h1 {
-            font-size: 1.5rem;
-            margin-bottom: 0.5rem;
-        }
-
-        .intro-content p {
-            font-size: 0.875rem;
-        }
-
-        .portfolio-section {
-            padding: 0.75rem;
-        }
-    }
-
-    /* Add to your existing style section */
-    .projects-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-        gap: 2rem;
-        width: 100%;
-        max-width: 1200px;
-        margin: 0 auto;
-        padding: 2rem;
-        pointer-events: auto;
-    }
-
-    .project-card {
-        background: rgba(255, 255, 255, 0.05);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        border-radius: 16px;
-        padding: 1.75rem;
-        backdrop-filter: blur(10px);
-        width: 100%;
-        max-width: 700px;
-        margin: 0 auto;
-        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-        transition: all 0.3s ease;
+        gap: 0.75rem; /* Reduced from 1rem */
     }
 
     .project-header {
-        margin-bottom: 1.5rem;
-        text-align: left;  /* Changed from center */
+        display: flex;
+        flex-direction: column; /* Changed to stack vertically */
+        margin-bottom: 0.5rem; /* Reduced from 0.75rem */
     }
 
     .project-header h2 {
-        font-size: 2rem;
+        font-size: 0.9rem; /* Reduced from 1rem */
         font-weight: 300;
         margin: 0;
         letter-spacing: 0.02em;
     }
 
     .project-header h3 {
-        font-size: 1.25rem;
+        font-size: 0.75rem; /* Reduced from 0.8rem */
         font-weight: 400;
-        margin: 0.25rem 0 0;
-        color: rgba(255, 255, 255, 0.8);
-    }
-
-    .tech-stack {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 0.5rem;
-        margin-bottom: 1.5rem;
-        justify-content: flex-start;  /* Changed from center */
-    }
-
-    .tech-button {
-        background: rgba(255, 255, 255, 0.08);
-        border: 1px solid rgba(255, 255, 255, 0.15);
-        border-radius: 12px;
-        padding: 0.35rem 0.75rem;
-        color: rgba(255, 255, 255, 0.9);
-        font-size: 0.85rem;
-        cursor: pointer;
-        transition: all 0.2s ease;
+        margin: 0.05rem 0 0; /* Reduced from 0.1rem */
+        color: rgba(255, 255, 255, 0.7);
     }
 
     .project-details {
-        margin-bottom: 1.5rem;
+        height: 100%;
     }
 
     .project-details h4 {
-        font-size: 1.1rem;
+        font-size: 0.75rem; /* Reduced from 0.8rem */
         font-weight: 500;
-        margin: 1.25rem 0 0.75rem;
+        margin: 0.4rem 0 0.2rem; /* Reduced from 0.5rem 0 0.3rem */
         color: rgba(255, 255, 255, 0.9);
     }
 
@@ -1885,10 +1603,11 @@
     }
 
     .project-details p {
-        font-size: 0.95rem;
-        line-height: 1.6;
+        font-size: 0.7rem; /* Reduced from 0.75rem */
+        line-height: 1.25; /* Reduced from 1.3 */
         color: rgba(255, 255, 255, 0.8);
-        margin-bottom: 0.75rem;
+        margin-bottom: 0.25rem; /* Reduced from 0.3rem */
+        word-spacing: -0.06em; /* Increased negative word spacing */
     }
 
     .project-details ul {
@@ -2230,48 +1949,46 @@
     .project-details ul {
         list-style-type: none;
         padding: 0;
-        margin: 0 0 0.25rem; /* Reduced from 0.3rem */
+        margin: 0 0 0.75rem;
     }
 
     .project-details li {
         position: relative;
-        padding-left: 0.7rem; /* Reduced from 0.8rem */
-        margin-bottom: 0.15rem; /* Reduced from 0.2rem */
-        line-height: 1.15; /* Reduced from 1.2 */
-        font-size: 0.7rem; /* Reduced from 0.75rem */
+        padding-left: 1.25rem;
+        margin-bottom: 0.4rem;
+        line-height: 1.5;
+        font-size: 0.95rem;
         color: rgba(255, 255, 255, 0.8);
-        word-spacing: -0.06em; /* Increased negative word spacing */
     }
 
-    .tech-stack {
+    .project-details li::before {
+        content: "•";
+        position: absolute;
+        left: 0;
+        color: rgba(255, 255, 255, 0.6);
+    }
+
+    .project-links {
         display: flex;
-        flex-direction: column;
-        gap: 0.3rem; /* Reduced from 0.4rem */
-        padding-left: 0.4rem; /* Reduced from 0.5rem */
-        border-left: 1px solid rgba(255, 255, 255, 0.1);
-        min-width: fit-content;
-    }
-
-    .tech-button {
-        font-size: 0.6rem; /* Reduced from 0.65rem */
-        padding: 0.15rem 0.35rem; /* Reduced from 0.2rem 0.4rem */
+        justify-content: flex-start;  /* Changed from center */
+        margin-top: 1.5rem;
     }
 
     .github-button {
-        font-size: 0.6rem; /* Match tech-button size */
-        padding: 0.15rem 0.35rem;
-        margin-top: 0.3rem;
-        background: rgba(255, 255, 255, 0.06);
-        border: 1px solid rgba(255, 255, 255, 0.12);
-        border-radius: 6px;
         display: flex;
         align-items: center;
-        gap: 0.3rem;
-        color: rgba(255, 255, 255, 0.8);
+        gap: 0.5rem;
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        border-radius: 12px;
+        padding: 0.5rem 1rem;
+        color: rgba(255, 255, 255, 0.9);
         text-decoration: none;
+        font-size: 0.9rem;
+        transition: all 0.2s ease;
     }
 
-    /* Mobile optimizations */
+    /* Mobile responsiveness */
     @media (max-width: 768px) {
         .project-card {
             padding: 1.25rem;
