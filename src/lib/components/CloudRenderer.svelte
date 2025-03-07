@@ -1157,12 +1157,6 @@
                                 </a>
                             </div>
                             
-                            <div class="tech-stack">
-                                {#each ['Electron', 'Svelte', 'IPFS', 'Docker', 'TypeScript'] as tech}
-                                    <span class="tech-button">{tech}</span>
-                                {/each}
-                            </div>
-
                             <div class="project-details">
                                 <h4>Overview</h4>
                                 <p>A desktop application enabling secure, decentralized sharing of computing resources.</p>
@@ -1178,6 +1172,12 @@
                                 <p>Built using Electron and Svelte for the frontend, with IPFS for decentralized communication 
                                 and Docker for containerization. TypeScript ensures type safety and better development experience.</p>
                             </div>
+                        </div>
+                        
+                        <div class="tech-stack">
+                            {#each ['Electron', 'Svelte', 'IPFS', 'Docker', 'TypeScript'] as tech}
+                                <span class="tech-button">{tech}</span>
+                            {/each}
                         </div>
                     </div>
                 {:else if section.id === 'recon'}
@@ -1197,12 +1197,6 @@
                                 </a>
                             </div>
                             
-                            <div class="tech-stack">
-                                {#each ['Svelte', 'Capacitor', 'GunJs', 'TypeScript'] as tech}
-                                    <span class="tech-button">{tech}</span>
-                                {/each}
-                            </div>
-
                             <div class="project-details">
                                 <h4>Overview</h4>
                                 <p>A decentralized mobile messaging application ensuring private and secure communication.</p>
@@ -1219,6 +1213,12 @@
                                 and Capacitor for native mobile deployment. TypeScript ensures robust type checking 
                                 and better code organization.</p>
                             </div>
+                        </div>
+                        
+                        <div class="tech-stack">
+                            {#each ['Svelte', 'Capacitor', 'GunJs', 'TypeScript'] as tech}
+                                <span class="tech-button">{tech}</span>
+                            {/each}
                         </div>
                     </div>
                 {:else if section.id === 'yantra'}
@@ -1238,12 +1238,6 @@
                                 </a>
                             </div>
                             
-                            <div class="tech-stack">
-                                {#each ['Python', 'NumPy', 'Matplotlib'] as tech}
-                                    <span class="tech-button">{tech}</span>
-                                {/each}
-                            </div>
-
                             <div class="project-details">
                                 <h4>Overview</h4>
                                 <p>Winner of Design-a-thon by Indian Geotechnical Society. A innovative shelter design 
@@ -1260,6 +1254,12 @@
                                 <p>Utilized Python with NumPy for computational analysis and Matplotlib for 
                                 visualization of stress distributions and fluid dynamics.</p>
                             </div>
+                        </div>
+                        
+                        <div class="tech-stack">
+                            {#each ['Python', 'NumPy', 'Matplotlib'] as tech}
+                                <span class="tech-button">{tech}</span>
+                            {/each}
                         </div>
                     </div>
                 {:else if section.id === 'carbon'}
@@ -1279,12 +1279,6 @@
                                 </a>
                             </div>
                             
-                            <div class="tech-stack">
-                                {#each ['React Native', 'Ethereum', 'Blockchain'] as tech}
-                                    <span class="tech-button">{tech}</span>
-                                {/each}
-                            </div>
-
                             <div class="project-details">
                                 <h4>Overview</h4>
                                 <p>Finalist in IEEE Code4Change 2.0. A blockchain-based marketplace for carbon credits.</p>
@@ -1300,6 +1294,12 @@
                                 <p>Built using React Native for cross-platform compatibility, with Ethereum blockchain 
                                 for secure and transparent transactions.</p>
                             </div>
+                        </div>
+                        
+                        <div class="tech-stack">
+                            {#each ['React Native', 'Ethereum', 'Blockchain'] as tech}
+                                <span class="tech-button">{tech}</span>
+                            {/each}
                         </div>
                     </div>
                 {:else if section.id === 'about'}
@@ -1554,35 +1554,42 @@
         margin: 0 auto;
         box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
         transition: all 0.3s ease;
-        overflow: hidden; /* Prevent content overflow */
+        overflow: hidden;
+        display: flex;
+        gap: 1rem;
+    }
+
+    .project-content {
+        flex: 1;
+        min-width: 0; /* Prevent flex item from overflowing */
     }
 
     .project-header {
         display: flex;
         justify-content: space-between;
         align-items: flex-start;
-        margin-bottom: 1rem;
-        flex-wrap: wrap; /* Allow wrapping on small screens */
+        margin-bottom: 0.75rem;
+        flex-wrap: wrap;
     }
 
     .project-header-text {
         flex: 1;
-        min-width: 200px; /* Ensure minimum width before wrapping */
-        margin-right: 1rem; /* Space between text and button */
+        min-width: 200px;
+        margin-right: 1rem;
     }
 
     .project-header h2 {
-        font-size: 1.5rem;
+        font-size: 1.25rem; /* Reduced from 1.5rem */
         font-weight: 300;
         margin: 0;
         letter-spacing: 0.02em;
-        word-wrap: break-word; /* Handle long words */
+        word-wrap: break-word;
         overflow-wrap: break-word;
-        max-width: 100%; /* Prevent overflow */
+        max-width: 100%;
     }
 
     .project-header h3 {
-        font-size: 1rem;
+        font-size: 0.9rem; /* Reduced from 1rem */
         font-weight: 400;
         margin: 0.15rem 0 0;
         color: rgba(255, 255, 255, 0.7);
@@ -1602,16 +1609,17 @@
         text-decoration: none;
         font-size: 0.85rem;
         transition: all 0.2s ease;
-        white-space: nowrap; /* Keep button text in one line */
-        flex-shrink: 0; /* Prevent button from shrinking */
+        white-space: nowrap;
+        flex-shrink: 0;
     }
 
     .tech-stack {
         display: flex;
-        flex-wrap: wrap;
+        flex-direction: column;
         gap: 0.4rem;
-        margin-bottom: 1rem;
-        width: 100%; /* Ensure full width */
+        padding-left: 0.5rem;
+        border-left: 1px solid rgba(255, 255, 255, 0.1);
+        min-width: fit-content;
     }
 
     .tech-button {
@@ -1620,26 +1628,30 @@
         border-radius: 6px;
         padding: 0.25rem 0.5rem;
         color: rgba(255, 255, 255, 0.8);
-        font-size: 0.8rem;
-        white-space: nowrap; /* Keep tech names in one line */
+        font-size: 0.75rem; /* Slightly reduced */
+        white-space: nowrap;
     }
 
     .project-details {
         margin-bottom: 0.75rem;
-        width: 100%; /* Ensure full width */
+        width: 100%;
     }
 
     .project-details h4 {
-        font-size: 0.95rem;
+        font-size: 0.9rem; /* Reduced from 0.95rem */
         font-weight: 500;
-        margin: 1rem 0 0.5rem;
+        margin: 0.75rem 0 0.5rem; /* Reduced top margin */
         color: rgba(255, 255, 255, 0.9);
         word-wrap: break-word;
         overflow-wrap: break-word;
     }
 
+    .project-details h4:first-child {
+        margin-top: 0;
+    }
+
     .project-details p {
-        font-size: 0.9rem;
+        font-size: 0.85rem; /* Reduced from 0.9rem */
         line-height: 1.5;
         color: rgba(255, 255, 255, 0.8);
         margin-bottom: 0.5rem;
@@ -1659,7 +1671,7 @@
         padding-left: 1rem;
         margin-bottom: 0.3rem;
         line-height: 1.4;
-        font-size: 0.9rem;
+        font-size: 0.85rem; /* Reduced from 0.9rem */
         color: rgba(255, 255, 255, 0.8);
         word-wrap: break-word;
         overflow-wrap: break-word;
@@ -1667,8 +1679,19 @@
 
     @media (max-width: 768px) {
         .project-card {
+            flex-direction: column;
             padding: 1rem;
-            margin: 0 0.5rem; /* Add some margin on small screens */
+            margin: 0 0.5rem;
+        }
+
+        .tech-stack {
+            flex-direction: row;
+            flex-wrap: wrap;
+            padding-left: 0;
+            border-left: none;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding-top: 0.5rem;
+            margin-top: 0.5rem;
         }
 
         .project-header {
@@ -1687,25 +1710,6 @@
         }
 
         .project-header h2 {
-            font-size: 1.25rem;
-        }
-
-        .project-header h3 {
-            font-size: 0.9rem;
-        }
-
-        .project-details {
-            margin-bottom: 0.5rem;
-        }
-    }
-
-    /* Handle extremely small screens */
-    @media (max-width: 320px) {
-        .project-card {
-            padding: 0.75rem;
-        }
-
-        .project-header h2 {
             font-size: 1.1rem;
         }
 
@@ -1713,8 +1717,26 @@
             font-size: 0.85rem;
         }
 
+        .project-details {
+            margin-bottom: 0.5rem;
+        }
+    }
+
+    @media (max-width: 320px) {
+        .project-card {
+            padding: 0.75rem;
+        }
+
+        .project-header h2 {
+            font-size: 1rem;
+        }
+
+        .project-header h3 {
+            font-size: 0.8rem;
+        }
+
         .tech-button {
-            font-size: 0.75rem;
+            font-size: 0.7rem;
             padding: 0.2rem 0.4rem;
         }
     }
