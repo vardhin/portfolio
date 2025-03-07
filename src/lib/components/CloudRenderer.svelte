@@ -1558,13 +1558,13 @@
         padding: 1.25rem;
         backdrop-filter: blur(10px);
         width: 100%;
-        max-width: 1000px; /* Increased from 900px */
-        height: 450px; /* Increased from 400px */
+        max-width: 1200px; /* Increased from 1000px */
+        height: 450px;
         margin: 0 auto;
         box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
         transition: all 0.3s ease;
         display: flex;
-        gap: 0.75rem; /* Reduced from 1rem */
+        gap: 0.75rem;
     }
 
     .project-header {
@@ -1641,17 +1641,24 @@
     }
 
     .github-button {
-        font-size: 0.6rem; /* Match tech-button size */
-        padding: 0.15rem 0.35rem;
-        margin-top: 0.3rem;
-        background: rgba(255, 255, 255, 0.06);
-        border: 1px solid rgba(255, 255, 255, 0.12);
-        border-radius: 6px;
-        display: flex;
+        display: inline-flex;
         align-items: center;
-        gap: 0.3rem;
-        color: rgba(255, 255, 255, 0.8);
+        gap: 0.4rem;
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        border-radius: 8px;
+        padding: 0.35rem 0.6rem;
+        color: rgba(255, 255, 255, 0.9);
+        font-size: 0.7rem;
         text-decoration: none;
+        transition: all 0.2s ease;
+        margin-top: 0;
+        white-space: nowrap;
+    }
+
+    .github-button:hover {
+        background: rgba(255, 255, 255, 0.12);
+        transform: translateY(-1px);
     }
 
     /* Mobile optimizations */
@@ -1975,17 +1982,24 @@
     }
 
     .github-button {
-        display: flex;
+        display: inline-flex;
         align-items: center;
-        gap: 0.5rem;
+        gap: 0.4rem;
         background: rgba(255, 255, 255, 0.08);
         border: 1px solid rgba(255, 255, 255, 0.15);
-        border-radius: 12px;
-        padding: 0.5rem 1rem;
+        border-radius: 8px;
+        padding: 0.35rem 0.6rem;
         color: rgba(255, 255, 255, 0.9);
+        font-size: 0.7rem;
         text-decoration: none;
-        font-size: 0.9rem;
         transition: all 0.2s ease;
+        margin-top: 0;
+        white-space: nowrap;
+    }
+
+    .github-button:hover {
+        background: rgba(255, 255, 255, 0.12);
+        transform: translateY(-1px);
     }
 
     /* Mobile responsiveness */
@@ -2223,22 +2237,24 @@
     }
 
     .github-button {
-        display: flex;
+        display: inline-flex;
         align-items: center;
-        gap: 0.75rem;
-        background: rgba(255, 255, 255, 0.1);
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        border-radius: 25px;
-        padding: 0.75rem 1.5rem;
-        color: white;
+        gap: 0.4rem;
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        border-radius: 8px;
+        padding: 0.35rem 0.6rem;
+        color: rgba(255, 255, 255, 0.9);
+        font-size: 0.7rem;
         text-decoration: none;
-        font-size: 1rem;
         transition: all 0.2s ease;
+        margin-top: 0;
+        white-space: nowrap;
     }
 
     .github-button:hover {
-        background: rgba(255, 255, 255, 0.2);
-        transform: translateY(-2px);
+        background: rgba(255, 255, 255, 0.12);
+        transform: translateY(-1px);
     }
 
     @media (max-width: 768px) {
