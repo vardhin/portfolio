@@ -1783,56 +1783,145 @@
     .project-card {
         background: rgba(255, 255, 255, 0.05);
         border: 1px solid rgba(255, 255, 255, 0.1);
-        border-radius: 12px;
-        padding: 1.5rem;
-        backdrop-filter: blur(8px);
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        border-radius: 16px;
+        padding: 1.75rem;
+        backdrop-filter: blur(10px);
+        width: 100%;
+        max-width: 700px;
+        margin: 0 auto;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
     }
 
-    .project-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+    .project-header {
+        margin-bottom: 1.5rem;
+        text-align: left;  /* Changed from center */
+    }
+
+    .project-header h2 {
+        font-size: 2rem;
+        font-weight: 300;
+        margin: 0;
+        letter-spacing: 0.02em;
+    }
+
+    .project-header h3 {
+        font-size: 1.25rem;
+        font-weight: 400;
+        margin: 0.25rem 0 0;
+        color: rgba(255, 255, 255, 0.8);
     }
 
     .tech-stack {
         display: flex;
         flex-wrap: wrap;
         gap: 0.5rem;
-        margin: 0.75rem 0;
+        margin-bottom: 1.5rem;
+        justify-content: flex-start;  /* Changed from center */
     }
 
-    .tech-tag {
-        background: rgba(255, 255, 255, 0.1);
-        padding: 0.25rem 0.75rem;
-        border-radius: 1rem;
-        font-size: 0.75rem;
+    .tech-button {
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        border-radius: 12px;
+        padding: 0.35rem 0.75rem;
+        color: rgba(255, 255, 255, 0.9);
+        font-size: 0.85rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .project-details {
+        margin-bottom: 1.5rem;
+    }
+
+    .project-details h4 {
+        font-size: 1.1rem;
+        font-weight: 500;
+        margin: 1.25rem 0 0.75rem;
+        color: rgba(255, 255, 255, 0.9);
+    }
+
+    .project-details h4:first-child {
+        margin-top: 0;
+    }
+
+    .project-details p {
+        font-size: 0.95rem;
+        line-height: 1.6;
+        color: rgba(255, 255, 255, 0.8);
+        margin-bottom: 0.75rem;
+    }
+
+    .project-details ul {
+        list-style-type: none;
+        padding: 0;
+        margin: 0 0 0.75rem;
+    }
+
+    .project-details li {
+        position: relative;
+        padding-left: 1.25rem;
+        margin-bottom: 0.4rem;
+        line-height: 1.5;
+        font-size: 0.95rem;
+        color: rgba(255, 255, 255, 0.8);
+    }
+
+    .project-details li::before {
+        content: "•";
+        position: absolute;
+        left: 0;
+        color: rgba(255, 255, 255, 0.6);
     }
 
     .project-links {
         display: flex;
-        gap: 1rem;
-        margin-top: 1rem;
+        justify-content: flex-start;  /* Changed from center */
+        margin-top: 1.5rem;
     }
 
-    .project-link {
+    .github-button {
         display: flex;
         align-items: center;
         gap: 0.5rem;
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        border-radius: 12px;
+        padding: 0.5rem 1rem;
+        color: rgba(255, 255, 255, 0.9);
         text-decoration: none;
-        color: white;
-        opacity: 0.8;
-        transition: opacity 0.2s ease;
-    }
-
-    .project-link:hover {
-        opacity: 1;
+        font-size: 0.9rem;
+        transition: all 0.2s ease;
     }
 
     /* Mobile responsiveness */
     @media (max-width: 768px) {
-        .projects-grid {
-            grid-template-columns: 1fr;
-            padding: 1rem;
+        .project-card {
+            padding: 1.25rem;
+            border-radius: 14px;
+        }
+
+        .project-header h2 {
+            font-size: 1.75rem;
+        }
+
+        .project-header h3 {
+            font-size: 1.1rem;
+        }
+
+        .tech-button {
+            font-size: 0.8rem;
+            padding: 0.3rem 0.6rem;
+        }
+
+        .project-details h4 {
+            font-size: 1rem;
+        }
+
+        .project-details p,
+        .project-details li {
+            font-size: 0.9rem;
         }
     }
 
