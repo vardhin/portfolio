@@ -1565,6 +1565,7 @@
         transition: all 0.3s ease;
         display: flex;
         gap: 1rem;
+        overflow: hidden; /* Ensure card doesn't scroll */
     }
 
     .project-content {
@@ -1573,6 +1574,7 @@
         display: flex;
         flex-direction: column;
         height: 100%; /* Ensure full height */
+        overflow: hidden; /* Ensure only the content area scrolls */
     }
 
     .project-header {
@@ -1585,10 +1587,13 @@
     }
 
     .scrollable-content {
-        flex: 1; /* Take remaining space */
-        overflow-y: auto;
-        min-height: 0; /* Critical for Firefox */
+        flex: 1;
+        overflow-y: scroll; /* Force scroll instead of auto */
+        min-height: 0;
         padding-right: 0.5rem;
+        -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+        overscroll-behavior: contain; /* Prevent scroll chaining */
+        touch-action: pan-y; /* Enable touch scrolling */
     }
 
     .project-details {
@@ -1597,27 +1602,30 @@
 
     /* Make scrollbar visible but subtle */
     .scrollable-content::-webkit-scrollbar {
+        display: block !important; /* Override global hide */
         width: 4px;
     }
 
     .scrollable-content::-webkit-scrollbar-track {
         background: rgba(255, 255, 255, 0.05);
         border-radius: 2px;
+        display: block !important;
     }
 
     .scrollable-content::-webkit-scrollbar-thumb {
         background: rgba(255, 255, 255, 0.2);
         border-radius: 2px;
+        display: block !important;
     }
 
     .scrollable-content::-webkit-scrollbar-thumb:hover {
         background: rgba(255, 255, 255, 0.3);
     }
 
-    /* Firefox scrollbar */
+    /* Firefox scrollbar - force show */
     .scrollable-content {
-        scrollbar-width: thin;
-        scrollbar-color: rgba(255, 255, 255, 0.2) rgba(255, 255, 255, 0.05);
+        scrollbar-width: thin !important;
+        scrollbar-color: rgba(255, 255, 255, 0.2) rgba(255, 255, 255, 0.05) !important;
     }
 
     .project-header-text {
