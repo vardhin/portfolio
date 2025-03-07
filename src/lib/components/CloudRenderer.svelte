@@ -11,8 +11,6 @@
     import ChevronDown from 'lucide-svelte/icons/chevron-down';
     import Link from 'lucide-svelte/icons/link';
     import Github from 'lucide-svelte/icons/github';
-    import Linkedin from 'lucide-svelte/icons/linkedin';
-    import Mail from 'lucide-svelte/icons/mail';
   
     let container;
     let showIntro = true;
@@ -236,53 +234,29 @@
     const handleNavButtonPress = (direction) => {
         if (isNavigating) return;
         
-        const sections = document.querySelectorAll('.portfolio-section');
-        const currentSectionEl = sections[currentSection];
-        let nextSection;
-        
         switch(direction) {
             case 'up':
                 if (currentSection > MIN_SECTION) {
                     isNavigating = true;
-                    nextSection = currentSection - 1;
+                    currentSection--;
+                    targetCameraY = currentSection * -5;
+                    sectionSpring.set({ y: currentSection * -100 });
                     
-                    // Add fade out animation to current section
-                    currentSectionEl.style.animation = 'dreamyFadeOut 0.8s forwards';
-                    
-                    setTimeout(() => {
-                        currentSection = nextSection;
-                        targetCameraY = currentSection * -5;
-                        
-                        // Add fade in animation to new section
-                        const nextSectionEl = sections[nextSection];
-                        nextSectionEl.style.animation = 'dreamyFadeIn 0.8s forwards';
-                        
-                        navigationTimeout = setTimeout(() => {
-                            isNavigating = false;
-                        }, 500);
-                    }, 800);
+                    navigationTimeout = setTimeout(() => {
+                        isNavigating = false;
+                    }, 500);
                 }
                 break;
             case 'down':
                 if (currentSection < MAX_SECTION) {
                     isNavigating = true;
-                    nextSection = currentSection + 1;
+                    currentSection++;
+                    targetCameraY = currentSection * -5;
+                    sectionSpring.set({ y: currentSection * -100 });
                     
-                    // Add fade out animation to current section
-                    currentSectionEl.style.animation = 'dreamyFadeOut 0.8s forwards';
-                    
-                    setTimeout(() => {
-                        currentSection = nextSection;
-                        targetCameraY = currentSection * -5;
-                        
-                        // Add fade in animation to new section
-                        const nextSectionEl = sections[nextSection];
-                        nextSectionEl.style.animation = 'dreamyFadeIn 0.8s forwards';
-                        
-                        navigationTimeout = setTimeout(() => {
-                            isNavigating = false;
-                        }, 500);
-                    }, 800);
+                    navigationTimeout = setTimeout(() => {
+                        isNavigating = false;
+                    }, 500);
                 }
                 break;
         }
@@ -1074,8 +1048,8 @@
     
     // Create spring store for section transitions
     const sectionSpring = spring({ y: 0 }, {
-        stiffness: 0.08,  // Reduced from 0.15 for smoother movement
-        damping: 0.8,     // Increased from 0.65 for more fluid motion
+        stiffness: 0.15,
+        damping: 0.65,
         precision: 0.001  // Added precision for smoother small movements
     });
 
@@ -1143,9 +1117,13 @@
     </div>
 
     <!-- Modified content overlay -->
-    <div class="content-overlay" style="transform: translateY({$sectionSpring.y}vh)">
+    <div class="content-overlay" 
+         style="transform: translateY({$sectionSpring.y}vh)">
         {#each sections as section, i}
-            <section class="portfolio-section" class:active={currentSection === i}>
+            <section 
+                class="portfolio-section" 
+                class:active={currentSection === i}
+            >
                 {#if section.id === 'intro' && showIntro}
                     <div class="intro-content" 
                          in:fly="{{ y: 50, duration: 1000, delay: 500 }}"
@@ -1160,108 +1138,186 @@
                         <p>Web Developer & Designer</p>
                     </div>
                 {:else if section.id === 'projects'}
-                    <div class="project-page">
-                        <h2 class="section-title">Projects</h2>
-                        <div class="project-card">
-                            <div class="project-content">
-                                <div class="project-header">
-                                    <h2>Decentralized Cloud Computing</h2>
-                                    <h3>Decloud</h3>
-                                </div>
-                                
-                                <div class="tech-stack">
-                                    {#each ['Electron', 'Svelte', 'IPFS', 'Docker', 'TypeScript'] as tech}
-                                        <button class="tech-button">{tech}</button>
-                                    {/each}
-                                </div>
+                    <div class="projects-container" in:fly="{{ y: 50, duration: 1000 }}" out:fade>
+                        {#each sections as section, i}
+                            {#if section.id === 'projects' && currentSection === i}
+                                <div class="project-card" in:fly="{{ y: 50, duration: 1000 }}" out:fade>
+                                    {#if currentSection === 1}
+                                        <div class="project-content">
+                                            <div class="project-header">
+                                                <h2>Decentralized Cloud Computing</h2>
+                                                <h3>Decloud</h3>
+                                            </div>
+                                            
+                                            <div class="tech-stack">
+                                                {#each ['Electron', 'Svelte', 'IPFS', 'Docker', 'TypeScript'] as tech}
+                                                    <button class="tech-button">{tech}</button>
+                                                {/each}
+                                            </div>
 
-                                <div class="project-details">
-                                    <h4>Overview</h4>
-                                    <p>A desktop application enabling secure, decentralized sharing of computing resources.</p>
-                                    
-                                    <h4>Key Features</h4>
-                                    <ul>
-                                        <li>Two-way communication protocol over IPFS PubSub for tamper-proof records</li>
-                                        <li>Automated Docker container deployment for dynamic resource provisioning</li>
-                                        <li>Decentralized architecture ensuring data privacy and security</li>
-                                    </ul>
+                                            <div class="project-details">
+                                                <h4>Overview</h4>
+                                                <p>A desktop application enabling secure, decentralized sharing of computing resources.</p>
+                                                
+                                                <h4>Key Features</h4>
+                                                <ul>
+                                                    <li>Two-way communication protocol over IPFS PubSub for tamper-proof records</li>
+                                                    <li>Automated Docker container deployment for dynamic resource provisioning</li>
+                                                    <li>Decentralized architecture ensuring data privacy and security</li>
+                                                </ul>
 
-                                    <h4>Implementation</h4>
-                                    <p>Built using Electron and Svelte for the frontend, with IPFS for decentralized communication 
-                                    and Docker for containerization. TypeScript ensures type safety and better development experience.</p>
-                                </div>
+                                                <h4>Implementation</h4>
+                                                <p>Built using Electron and Svelte for the frontend, with IPFS for decentralized communication 
+                                                and Docker for containerization. TypeScript ensures type safety and better development experience.</p>
+                                            </div>
 
-                                <div class="project-links">
-                                    <a href="https://github.com/yourusername/decloud" 
-                                       class="github-button" 
-                                       target="_blank" 
-                                       rel="noopener noreferrer">
-                                        <Github size={20} />
-                                        <span>View Repository</span>
-                                    </a>
+                                            <div class="project-links">
+                                                <a href="https://github.com/yourusername/decloud" 
+                                                   class="github-button" 
+                                                   target="_blank" 
+                                                   rel="noopener noreferrer">
+                                                    <Github size={20} />
+                                                    <span>View Repository</span>
+                                                </a>
+                                            </div>
+                                        </div>
+                                    {:else if currentSection === 2}
+                                        <div class="project-content">
+                                            <div class="project-header">
+                                                <h2>Decentralized Messaging</h2>
+                                                <h3>Recon</h3>
+                                            </div>
+                                            
+                                            <div class="tech-stack">
+                                                {#each ['Svelte', 'Capacitor', 'GunJs', 'TypeScript'] as tech}
+                                                    <button class="tech-button">{tech}</button>
+                                                {/each}
+                                            </div>
+
+                                            <div class="project-details">
+                                                <h4>Overview</h4>
+                                                <p>A decentralized mobile messaging application ensuring private and secure communication.</p>
+                                                
+                                                <h4>Key Features</h4>
+                                                <ul>
+                                                    <li>Serverless architecture using GunJs for peer-to-peer data sync</li>
+                                                    <li>Custom event-driven protocol for seamless integration</li>
+                                                    <li>Cross-platform mobile deployment using Capacitor</li>
+                                                </ul>
+
+                                                <h4>Implementation</h4>
+                                                <p>Developed using Svelte for the UI, GunJs for decentralized data management, 
+                                                and Capacitor for native mobile deployment. TypeScript ensures robust type checking 
+                                                and better code organization.</p>
+                                            </div>
+
+                                            <div class="project-links">
+                                                <a href="https://github.com/yourusername/recon" 
+                                                   class="github-button" 
+                                                   target="_blank" 
+                                                   rel="noopener noreferrer">
+                                                    <Github size={20} />
+                                                    <span>View Repository</span>
+                                                </a>
+                                            </div>
+                                        </div>
+                                    {:else if currentSection === 3}
+                                        <div class="project-content">
+                                            <div class="project-header">
+                                                <h2>Disaster Resistant Shelter</h2>
+                                                <h3>Yantra</h3>
+                                            </div>
+                                            
+                                            <div class="tech-stack">
+                                                {#each ['Python', 'NumPy', 'Matplotlib'] as tech}
+                                                    <button class="tech-button">{tech}</button>
+                                                {/each}
+                                            </div>
+
+                                            <div class="project-details">
+                                                <h4>Overview</h4>
+                                                <p>Winner of Design-a-thon by Indian Geotechnical Society. A innovative shelter design 
+                                                with advanced safety features.</p>
+                                                
+                                                <h4>Key Features</h4>
+                                                <ul>
+                                                    <li>Advanced structural analysis using Python</li>
+                                                    <li>Comprehensive stress and fluid analysis</li>
+                                                    <li>Mechanical contraptions for enhanced safety</li>
+                                                </ul>
+
+                                                <h4>Implementation</h4>
+                                                <p>Utilized Python with NumPy for computational analysis and Matplotlib for 
+                                                visualization of stress distributions and fluid dynamics.</p>
+                                            </div>
+
+                                            <div class="project-links">
+                                                <a href="https://github.com/yourusername/yantra" 
+                                                   class="github-button" 
+                                                   target="_blank" 
+                                                   rel="noopener noreferrer">
+                                                    <Github size={20} />
+                                                    <span>View Repository</span>
+                                                </a>
+                                            </div>
+                                        </div>
+                                    {:else if currentSection === 4}
+                                        <div class="project-content">
+                                            <div class="project-header">
+                                                <h2>Carbon Credit Marketplace</h2>
+                                                <h3>Code4Change</h3>
+                                            </div>
+                                            
+                                            <div class="tech-stack">
+                                                {#each ['React Native', 'Ethereum', 'Blockchain'] as tech}
+                                                    <button class="tech-button">{tech}</button>
+                                                {/each}
+                                            </div>
+
+                                            <div class="project-details">
+                                                <h4>Overview</h4>
+                                                <p>Finalist in IEEE Code4Change 2.0. A blockchain-based marketplace for carbon credits.</p>
+                                                
+                                                <h4>Key Features</h4>
+                                                <ul>
+                                                    <li>Transparent carbon credit trading system</li>
+                                                    <li>Secure blockchain transactions</li>
+                                                    <li>Cross-platform mobile application</li>
+                                                </ul>
+
+                                                <h4>Implementation</h4>
+                                                <p>Built using React Native for cross-platform compatibility, with Ethereum blockchain 
+                                                for secure and transparent transactions.</p>
+                                            </div>
+
+                                            <div class="project-links">
+                                                <a href="https://github.com/yourusername/carbon-credits" 
+                                                   class="github-button" 
+                                                   target="_blank" 
+                                                   rel="noopener noreferrer">
+                                                    <Github size={20} />
+                                                    <span>View Repository</span>
+                                                </a>
+                                            </div>
+                                        </div>
+                                    {/if}
                                 </div>
-                            </div>
-                        </div>
+                            {/if}
+                        {/each}
                     </div>
                 {:else if section.id === 'about'}
-                    <div class="about-page">
-                        <h2 class="section-title">About Me</h2>
-                        <div class="about-card">
-                            <div class="about-content">
-                                <div class="about-header">
-                                    <h3>Technical Skills</h3>
-                                </div>
-                                <div class="skills-section">
-                                    <div class="skill-category">
-                                        <h4>Languages</h4>
-                                        <div class="tech-stack">
-                                            {#each ['Python', 'Svelte', 'React Native', 'Solidity', 'SQL', 'TypeScript'] as tech}
-                                                <button class="tech-button">{tech}</button>
-                                            {/each}
-                                        </div>
-                                    </div>
-                                    <div class="skill-category">
-                                        <h4>Developer Tools</h4>
-                                        <div class="tech-stack">
-                                            {#each ['VMWare', 'Cursor', 'Azure', 'Android Studio', 'Docker'] as tech}
-                                                <button class="tech-button">{tech}</button>
-                                            {/each}
-                                        </div>
-                                    </div>
-                                    <div class="skill-category">
-                                        <h4>Technologies & Frameworks</h4>
-                                        <div class="tech-stack">
-                                            {#each ['Arch Linux', 'GunJs', 'Cloudflare', 'TensorFlow', 'IPFS', 'Ethereum/Hardhat'] as tech}
-                                                <button class="tech-button">{tech}</button>
-                                            {/each}
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                    <div class="about-content"
+                         in:fly="{{ y: 50, duration: 1000 }}"
+                         out:fade>
+                        <h2>About Me</h2>
+                        <p>Your bio here...</p>
                     </div>
                 {:else if section.id === 'contact'}
-                    <div class="contact-page">
-                        <h2 class="section-title">Contact</h2>
-                        <div class="contact-card">
-                            <div class="contact-content">
-                                <h3>Let's Connect</h3>
-                                <div class="contact-links">
-                                    <a href="https://github.com/yourusername" class="contact-button">
-                                        <Github size={20} />
-                                        <span>GitHub</span>
-                                    </a>
-                                    <a href="https://linkedin.com/in/yourusername" class="contact-button">
-                                        <Linkedin size={20} />
-                                        <span>LinkedIn</span>
-                                    </a>
-                                    <a href="mailto:your.email@example.com" class="contact-button">
-                                        <Mail size={20} />
-                                        <span>Email</span>
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
+                    <div class="contact-content"
+                         in:fly="{{ y: 50, duration: 1000 }}"
+                         out:fade>
+                        <h2>Get in Touch</h2>
+                        <!-- Add contact information or form -->
                     </div>
                 {/if}
             </section>
@@ -1404,7 +1460,7 @@
         width: 100%;
         height: 100vh;
         z-index: 2;
-        transition: transform 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+        transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
         pointer-events: none;
     }
 
@@ -1412,29 +1468,16 @@
         height: 100vh;
         width: 100%;
         display: flex;
-        flex-direction: column;
         align-items: center;
-        justify-content: flex-start;
-        padding: 4rem 2rem;
+        justify-content: center;
         opacity: 0;
-        transition: opacity 1.2s cubic-bezier(0.4, 0, 0.2, 1),
-                    transform 1.2s cubic-bezier(0.4, 0, 0.2, 1);
-        transform: translateY(30px);
-        filter: blur(10px);
+        transition: opacity 0.5s ease;
+        padding: 2rem;
+        pointer-events: none;
     }
 
     .portfolio-section.active {
         opacity: 1;
-        transform: translateY(0);
-        filter: blur(0);
-    }
-
-    .section-title {
-        font-size: 2.5rem;
-        font-weight: 300;
-        margin-bottom: 3rem;
-        letter-spacing: 0.05em;
-        text-align: center;
     }
 
     .intro-content {
@@ -1482,23 +1525,6 @@
             opacity: 1;
             transform: translateY(0) scale(1);
             filter: blur(0);
-        }
-    }
-
-    @keyframes dreamyFadeOut {
-        0% {
-            opacity: 1;
-            transform: translateY(0) scale(1);
-            filter: blur(0);
-        }
-        40% {
-            opacity: 0.4;
-            filter: blur(5px);
-        }
-        100% {
-            opacity: 0;
-            transform: translateY(-30px) scale(0.95);
-            filter: blur(10px);
         }
     }
 
@@ -2056,208 +2082,6 @@
         .tech-button {
             font-size: 0.8rem;
             padding: 0.4rem 0.8rem;
-        }
-    }
-
-    /* Base styles */
-    .about-card,
-    .contact-card {
-        background: rgba(255, 255, 255, 0.05);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        border-radius: 24px;
-        padding: 3rem;
-        backdrop-filter: blur(10px);
-        width: 100%;
-        max-width: 900px;
-        margin: 0 auto;
-        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-    }
-
-    /* Project specific styles */
-    .about-header {
-        margin-bottom: 3rem;
-        text-align: center;
-    }
-
-    .about-header h3 {
-        font-size: 1.5rem;
-        font-weight: 400;
-        margin: 1rem 0 0;
-        color: rgba(255, 255, 255, 0.8);
-    }
-
-    /* Tech stack and buttons */
-    .tech-stack {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 1rem;
-        margin: 2rem 0;
-        justify-content: center;
-    }
-
-    .tech-button {
-        background: rgba(255, 255, 255, 0.1);
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        border-radius: 20px;
-        padding: 0.75rem 1.25rem;
-        color: white;
-        font-size: 0.95rem;
-        cursor: pointer;
-        transition: all 0.2s ease;
-    }
-
-    .tech-button:hover {
-        background: rgba(255, 255, 255, 0.2);
-        transform: translateY(-2px);
-    }
-
-    /* Content sections */
-    .about-content,
-    .contact-content {
-        margin: 2rem 0;
-    }
-
-    .about-content h2,
-    .contact-content h3 {
-        font-size: 2.5rem;
-        font-weight: 300;
-        margin-bottom: 1.5rem;
-        letter-spacing: 0.05em;
-        text-align: center;
-    }
-
-    .about-content p,
-    .contact-content p {
-        font-weight: 300;
-        font-size: 1.125rem;
-        line-height: 1.8;
-        letter-spacing: 0.02em;
-    }
-
-    .about-content ul,
-    .contact-content ul {
-        list-style-type: none;
-        padding: 0;
-        margin: 0 0 2rem;
-    }
-
-    .about-content li,
-    .contact-content li {
-        position: relative;
-        padding-left: 1.5rem;
-        margin-bottom: 1rem;
-        line-height: 1.7;
-        font-size: 1.1rem;
-        color: rgba(255, 255, 255, 0.8);
-    }
-
-    .about-content li::before,
-    .contact-content li::before {
-        content: "•";
-        position: absolute;
-        left: 0;
-        color: rgba(255, 255, 255, 0.6);
-    }
-
-    /* Links and buttons */
-    .about-links,
-    .contact-links {
-        display: flex;
-        justify-content: center;
-        gap: 1.5rem;
-        margin-top: 3rem;
-    }
-
-    .about-button,
-    .contact-button {
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-        background: rgba(255, 255, 255, 0.1);
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        border-radius: 25px;
-        padding: 1rem 2rem;
-        color: white;
-        text-decoration: none;
-        font-size: 1.1rem;
-        transition: all 0.2s ease;
-    }
-
-    .about-button:hover,
-    .contact-button:hover {
-        background: rgba(255, 255, 255, 0.2);
-        transform: translateY(-2px);
-    }
-
-    /* Skills section */
-    .skill-category {
-        margin-bottom: 2.5rem;
-    }
-
-    .skill-category h4 {
-        text-align: center;
-    }
-
-    /* Responsive design */
-    @media (max-width: 768px) {
-        .portfolio-section {
-            padding: 2rem 1rem;
-        }
-
-        .project-card,
-        .about-card,
-        .contact-card {
-            padding: 2rem;
-        }
-
-        .section-title {
-            font-size: 2rem;
-            margin-bottom: 2rem;
-        }
-
-        .project-header h2 {
-            font-size: 2rem;
-        }
-
-        .project-header h3 {
-            font-size: 1.25rem;
-        }
-
-        .tech-button {
-            font-size: 0.9rem;
-            padding: 0.6rem 1rem;
-        }
-
-        .project-details p,
-        .project-details li {
-            font-size: 1rem;
-        }
-
-        .github-button,
-        .contact-button {
-            padding: 0.75rem 1.5rem;
-            font-size: 1rem;
-        }
-    }
-
-    @media (max-width: 480px) {
-        .portfolio-section {
-            padding: 1.5rem 0.75rem;
-        }
-
-        .project-card,
-        .about-card,
-        .contact-card {
-            padding: 1.5rem;
-        }
-
-        .tech-stack {
-            gap: 0.5rem;
-        }
-
-        .tech-button {
-            font-size: 0.8rem;
-            padding: 0.5rem 0.875rem;
         }
     }
 </style>
