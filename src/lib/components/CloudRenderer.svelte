@@ -254,16 +254,15 @@
                         targetCameraY = currentSection * -5;
                         
                         // Add fade in animation to new section
-                        sections[currentSection].style.animation = 'dreamyFadeIn 1.2s forwards';
+                        const nextSectionEl = sections[nextSection];
+                        nextSectionEl.style.animation = 'dreamyFadeIn 0.8s forwards';
                         
-                        // Reset navigation lock after transition
-                        setTimeout(() => {
+                        navigationTimeout = setTimeout(() => {
                             isNavigating = false;
-                        }, 1000);
-                    }, 600);
+                        }, 500);
+                    }, 800);
                 }
                 break;
-            
             case 'down':
                 if (currentSection < MAX_SECTION) {
                     isNavigating = true;
@@ -277,13 +276,13 @@
                         targetCameraY = currentSection * -5;
                         
                         // Add fade in animation to new section
-                        sections[currentSection].style.animation = 'dreamyFadeIn 1.2s forwards';
+                        const nextSectionEl = sections[nextSection];
+                        nextSectionEl.style.animation = 'dreamyFadeIn 0.8s forwards';
                         
-                        // Reset navigation lock after transition
-                        setTimeout(() => {
+                        navigationTimeout = setTimeout(() => {
                             isNavigating = false;
-                        }, 1000);
-                    }, 600);
+                        }, 500);
+                    }, 800);
                 }
                 break;
         }
@@ -1415,30 +1414,27 @@
         display: flex;
         flex-direction: column;
         align-items: center;
-        justify-content: center; /* Center vertically */
-        padding: 2rem;
+        justify-content: flex-start;
+        padding: 4rem 2rem;
         opacity: 0;
         transition: opacity 1.2s cubic-bezier(0.4, 0, 0.2, 1),
                     transform 1.2s cubic-bezier(0.4, 0, 0.2, 1);
         transform: translateY(30px);
         filter: blur(10px);
-        pointer-events: none; /* Add this to prevent interaction with inactive sections */
     }
 
     .portfolio-section.active {
         opacity: 1;
         transform: translateY(0);
         filter: blur(0);
-        pointer-events: auto; /* Enable interaction for active section */
     }
 
     .section-title {
         font-size: 2.5rem;
         font-weight: 300;
-        margin-bottom: 2rem;
+        margin-bottom: 3rem;
         letter-spacing: 0.05em;
         text-align: center;
-        opacity: 0.9;
     }
 
     .intro-content {
@@ -2262,115 +2258,6 @@
         .tech-button {
             font-size: 0.8rem;
             padding: 0.5rem 0.875rem;
-        }
-    }
-
-    .project-card, .about-card, .contact-card {
-        background: rgba(255, 255, 255, 0.05);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        border-radius: 20px;
-        padding: 2rem;
-        backdrop-filter: blur(10px);
-        width: 100%;
-        max-width: 700px; /* Reduced from 800px or 900px */
-        margin: 0 auto;
-        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-        pointer-events: auto; /* Make cards interactive */
-    }
-
-    .project-page, .about-page, .contact-page {
-        height: 100%;
-        width: 100%;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        padding: 2rem;
-    }
-
-    /* Adjust section title positioning */
-    .section-title {
-        font-size: 2.5rem;
-        font-weight: 300;
-        margin-bottom: 2rem;
-        letter-spacing: 0.05em;
-        text-align: center;
-        opacity: 0.9;
-    }
-
-    /* Make content sections full-height and centered */
-    .portfolio-section {
-        height: 100vh;
-        width: 100%;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center; /* Center vertically */
-        padding: 2rem;
-        opacity: 0;
-        transition: opacity 1.2s cubic-bezier(0.4, 0, 0.2, 1),
-                    transform 1.2s cubic-bezier(0.4, 0, 0.2, 1);
-        transform: translateY(30px);
-        filter: blur(10px);
-        pointer-events: none; /* Add this to prevent interaction with inactive sections */
-    }
-
-    .portfolio-section.active {
-        opacity: 1;
-        transform: translateY(0);
-        filter: blur(0);
-        pointer-events: auto; /* Enable interaction for active section */
-    }
-
-    /* Adjust card content spacing */
-    .project-content, .about-content, .contact-content {
-        padding: 1rem;
-    }
-
-    /* Adjust tech stack buttons */
-    .tech-button {
-        background: rgba(255, 255, 255, 0.08);
-        border: 1px solid rgba(255, 255, 255, 0.15);
-        border-radius: 16px;
-        padding: 0.5rem 1rem;
-        font-size: 0.85rem;
-    }
-
-    /* Adjust contact buttons */
-    .contact-button {
-        padding: 0.75rem 1.5rem;
-        font-size: 1rem;
-        background: rgba(255, 255, 255, 0.08);
-        border: 1px solid rgba(255, 255, 255, 0.15);
-    }
-
-    /* Mobile adjustments */
-    @media (max-width: 768px) {
-        .project-card, .about-card, .contact-card {
-            padding: 1.5rem;
-            max-width: 90%;
-        }
-
-        .portfolio-section {
-            padding: 1rem;
-        }
-
-        .section-title {
-            font-size: 2rem;
-            margin-bottom: 1.5rem;
-        }
-    }
-
-    /* Smaller screens */
-    @media (max-width: 480px) {
-        .project-card, .about-card, .contact-card {
-            padding: 1.25rem;
-            max-width: 95%;
-        }
-
-        .section-title {
-            font-size: 1.75rem;
-            margin-bottom: 1.25rem;
         }
     }
 </style>
