@@ -1,7 +1,6 @@
 <script>
     import { onMount } from 'svelte';
     import * as THREE from 'three';
-    import { spring } from 'svelte/motion';
     import { fade, fly } from 'svelte/transition';
     import Cloud from 'lucide-svelte/icons/cloud';
     import CloudSun from 'lucide-svelte/icons/cloud-sun';
@@ -240,7 +239,6 @@
                     isNavigating = true;
                     currentSection--;
                     targetCameraY = currentSection * -5;
-                    sectionSpring.set({ y: currentSection * -100 });
                     
                     navigationTimeout = setTimeout(() => {
                         isNavigating = false;
@@ -252,7 +250,6 @@
                     isNavigating = true;
                     currentSection++;
                     targetCameraY = currentSection * -5;
-                    sectionSpring.set({ y: currentSection * -100 });
                     
                     navigationTimeout = setTimeout(() => {
                         isNavigating = false;
@@ -836,11 +833,9 @@
             if (keyState.up && currentSection > MIN_SECTION) {
                 currentSection--;
                 targetCameraY = currentSection * -7.5;
-                sectionSpring.set({ y: currentSection * -100 });
             } else if (keyState.down && currentSection < MAX_SECTION) {
                 currentSection++;
                 targetCameraY = currentSection * -7.5;
-                sectionSpring.set({ y: currentSection * -100 });
             }
 
             // Smoothly interpolate camera position
@@ -1049,13 +1044,6 @@
         { id: 'contact', title: 'Contact' }
     ];
     
-    // Create spring store for section transitions
-    const sectionSpring = spring({ y: 0 }, {
-        stiffness: 0.15,
-        damping: 0.65,
-        precision: 0.001  // Added precision for smoother small movements
-    });
-
     // Create a sequence of transitions
     const startSequence = async () => {
         if (container) {
@@ -1121,7 +1109,7 @@
 
     <!-- Modified content overlay -->
     <div class="content-overlay" 
-         style="transform: translateY({$sectionSpring.y}vh)">
+         style="transform: translateY({currentSection * -100}vh)">
         {#each sections as section, i}
             <section 
                 class="portfolio-section" 
@@ -1465,7 +1453,7 @@
         width: 100%;
         height: 100vh;
         z-index: 2;
-        transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        transition: transform 0.5s ease; /* Changed from 0.8s cubic-bezier */
         pointer-events: none;
     }
 
@@ -1483,6 +1471,7 @@
 
     .portfolio-section.active {
         opacity: 1;
+        transition-delay: 0.2s; /* Add slight delay for smoother fade */
     }
 
     .intro-content {
