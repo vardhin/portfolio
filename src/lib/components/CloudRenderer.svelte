@@ -254,15 +254,16 @@
                         targetCameraY = currentSection * -5;
                         
                         // Add fade in animation to new section
-                        const nextSectionEl = sections[nextSection];
-                        nextSectionEl.style.animation = 'dreamyFadeIn 0.8s forwards';
+                        sections[currentSection].style.animation = 'dreamyFadeIn 1.2s forwards';
                         
-                        navigationTimeout = setTimeout(() => {
+                        // Reset navigation lock after transition
+                        setTimeout(() => {
                             isNavigating = false;
-                        }, 500);
-                    }, 800);
+                        }, 1000);
+                    }, 600);
                 }
                 break;
+            
             case 'down':
                 if (currentSection < MAX_SECTION) {
                     isNavigating = true;
@@ -276,13 +277,13 @@
                         targetCameraY = currentSection * -5;
                         
                         // Add fade in animation to new section
-                        const nextSectionEl = sections[nextSection];
-                        nextSectionEl.style.animation = 'dreamyFadeIn 0.8s forwards';
+                        sections[currentSection].style.animation = 'dreamyFadeIn 1.2s forwards';
                         
-                        navigationTimeout = setTimeout(() => {
+                        // Reset navigation lock after transition
+                        setTimeout(() => {
                             isNavigating = false;
-                        }, 500);
-                    }, 800);
+                        }, 1000);
+                    }, 600);
                 }
                 break;
         }
