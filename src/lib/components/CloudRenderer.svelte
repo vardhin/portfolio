@@ -219,42 +219,30 @@
     let debugFrustumSize = 60; // This will show 6x more area
 
     // Add these new variables near the top with other state variables
-    let targetCameraY = 0;
     const CAMERA_SMOOTHING = 0.05;  // Reduced from default value for smoother movement
 
     // Add these constants near the top with other state variables
     const MIN_SECTION = 0;
     const MAX_SECTION = 6;  // sections.length - 1
 
-    // Add these scroll-related variables and functions
-    let lastScrollTime = 0;
-    let scrollThrottle = 50; // ms between scroll events
-    let scrolling = false;
+    // Simplify to basic scroll handling
+    let scrollY = 0;
 
-    // Add wheel and touch event handlers
+    // Simplify the wheel handler
     const handleWheel = (event) => {
-        const now = performance.now();
-        if (now - lastScrollTime < scrollThrottle) return;
-        lastScrollTime = now;
-
-        const delta = event.deltaY;
-        if (!scrolling) {
-            scrolling = true;
-            
-            // Update camera position based on scroll
-            targetCameraY += delta * 0.01; // Adjust multiplier to control scroll sensitivity
-            
-            // Clamp the camera position
-            const maxScroll = -(MAX_SECTION * 5); // Adjust based on your section heights
-            targetCameraY = Math.max(Math.min(targetCameraY, 0), maxScroll);
-            
-            // Update section position
-            const currentSection = Math.round(-targetCameraY / 5);
-            sectionSpring.set({ y: currentSection * -100 });
-            
-            scrolling = false;
+        scrollY += event.deltaY;
+        // Clamp scrollY to prevent overscrolling
+        const maxScroll = -(sections.length - 1) * window.innerHeight;
+        scrollY = Math.max(Math.min(scrollY, 0), maxScroll);
+        
+        // Update camera position directly
+        if (camera) {
+            camera.position.y = scrollY * 0.01; // Adjust multiplier as needed
         }
     };
+
+    // Simplify touch handling
+    let touchStartY = null;
 
     const handleTouchStart = (event) => {
         touchStartY = event.touches[0].clientY;
@@ -266,16 +254,15 @@
         const touchY = event.touches[0].clientY;
         const delta = touchStartY - touchY;
         
-        // Update camera position based on touch movement
-        targetCameraY += delta * 0.01; // Adjust multiplier for touch sensitivity
+        scrollY += delta;
+        // Clamp scrollY
+        const maxScroll = -(sections.length - 1) * window.innerHeight;
+        scrollY = Math.max(Math.min(scrollY, 0), maxScroll);
         
-        // Clamp the camera position
-        const maxScroll = -(MAX_SECTION * 5); // Adjust based on your section heights
-        targetCameraY = Math.max(Math.min(targetCameraY, 0), maxScroll);
-        
-        // Update section position
-        const currentSection = Math.round(-targetCameraY / 5);
-        sectionSpring.set({ y: currentSection * -100 });
+        // Update camera position directly
+        if (camera) {
+            camera.position.y = scrollY * 0.01; // Adjust multiplier as needed
+        }
         
         touchStartY = touchY;
     };
@@ -946,16 +933,13 @@
     </div>
 
     <div bind:this={container} 
-         class="canvas-container" 
-         style="opacity: 0; 
-                transition: opacity 1s ease-in-out;
-                background: #000000;">
+         class="canvas-container">
         <!-- Canvas will be added here by Three.js -->
     </div>
 
     <!-- Modified content overlay -->
     <div class="content-overlay" 
-         style="transform: translateY({$sectionSpring.y}vh)">
+         style="transform: translateY({scrollY}px)">
         {#each sections as section, i}
             <section 
                 class="portfolio-section" 
@@ -1200,7 +1184,6 @@
         position: fixed;
         top: 0;
         left: 0;
-        z-index: 1;
     }
 
     .controls {
@@ -1265,10 +1248,7 @@
         position: absolute;
         top: 0;
         left: 0;
-        opacity: 0;
-        transition: opacity 1s ease-in-out;
         background: #000000;
-        z-index: 1;
     }
 
     .fade-in {
@@ -1308,8 +1288,7 @@
         width: 100%;
         height: 100vh;
         z-index: 2;
-        transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
-        pointer-events: auto; /* Changed from none to auto to enable scrolling */
+        transition: transform 0.3s ease;
     }
 
     .portfolio-section {
@@ -1318,9 +1297,6 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        opacity: 0;
-        transition: opacity 0.5s ease;
-        pointer-events: auto; /* Changed from none to auto */
     }
 
     .portfolio-section.active {
