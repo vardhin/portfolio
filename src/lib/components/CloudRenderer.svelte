@@ -236,12 +236,15 @@
     const handleNavButtonPress = (direction) => {
         if (isNavigating) return;
         
+        const sections = document.querySelectorAll('.portfolio-section');
+        const currentSectionEl = sections[currentSection];
+        let nextSection;
+        
         switch(direction) {
             case 'up':
                 if (currentSection > MIN_SECTION) {
                     isNavigating = true;
-                    currentSection--;
-                    sectionSpring.set({ y: currentSection * -100 });
+                    nextSection = currentSection - 1;
                     
                     // Add fade out animation to current section
                     currentSectionEl.style.animation = 'dreamyFadeOut 0.8s forwards';
@@ -264,8 +267,7 @@
             case 'down':
                 if (currentSection < MAX_SECTION) {
                     isNavigating = true;
-                    currentSection++;
-                    sectionSpring.set({ y: currentSection * -100 });
+                    nextSection = currentSection + 1;
                     
                     // Add fade out animation to current section
                     currentSectionEl.style.animation = 'dreamyFadeOut 0.8s forwards';
@@ -1144,11 +1146,7 @@
     <!-- Modified content overlay -->
     <div class="content-overlay" style="transform: translateY({$sectionSpring.y}vh)">
         {#each sections as section, i}
-            <section 
-                class="portfolio-section" 
-                class:active={currentSection === i}
-                style="pointer-events: {currentSection === i ? 'auto' : 'none'}"
-            >
+            <section class="portfolio-section" class:active={currentSection === i}>
                 {#if section.id === 'intro' && showIntro}
                     <div class="intro-content" 
                          in:fly="{{ y: 50, duration: 1000, delay: 500 }}"
@@ -1400,7 +1398,6 @@
         }
     }
 
-    /* Update the content-overlay to allow pointer events */
     .content-overlay {
         position: fixed;
         top: 0;
@@ -1408,130 +1405,21 @@
         width: 100%;
         height: 100vh;
         z-index: 2;
-        pointer-events: auto; /* Changed from none */
-    }
-
-    /* Update portfolio-section styles */
-    .portfolio-section {
-        height: 100vh;
-        width: 100%;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        padding: 2rem;
-        opacity: 0;
-        visibility: hidden;
-        transition: opacity 0.8s ease, /* Simplified transitions */
-                    visibility 0.8s ease,
-                    transform 0.8s ease;
-        transform: translateY(30px);
+        transition: transform 1.2s cubic-bezier(0.4, 0, 0.2, 1);
         pointer-events: none;
     }
 
-    .portfolio-section.active {
-        opacity: 1;
-        visibility: visible;
-        transform: translateY(0);
-        pointer-events: auto;
-    }
-
-    /* Update card base styles */
-    .project-card,
-    .about-card,
-    .contact-card {
-        background: rgba(255, 255, 255, 0.08); /* Slightly increased opacity */
-        border: 1px solid rgba(255, 255, 255, 0.15);
-        border-radius: 20px;
-        padding: 2rem;
-        backdrop-filter: blur(10px);
-        width: 100%;
-        max-width: 700px;
-        margin: 0 auto;
-        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2); /* Increased shadow */
-        pointer-events: auto;
-        opacity: 1;
-        visibility: visible;
-    }
-
-    /* Ensure content within cards is visible */
-    .project-content,
-    .about-content,
-    .contact-content {
-        opacity: 1;
-        visibility: visible;
-        color: white;
-    }
-
-    /* Make text elements visible */
-    h1, h2, h3, h4, p, li, .section-title {
-        color: white;
-        opacity: 1;
-        visibility: visible;
-    }
-
-    /* Update button styles */
-    .tech-button,
-    .contact-button,
-    .github-button {
-        background: rgba(255, 255, 255, 0.12); /* Increased opacity */
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        color: white;
-        opacity: 1;
-        visibility: visible;
-        pointer-events: auto;
-    }
-
-    /* ... rest of existing styles ... */
-
-    /* Mobile optimizations */
-    @media (pointer: coarse) {
-        .control-button {
-            width: 48px;
-            height: 48px;
-            font-size: 20px;
-        }
-        
-        .top-left {
-            top: 24px;
-            left: 24px;
-            gap: 16px;
-        }
-
-        .nav-controls {
-            right: 24px;
-            bottom: 24px;
-            gap: 16px;
-        }
-
-        canvas {
-            touch-action: none;
-        }
-    }
-
-    .content-overlay {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100vh;
-        z-index: 2;
-        pointer-events: none; /* Only disable pointer events at this level */
-    }
-
     .portfolio-section {
         height: 100vh;
         width: 100%;
         display: flex;
         flex-direction: column;
         align-items: center;
-        justify-content: center;
+        justify-content: center; /* Center vertically */
         padding: 2rem;
         opacity: 0;
-        visibility: hidden; /* Add visibility property */
         transition: opacity 1.2s cubic-bezier(0.4, 0, 0.2, 1),
-                    transform 1.2s cubic-bezier(0.4, 0, 0.2, 1),
-                    visibility 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+                    transform 1.2s cubic-bezier(0.4, 0, 0.2, 1);
         transform: translateY(30px);
         filter: blur(10px);
         pointer-events: none; /* Add this to prevent interaction with inactive sections */
@@ -1539,13 +1427,844 @@
 
     .portfolio-section.active {
         opacity: 1;
-        visibility: visible;
         transform: translateY(0);
         filter: blur(0);
         pointer-events: auto; /* Enable interaction for active section */
     }
 
-    /* Update card styles to ensure visibility */
+    .section-title {
+        font-size: 2.5rem;
+        font-weight: 300;
+        margin-bottom: 2rem;
+        letter-spacing: 0.05em;
+        text-align: center;
+        opacity: 0.9;
+    }
+
+    .intro-content {
+        text-align: center;
+        pointer-events: none;
+    }
+
+    .intro-content h1 {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+        font-weight: 300;  /* Made lighter */
+        letter-spacing: 0.05em;  /* Increased letter spacing */
+        text-shadow: 0 0 20px rgba(255, 255, 255, 0.3);  /* Added glow effect */
+    }
+
+    .intro-content h1 span {
+        display: inline-block;
+        opacity: 0;
+        animation: dreamyFadeIn 1.2s forwards cubic-bezier(0.4, 0, 0.2, 1);  /* Slower, smoother animation */
+        filter: blur(0);
+        transform-origin: bottom;
+    }
+
+    .intro-content p {
+        font-size: 1.5rem;
+        font-weight: 200;  /* Made even lighter */
+        letter-spacing: 0.08em;  /* Increased letter spacing */
+        opacity: 0;
+        animation: dreamyFadeIn 1.5s forwards cubic-bezier(0.4, 0, 0.2, 1);
+        animation-delay: 1.5s;  /* Increased delay */
+        text-shadow: 0 0 15px rgba(255, 255, 255, 0.2);  /* Added subtle glow */
+    }
+
+    @keyframes dreamyFadeIn {
+        0% {
+            opacity: 0;
+            transform: translateY(30px) scale(0.95);
+            filter: blur(10px);
+        }
+        60% {
+            opacity: 0.5;
+            filter: blur(5px);
+        }
+        100% {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+            filter: blur(0);
+        }
+    }
+
+    @keyframes dreamyFadeOut {
+        0% {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+            filter: blur(0);
+        }
+        40% {
+            opacity: 0.4;
+            filter: blur(5px);
+        }
+        100% {
+            opacity: 0;
+            transform: translateY(-30px) scale(0.95);
+            filter: blur(10px);
+        }
+    }
+
+    /* Add any missing animation styles */
+    :global(.fly-enter) {
+        opacity: 0;
+        transform: translateY(50px);
+    }
+
+    :global(.fly-enter-active) {
+        opacity: 1;
+        transform: translateY(0);
+        transition: all 1000ms ease;
+    }
+
+    :global(.fade-out) {
+        opacity: 0;
+        transition: opacity 300ms ease;
+    }
+
+    /* Project card styles */
+    .project-content h3 {
+        font-weight: 400;  /* Changed from 600 to 400 */
+        font-size: 1.5rem;
+        margin-bottom: 0.5rem;
+        letter-spacing: 0.01em;  /* Added slight tracking */
+    }
+
+    .project-description {
+        font-weight: 300;  /* Changed from 400 to 300 */
+        line-height: 1.7;  /* Increased from 1.6 for better readability */
+        font-size: 1rem;
+    }
+
+    .tech-tag {
+        font-weight: 400;  /* Changed from 500 to 400 */
+        font-size: 0.875rem;
+    }
+
+    .project-links {
+        display: flex;
+        gap: 1rem;
+        margin-top: 1rem;
+    }
+
+    .project-link {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        text-decoration: none;
+        color: white;
+        opacity: 0.8;
+        transition: opacity 0.2s ease;
+    }
+
+    .project-link:hover {
+        opacity: 1;
+    }
+
+    /* About section */
+    .about-content h2 {
+        font-weight: 400;  /* Changed from 600 to 400 */
+        font-size: 2.5rem;
+        margin-bottom: 1.5rem;
+        letter-spacing: 0.01em;  /* Changed to positive tracking */
+    }
+
+    .about-content p {
+        font-weight: 300;  /* Changed from 400 to 300 */
+        font-size: 1.125rem;
+        line-height: 1.8;  /* Increased from 1.7 */
+        letter-spacing: 0.02em;
+    }
+
+    /* Contact section */
+    .contact-content h2 {
+        font-weight: 400;  /* Changed from 600 to 400 */
+        font-size: 2.5rem;
+        margin-bottom: 1.5rem;
+        letter-spacing: 0.01em;
+    }
+
+    /* Typography helper classes */
+    .text-light {
+        font-weight: 300;
+    }
+
+    .text-regular {
+        font-weight: 400;
+    }
+
+    .text-medium {
+        font-weight: 400;  /* Changed from 500 */
+    }
+
+    .text-semibold {
+        font-weight: 500;  /* Changed from 600 */
+    }
+
+    .text-bold {
+        font-weight: 600;  /* Changed from 700 */
+    }
+
+    /* Text size helpers */
+    .text-sm {
+        font-size: 0.875rem;
+    }
+
+    .text-base {
+        font-size: 1rem;
+    }
+
+    .text-lg {
+        font-size: 1.125rem;
+    }
+
+    .text-xl {
+        font-size: 1.25rem;
+    }
+
+    .text-2xl {
+        font-size: 1.5rem;
+    }
+
+    .text-3xl {
+        font-size: 2rem;
+    }
+
+    /* Line height helpers */
+    .leading-tight {
+        line-height: 1.25;
+    }
+
+    .leading-normal {
+        line-height: 1.5;
+    }
+
+    .leading-relaxed {
+        line-height: 1.7;
+    }
+
+    /* Add these media queries at the end of your style section */
+
+    @media screen and (max-width: 768px) {
+        /* Intro content mobile adjustments */
+        .intro-content h1 {
+            font-size: 2rem; /* Reduced from 3rem */
+        }
+
+        .intro-content p {
+            font-size: 1.125rem; /* Reduced from 1.5rem */
+        }
+
+        /* Project content mobile adjustments */
+        .project-content h3 {
+            font-size: 1.25rem; /* Reduced from 1.5rem */
+        }
+
+        .project-description {
+            font-size: 0.875rem; /* Reduced from 1rem */
+        }
+
+        .tech-tag {
+            font-size: 0.75rem; /* Reduced from 0.875rem */
+        }
+
+        .project-link {
+            font-size: 0.75rem; /* Reduced from 0.875rem */
+        }
+
+        /* About section mobile adjustments */
+        .about-content h2 {
+            font-size: 1.875rem; /* Reduced from 2.5rem */
+        }
+
+        .about-content p {
+            font-size: 1rem; /* Reduced from 1.125rem */
+        }
+
+        /* Contact section mobile adjustments */
+        .contact-content h2 {
+            font-size: 1.875rem; /* Reduced from 2.5rem */
+        }
+
+        /* Text size helper classes mobile adjustments */
+        .text-sm {
+            font-size: 0.75rem;
+        }
+
+        .text-base {
+            font-size: 0.875rem;
+        }
+
+        .text-lg {
+            font-size: 1rem;
+        }
+
+        .text-xl {
+            font-size: 1.125rem;
+        }
+
+        .text-2xl {
+            font-size: 1.25rem;
+        }
+
+        .text-3xl {
+            font-size: 1.5rem;
+        }
+    }
+
+    /* Additional adjustments for very small screens */
+    @media screen and (max-width: 480px) {
+        .intro-content h1 {
+            font-size: 1.75rem;
+        }
+
+        .intro-content p {
+            font-size: 1rem;
+        }
+
+        /* Adjust section padding for smaller screens */
+        .portfolio-section {
+            padding: 1rem;
+        }
+    }
+
+    /* Landscape orientation adjustments */
+    @media screen and (max-height: 480px) and (orientation: landscape) {
+        .intro-content h1 {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .intro-content p {
+            font-size: 0.875rem;
+        }
+
+        .portfolio-section {
+            padding: 0.75rem;
+        }
+    }
+
+    /* Add to your existing style section */
+    .projects-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 2rem;
+        width: 100%;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 2rem;
+        pointer-events: auto;
+    }
+
+    .project-card {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 12px;
+        padding: 1.5rem;
+        backdrop-filter: blur(8px);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .project-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+    }
+
+    .tech-stack {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin: 0.75rem 0;
+    }
+
+    .tech-tag {
+        background: rgba(255, 255, 255, 0.1);
+        padding: 0.25rem 0.75rem;
+        border-radius: 1rem;
+        font-size: 0.75rem;
+    }
+
+    .project-links {
+        display: flex;
+        gap: 1rem;
+        margin-top: 1rem;
+    }
+
+    .project-link {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        text-decoration: none;
+        color: white;
+        opacity: 0.8;
+        transition: opacity 0.2s ease;
+    }
+
+    .project-link:hover {
+        opacity: 1;
+    }
+
+    /* Mobile responsiveness */
+    @media (max-width: 768px) {
+        .projects-grid {
+            grid-template-columns: 1fr;
+            padding: 1rem;
+        }
+    }
+
+    /* Updated and optimized styles */
+    .projects-container {
+        width: 100%;
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 2rem;
+    }
+
+    .project-section {
+        opacity: 0;
+        animation: fadeIn 0.5s ease forwards;
+    }
+
+    .project-card {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 12px;
+        padding: 1.5rem;
+        backdrop-filter: blur(8px);
+        transition: all 0.3s ease;
+        height: 100%;
+    }
+
+    .project-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+        background: rgba(255, 255, 255, 0.08);
+    }
+
+    .project-content {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+    }
+
+    .project-content h3 {
+        margin: 0 0 1rem;
+        font-size: 1.5rem;
+        font-weight: 500;
+        line-height: 1.4;
+    }
+
+    .tech-stack {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin-bottom: 1rem;
+    }
+
+    .tech-tag {
+        background: rgba(255, 255, 255, 0.1);
+        padding: 0.25rem 0.75rem;
+        border-radius: 1rem;
+        font-size: 0.75rem;
+        transition: background 0.2s ease;
+    }
+
+    .tech-tag:hover {
+        background: rgba(255, 255, 255, 0.15);
+    }
+
+    .project-description {
+        flex: 1;
+        margin: 0 0 1rem;
+        line-height: 1.6;
+        font-size: 0.95rem;
+    }
+
+    .project-links {
+        margin-top: auto;
+    }
+
+    .project-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        text-decoration: none;
+        color: white;
+        opacity: 0.8;
+        transition: opacity 0.2s ease;
+        font-size: 0.9rem;
+    }
+
+    .project-link:hover {
+        opacity: 1;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .projects-container {
+        width: 100%;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 2rem;
+        height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .project-card {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 20px;
+        padding: 2.5rem;
+        backdrop-filter: blur(10px);
+        width: 100%;
+        max-width: 800px;
+        margin: 0 auto;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+    }
+
+    .project-header {
+        margin-bottom: 2rem;
+        text-align: center;
+    }
+
+    .project-header h2 {
+        font-size: 2.5rem;
+        font-weight: 300;
+        margin: 0;
+        letter-spacing: 0.05em;
+    }
+
+    .project-header h3 {
+        font-size: 1.5rem;
+        font-weight: 400;
+        margin: 0.5rem 0 0;
+        color: rgba(255, 255, 255, 0.8);
+    }
+
+    .tech-stack {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+        margin-bottom: 2rem;
+        justify-content: center;
+    }
+
+    .tech-button {
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 20px;
+        padding: 0.5rem 1rem;
+        color: white;
+        font-size: 0.9rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .tech-button:hover {
+        background: rgba(255, 255, 255, 0.2);
+        transform: translateY(-2px);
+    }
+
+    .project-details {
+        margin-bottom: 2rem;
+    }
+
+    .project-details h4 {
+        font-size: 1.2rem;
+        font-weight: 500;
+        margin: 1.5rem 0 1rem;
+        color: rgba(255, 255, 255, 0.9);
+    }
+
+    .project-details p {
+        font-size: 1rem;
+        line-height: 1.6;
+        color: rgba(255, 255, 255, 0.8);
+        margin-bottom: 1rem;
+    }
+
+    .project-details ul {
+        list-style-type: none;
+        padding: 0;
+        margin: 0 0 1rem;
+    }
+
+    .project-details li {
+        position: relative;
+        padding-left: 1.5rem;
+        margin-bottom: 0.5rem;
+        line-height: 1.6;
+        color: rgba(255, 255, 255, 0.8);
+    }
+
+    .project-details li::before {
+        content: "•";
+        position: absolute;
+        left: 0;
+        color: rgba(255, 255, 255, 0.6);
+    }
+
+    .project-links {
+        display: flex;
+        justify-content: center;
+        margin-top: 2rem;
+    }
+
+    .github-button {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 25px;
+        padding: 0.75rem 1.5rem;
+        color: white;
+        text-decoration: none;
+        font-size: 1rem;
+        transition: all 0.2s ease;
+    }
+
+    .github-button:hover {
+        background: rgba(255, 255, 255, 0.2);
+        transform: translateY(-2px);
+    }
+
+    @media (max-width: 768px) {
+        .projects-container {
+            padding: 1rem;
+        }
+
+        .project-card {
+            padding: 1.5rem;
+        }
+
+        .project-header h2 {
+            font-size: 2rem;
+        }
+
+        .project-header h3 {
+            font-size: 1.25rem;
+        }
+
+        .tech-stack {
+            gap: 0.5rem;
+        }
+
+        .tech-button {
+            font-size: 0.8rem;
+            padding: 0.4rem 0.8rem;
+        }
+    }
+
+    /* Base styles */
+    .about-card,
+    .contact-card {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 24px;
+        padding: 3rem;
+        backdrop-filter: blur(10px);
+        width: 100%;
+        max-width: 900px;
+        margin: 0 auto;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Project specific styles */
+    .about-header {
+        margin-bottom: 3rem;
+        text-align: center;
+    }
+
+    .about-header h3 {
+        font-size: 1.5rem;
+        font-weight: 400;
+        margin: 1rem 0 0;
+        color: rgba(255, 255, 255, 0.8);
+    }
+
+    /* Tech stack and buttons */
+    .tech-stack {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1rem;
+        margin: 2rem 0;
+        justify-content: center;
+    }
+
+    .tech-button {
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 20px;
+        padding: 0.75rem 1.25rem;
+        color: white;
+        font-size: 0.95rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .tech-button:hover {
+        background: rgba(255, 255, 255, 0.2);
+        transform: translateY(-2px);
+    }
+
+    /* Content sections */
+    .about-content,
+    .contact-content {
+        margin: 2rem 0;
+    }
+
+    .about-content h2,
+    .contact-content h3 {
+        font-size: 2.5rem;
+        font-weight: 300;
+        margin-bottom: 1.5rem;
+        letter-spacing: 0.05em;
+        text-align: center;
+    }
+
+    .about-content p,
+    .contact-content p {
+        font-weight: 300;
+        font-size: 1.125rem;
+        line-height: 1.8;
+        letter-spacing: 0.02em;
+    }
+
+    .about-content ul,
+    .contact-content ul {
+        list-style-type: none;
+        padding: 0;
+        margin: 0 0 2rem;
+    }
+
+    .about-content li,
+    .contact-content li {
+        position: relative;
+        padding-left: 1.5rem;
+        margin-bottom: 1rem;
+        line-height: 1.7;
+        font-size: 1.1rem;
+        color: rgba(255, 255, 255, 0.8);
+    }
+
+    .about-content li::before,
+    .contact-content li::before {
+        content: "•";
+        position: absolute;
+        left: 0;
+        color: rgba(255, 255, 255, 0.6);
+    }
+
+    /* Links and buttons */
+    .about-links,
+    .contact-links {
+        display: flex;
+        justify-content: center;
+        gap: 1.5rem;
+        margin-top: 3rem;
+    }
+
+    .about-button,
+    .contact-button {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 25px;
+        padding: 1rem 2rem;
+        color: white;
+        text-decoration: none;
+        font-size: 1.1rem;
+        transition: all 0.2s ease;
+    }
+
+    .about-button:hover,
+    .contact-button:hover {
+        background: rgba(255, 255, 255, 0.2);
+        transform: translateY(-2px);
+    }
+
+    /* Skills section */
+    .skill-category {
+        margin-bottom: 2.5rem;
+    }
+
+    .skill-category h4 {
+        text-align: center;
+    }
+
+    /* Responsive design */
+    @media (max-width: 768px) {
+        .portfolio-section {
+            padding: 2rem 1rem;
+        }
+
+        .project-card,
+        .about-card,
+        .contact-card {
+            padding: 2rem;
+        }
+
+        .section-title {
+            font-size: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .project-header h2 {
+            font-size: 2rem;
+        }
+
+        .project-header h3 {
+            font-size: 1.25rem;
+        }
+
+        .tech-button {
+            font-size: 0.9rem;
+            padding: 0.6rem 1rem;
+        }
+
+        .project-details p,
+        .project-details li {
+            font-size: 1rem;
+        }
+
+        .github-button,
+        .contact-button {
+            padding: 0.75rem 1.5rem;
+            font-size: 1rem;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .portfolio-section {
+            padding: 1.5rem 0.75rem;
+        }
+
+        .project-card,
+        .about-card,
+        .contact-card {
+            padding: 1.5rem;
+        }
+
+        .tech-stack {
+            gap: 0.5rem;
+        }
+
+        .tech-button {
+            font-size: 0.8rem;
+            padding: 0.5rem 0.875rem;
+        }
+    }
+
     .project-card, .about-card, .contact-card {
         background: rgba(255, 255, 255, 0.05);
         border: 1px solid rgba(255, 255, 255, 0.1);
@@ -1589,10 +2308,8 @@
         justify-content: center; /* Center vertically */
         padding: 2rem;
         opacity: 0;
-        visibility: hidden; /* Add visibility property */
         transition: opacity 1.2s cubic-bezier(0.4, 0, 0.2, 1),
-                    transform 1.2s cubic-bezier(0.4, 0, 0.2, 1),
-                    visibility 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+                    transform 1.2s cubic-bezier(0.4, 0, 0.2, 1);
         transform: translateY(30px);
         filter: blur(10px);
         pointer-events: none; /* Add this to prevent interaction with inactive sections */
@@ -1600,7 +2317,6 @@
 
     .portfolio-section.active {
         opacity: 1;
-        visibility: visible;
         transform: translateY(0);
         filter: blur(0);
         pointer-events: auto; /* Enable interaction for active section */
@@ -1670,8 +2386,3 @@
         </div>
     `);
 </script>
-
-<!-- Add debug info (optional, remove in production) -->
-<div style="position: fixed; bottom: 10px; left: 10px; z-index: 9999; background: rgba(0,0,0,0.8); padding: 10px; border-radius: 5px;">
-    Current Section: {currentSection}
-</div>
