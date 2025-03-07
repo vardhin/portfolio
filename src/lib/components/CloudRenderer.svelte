@@ -1148,13 +1148,6 @@
                                     <h2>Decentralized Cloud Computing</h2>
                                     <h3>Decloud</h3>
                                 </div>
-                                <a href="https://github.com/yourusername/decloud" 
-                                   class="github-button" 
-                                   target="_blank" 
-                                   rel="noopener noreferrer">
-                                    <Github size={16} />
-                                    <span>GitHub</span>
-                                </a>
                             </div>
                             
                             <div class="scrollable-content">
@@ -1180,6 +1173,13 @@
                             {#each ['Electron', 'Svelte', 'IPFS', 'Docker', 'TypeScript'] as tech}
                                 <span class="tech-button">{tech}</span>
                             {/each}
+                            <a href="https://github.com/yourusername/decloud" 
+                               class="github-button" 
+                               target="_blank" 
+                               rel="noopener noreferrer">
+                                <Github size={12} /> <!-- Reduced from 16 -->
+                                <span>GitHub</span>
+                            </a>
                         </div>
                     </div>
                 {:else if section.id === 'recon'}
@@ -1558,49 +1558,32 @@
         padding: 1.25rem;
         backdrop-filter: blur(10px);
         width: 100%;
-        max-width: 900px; /* Increased from 800px */
-        height: 400px; /* Increased from 300px */
+        max-width: 1000px; /* Increased from 900px */
+        height: 450px; /* Increased from 400px */
         margin: 0 auto;
         box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
         transition: all 0.3s ease;
         display: flex;
-        gap: 1rem;
-    }
-
-    .project-content {
-        flex: 1;
-        min-width: 0;
-        display: flex;
-        flex-direction: column;
-        height: 100%;
+        gap: 0.75rem; /* Reduced from 1rem */
     }
 
     .project-header {
         display: flex;
-        justify-content: space-between;
-        align-items: flex-start;
-        margin-bottom: 0.75rem;
-        flex-wrap: wrap;
-        flex-shrink: 0;
-    }
-
-    .project-header-text {
-        flex: 1;
-        min-width: 200px;
-        margin-right: 1rem;
+        flex-direction: column; /* Changed to stack vertically */
+        margin-bottom: 0.5rem; /* Reduced from 0.75rem */
     }
 
     .project-header h2 {
-        font-size: 1rem; /* Reduced from 1.1rem */
+        font-size: 0.9rem; /* Reduced from 1rem */
         font-weight: 300;
         margin: 0;
         letter-spacing: 0.02em;
     }
 
     .project-header h3 {
-        font-size: 0.8rem; /* Reduced from 0.85rem */
+        font-size: 0.75rem; /* Reduced from 0.8rem */
         font-weight: 400;
-        margin: 0.1rem 0 0; /* Reduced from 0.15rem */
+        margin: 0.05rem 0 0; /* Reduced from 0.1rem */
         color: rgba(255, 255, 255, 0.7);
     }
 
@@ -1609,9 +1592,9 @@
     }
 
     .project-details h4 {
-        font-size: 0.8rem; /* Reduced from 0.85rem */
+        font-size: 0.75rem; /* Reduced from 0.8rem */
         font-weight: 500;
-        margin: 0.5rem 0 0.3rem; /* Reduced from 0.75rem 0 0.5rem */
+        margin: 0.4rem 0 0.2rem; /* Reduced from 0.5rem 0 0.3rem */
         color: rgba(255, 255, 255, 0.9);
     }
 
@@ -1620,133 +1603,78 @@
     }
 
     .project-details p {
-        font-size: 0.75rem; /* Reduced from 0.8rem */
-        line-height: 1.3; /* Reduced from 1.5 */
+        font-size: 0.7rem; /* Reduced from 0.75rem */
+        line-height: 1.25; /* Reduced from 1.3 */
         color: rgba(255, 255, 255, 0.8);
-        margin-bottom: 0.3rem; /* Reduced from 0.5rem */
-        word-spacing: -0.05em; /* Added to reduce word spacing */
+        margin-bottom: 0.25rem; /* Reduced from 0.3rem */
+        word-spacing: -0.06em; /* Increased negative word spacing */
     }
 
     .project-details ul {
         list-style-type: none;
         padding: 0;
-        margin: 0 0 0.3rem; /* Reduced from 0.5rem */
+        margin: 0 0 0.25rem; /* Reduced from 0.3rem */
     }
 
     .project-details li {
         position: relative;
-        padding-left: 0.8rem; /* Reduced from 1rem */
-        margin-bottom: 0.2rem; /* Reduced from 0.3rem */
-        line-height: 1.2; /* Reduced from 1.4 */
-        font-size: 0.75rem; /* Reduced from 0.8rem */
+        padding-left: 0.7rem; /* Reduced from 0.8rem */
+        margin-bottom: 0.15rem; /* Reduced from 0.2rem */
+        line-height: 1.15; /* Reduced from 1.2 */
+        font-size: 0.7rem; /* Reduced from 0.75rem */
         color: rgba(255, 255, 255, 0.8);
-        word-spacing: -0.05em; /* Added to reduce word spacing */
+        word-spacing: -0.06em; /* Increased negative word spacing */
     }
 
     .tech-stack {
         display: flex;
         flex-direction: column;
-        gap: 0.4rem;
-        padding-left: 0.5rem;
+        gap: 0.3rem; /* Reduced from 0.4rem */
+        padding-left: 0.4rem; /* Reduced from 0.5rem */
         border-left: 1px solid rgba(255, 255, 255, 0.1);
         min-width: fit-content;
     }
 
     .tech-button {
+        font-size: 0.6rem; /* Reduced from 0.65rem */
+        padding: 0.15rem 0.35rem; /* Reduced from 0.2rem 0.4rem */
+    }
+
+    .github-button {
+        font-size: 0.6rem; /* Match tech-button size */
+        padding: 0.15rem 0.35rem;
+        margin-top: 0.3rem;
         background: rgba(255, 255, 255, 0.06);
         border: 1px solid rgba(255, 255, 255, 0.12);
         border-radius: 6px;
-        padding: 0.25rem 0.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.3rem;
         color: rgba(255, 255, 255, 0.8);
-        font-size: 0.7rem; /* Reduced from 0.75rem */
-        white-space: nowrap;
+        text-decoration: none;
     }
 
     /* Mobile optimizations */
     @media (max-width: 768px) {
         .project-card {
-            height: auto; /* Allow card to expand */
-            flex-direction: column;
-            padding: 1rem;
-            max-width: calc(100% - 2rem); /* Account for margins */
-            margin: 0 1rem;
-        }
-
-        .project-content {
             height: auto;
-        }
-
-        .project-header {
-            margin-bottom: 1rem;
-        }
-
-        .project-header-text {
-            margin-right: 0;
-            margin-bottom: 0.5rem;
-            width: 100%;
-        }
-
-        .github-button {
-            width: 100%;
-            justify-content: center;
+            max-width: calc(100% - 1.5rem); /* Slightly reduced margin */
+            margin: 0 0.75rem;
+            padding: 0.75rem; /* Reduced from 1rem */
         }
 
         .tech-stack {
             flex-direction: row;
             flex-wrap: wrap;
-            padding: 0.75rem 0 0;
-            margin: 0.75rem 0 0;
+            padding: 0.5rem 0 0; /* Reduced from 0.75rem */
+            margin: 0.5rem 0 0;
             border-left: none;
             border-top: 1px solid rgba(255, 255, 255, 0.1);
-            width: 100%;
-            gap: 0.5rem;
+            gap: 0.3rem; /* Reduced from 0.5rem */
         }
 
-        .tech-button {
-            font-size: 0.7rem;
-            padding: 0.2rem 0.4rem;
-        }
-
-        .project-details {
-            margin-bottom: 0.5rem;
-        }
-
-        .project-details h4 {
-            font-size: 0.8rem;
-            margin: 0.5rem 0 0.4rem;
-        }
-
-        .project-details p,
-        .project-details li {
-            font-size: 0.75rem;
-            line-height: 1.4;
-        }
-    }
-
-    /* Small mobile devices */
-    @media (max-width: 480px) {
-        .project-card {
-            padding: 0.875rem;
-            margin: 0 0.5rem;
-        }
-
-        .project-header h2 {
-            font-size: 1rem;
-        }
-
-        .project-header h3 {
-            font-size: 0.8rem;
-        }
-
-        .tech-stack {
-            padding-top: 0.5rem;
-            margin-top: 0.5rem;
-            gap: 0.4rem;
-        }
-
-        .tech-button {
-            font-size: 0.65rem;
-            padding: 0.2rem 0.35rem;
+        .github-button {
+            margin-top: 0;
         }
     }
 
