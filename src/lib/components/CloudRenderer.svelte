@@ -13,9 +13,12 @@
     import Github from 'lucide-svelte/icons/github';
   
     let container;
-    let showIntro = true;
+    let scene, camera, renderer, fogMaterial;
+    let animationFrameId;
+    let isNavigating = false;
+    let targetCameraY = 0;
   
-    // Add weather state
+    // Weather state
     let weatherState = {
         cloudDensity: 0.3,
         windSpeed: 0.08,
@@ -23,827 +26,184 @@
         rainIntensity: 0.0
     };
   
-    // Add new variable to store coordinates
-    let sunCoordinates = { x: -0.6, y: -0.2 };  // Changed from -0.5, -0.3
-  
-    // Add new variables for time display
-    let currentTime = "02:30 AM";  // Updated to match new position
-    let skyColors = {
-        nightDeep: new THREE.Color(0x000000),    // Pure black (midnight)
-        nightLight: new THREE.Color(0x0A0A2A),    // Very dark blue-black
-        preDawn: new THREE.Color(0x12122E),       // Slightly lighter than night, still deep blue
-        dawn: new THREE.Color(0x1A1A3A),          // Deep blue
-        morningGold: new THREE.Color(0x1A1A3A),   // Deep blue
-        day: new THREE.Color(0x87CEEB),           // Natural sky blue (unchanged)
-        afternoonWarm: new THREE.Color(0x6CA9C2), // Slightly darker, cooler sky blue
-        dusk: new THREE.Color(0x12122E),          // Changed to match pre-dawn
-        twilight: new THREE.Color(0x0A0A2A)       // Changed to match nightLight
-    };
-  
-    // Function to convert x position to time
-    function getTimeFromX(x) {
-        // Map x from [-1, 1] to [0, 24]
-        const hours = ((x + 1) * 12);
-        const totalMinutes = Math.floor(hours * 60);
-        const h = Math.floor(totalMinutes / 60);
-        const m = totalMinutes % 60;
-        return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`;
-    }
-  
-    // Function to get sky color based on time
-    function getSkyColor(x) {
-        const hour = ((x + 1) * 12);
-        
-        if (hour < 4) {
-            return skyColors.nightDeep.clone();
-        } else if (hour < 4.5) {
-            const t = smoothstep(4.0, 4.5, hour);
-            return skyColors.nightDeep.clone().lerp(skyColors.nightLight, t);
-        } else if (hour < 5) {
-            const t = smoothstep(4.5, 5.0, hour);
-            return skyColors.nightLight.clone().lerp(skyColors.preDawn, t);
-        } else if (hour < 6) {
-            const t = smoothstep(5.0, 6.0, hour);
-            return skyColors.preDawn.clone().lerp(skyColors.dawn, t);
-        } else if (hour < 6.5) {
-            const t = smoothstep(6.0, 6.5, hour);
-            return skyColors.dawn.clone().lerp(skyColors.morningGold, t);
-        } else if (hour < 7) {
-            const t = smoothstep(6.5, 7.0, hour);
-            return skyColors.morningGold.clone().lerp(skyColors.day, t);
-        } else if (hour < 16) {
-            const t = smoothstep(8.0, 16.0, hour);
-            return skyColors.day.clone().lerp(skyColors.afternoonWarm, t);
-        } else if (hour < 17) {
-            const t = smoothstep(16.0, 17.0, hour);
-            return skyColors.afternoonWarm.clone().lerp(skyColors.dusk, t);
-        } else if (hour < 18) {
-            const t = smoothstep(17.0, 18.0, hour);
-            return skyColors.dusk.clone().lerp(skyColors.twilight, t);
-        } else if (hour < 19) {
-            const t = smoothstep(18.0, 19.0, hour);
-            return skyColors.twilight.clone().lerp(skyColors.nightDeep, t);
-        } else {
-            return skyColors.nightDeep.clone();
-        }
-    }
-  
-    // Add new state variables
-    let showClouds = true;
-    let enableCloudMovement = true;
-  
-    // Add new variable to track if it's night time
-    let isNightTime = true;
-
-    // Add star system variables
+    // Star system
     let stars = [];
-    const TOTAL_STARS = 500;  // Reduced from 800
-
-    class Star {
-        constructor() {
-            this.resetProperties();
-            this.createMesh();
-        }
-
-        resetProperties() {
-            this.size = Math.random() * 0.015 + 0.003; // Random size between 0.003 and 0.018
-            this.ttl = Math.random() * 5 + 3; // Time to live: 3-8 seconds
-            this.age = 0;
-            this.fadeState = 'in';  // States: 'in', 'stable', 'out', 'waiting'
-            this.fadeTime = 1.0;    // Time to fade in/out
-            this.waitTime = Math.random() * 2;  // Random wait time 0-2 seconds
-            this.waitTimer = 0;
-        }
-
-        createMesh() {
-            const geometry = new THREE.SphereGeometry(this.size, 8, 8);
-            const starColors = [
-                0xFFFFFF,    // White (young stars)
-                0xFFF4E8,    // Slightly warm white
-                0xFFEBD5,    // Warm white (like our Sun)
-                0xFFE4B5,    // Cream (older stars)
-                0xFFD7AA,    // Pale orange (red giants)
-                0x99CCFF,    // Blue-white (hot young stars)
-                0xCAE1FF     // Light blue (very hot stars)
-            ];
-            const color = starColors[Math.floor(Math.random() * starColors.length)];
-            
-            this.material = new THREE.MeshBasicMaterial({
-                color: color,
-                transparent: true,
-                opacity: 0
-            });
-
-            this.mesh = new THREE.Mesh(geometry, this.material);
-            this.setNewPosition();
-        }
-
-        setNewPosition() {
-            // Changed from spherical to rectangular distribution
-            const width = 24;  // Increased from previous radius * 2
-            const height = 50; // Increased height for taller sky
-
-            // Random position within rectangle
-            this.mesh.position.set(
-                (Math.random() - 0.5) * width,    // X: -12 to 12
-                (Math.random() - 0.5) * height,   // Y: -8 to 8
-                -4.5 + (Math.random() - 0.5) * 2  // Z: Keep existing depth variation
-            );
-        }
-
-        update(deltaTime) {
-            if (!isNightTime) {
-                this.material.opacity = 0;
-                return;
-            }
-
-            this.age += deltaTime;
-
-            switch(this.fadeState) {
-                case 'in':
-                    this.material.opacity += deltaTime / this.fadeTime;
-                    if (this.material.opacity >= 1) {
-                        this.material.opacity = 1;
-                        this.fadeState = 'stable';
-                    }
-                    break;
-
-                case 'stable':
-                    const twinkle = Math.sin(this.age * 3) * 0.05 + 
-                                   Math.sin(this.age * 5) * 0.03 + 
-                                   Math.sin(this.age * 7) * 0.02;
-                    this.material.opacity = (0.85 + twinkle) * (1 - weatherState.cloudDensity * 0.8);
-                    
-                    if (this.age >= this.ttl) {
-                        this.fadeState = 'out';
-                    }
-                    break;
-
-                case 'out':
-                    this.material.opacity -= deltaTime / this.fadeTime;
-                    if (this.material.opacity <= 0) {
-                        this.material.opacity = 0;
-                        this.fadeState = 'waiting';
-                        this.waitTimer = 0;
-                    }
-                    break;
-
-                case 'waiting':
-                    this.waitTimer += deltaTime;
-                    if (this.waitTimer >= this.waitTime) {
-                        this.resetProperties();
-                        this.setNewPosition();
-                        this.mesh.geometry.dispose();
-                        this.mesh.geometry = new THREE.SphereGeometry(this.size, 8, 8);
-                        this.fadeState = 'in';
-                    }
-                    break;
-            }
-        }
-    }
+    const TOTAL_STARS = 500;
+    let isNightTime = true;
   
-    // Add these variables near the top with other state variables
-    let keyState = {
-        up: false,
-        down: false
-    };
-    const MOVEMENT_SPEED = 0.2; // Reduced from 0.5
-
-    // Remove scroll-related variables and keep only camera position
+    // Camera position
     let cameraPosition = { x: 0, y: 0 };
-    const CAMERA_MOVEMENT_SPEED = 4.0;  // Increased from 2.0, decreased from original 8.0
-
-    // Add near the top with other state variables
-    let isDebugView = false;
-    let originalFrustumSize = 10;
-    let debugFrustumSize = 60; // This will show 6x more area
-
-    // Add these new variables near the top with other state variables
-    const CAMERA_SMOOTHING = 0.05;  // Reduced from default value for smoother movement
-
-    // Add these constants near the top with other state variables
-    const MIN_SECTION = 0;
-    const MAX_SECTION = 6;  // sections.length - 1
-
-    // Simplify to basic scroll handling
-    let scrollY = 0;
-
-    // Simplify the wheel handler
-    const handleWheel = (event) => {
-        scrollY += event.deltaY;
-        // Clamp scrollY to prevent overscrolling
-        const maxScroll = -(sections.length - 1) * window.innerHeight;
-        scrollY = Math.max(Math.min(scrollY, 0), maxScroll);
-        
-        // Update camera position directly
-        if (camera) {
-            camera.position.y = scrollY * 0.01; // Adjust multiplier as needed
-        }
-    };
-
-    // Simplify touch handling
-    let touchStartY = null;
-
-    const handleTouchStart = (event) => {
-        touchStartY = event.touches[0].clientY;
-    };
-
-    const handleTouchMove = (event) => {
-        if (!touchStartY) return;
-        
-        const touchY = event.touches[0].clientY;
-        const delta = touchStartY - touchY;
-        
-        scrollY += delta;
-        // Clamp scrollY
-        const maxScroll = -(sections.length - 1) * window.innerHeight;
-        scrollY = Math.max(Math.min(scrollY, 0), maxScroll);
-        
-        // Update camera position directly
-        if (camera) {
-            camera.position.y = scrollY * 0.01; // Adjust multiplier as needed
-        }
-        
-        touchStartY = touchY;
-    };
-
-    const handleTouchEnd = () => {
-        touchStartY = null;
-    };
-
+    const CAMERA_SMOOTHING = 0.05;
+    const CAMERA_MOVEMENT_SPEED = 4.0;
+  
     onMount(() => {
-      // Scene setup
-      scene = new THREE.Scene();  // Remove 'const' to use component-scoped variable
-      
-      // Force initial sky color for night time
-      scene.background = skyColors.nightDeep.clone();
+        // Initialize scene
+        scene = new THREE.Scene();
+        scene.background = skyColors.nightDeep.clone();
   
-      // Adjust frustum size to match screen proportions
-      const frustumSize = 10;  // Back to default zoom
-      const aspect = window.innerWidth / window.innerHeight;
-  
-      // Add sun mesh
-      const sunGeometry = new THREE.CircleGeometry(0.3, 32);
-      const sunMaterial = new THREE.MeshBasicMaterial({ 
-        color: 0xFFF7E6,
-        transparent: true,
-        opacity: 1.0
-      });
-      const sunMesh = new THREE.Mesh(sunGeometry, sunMaterial);
-      sunMesh.position.set(
-        -0.6 * (frustumSize * aspect / 2),
-        -0.2 * (frustumSize / 2),
-        -6
-      );
-  
-      // Add sun glow effect
-      const sunGlowGeometry = new THREE.CircleGeometry(1.2, 32);  // Increased size
-      const sunGlowMaterial = new THREE.ShaderMaterial({
-        uniforms: {
-          color: { value: new THREE.Color(0xFFAA33) },
-          time: { value: 0 },
-          isNight: { value: true }  // Add new uniform for night state
-        },
-        vertexShader: `
-          varying vec2 vUv;
-          void main() {
-            vUv = uv;
-            gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-          }
-        `,
-        fragmentShader: `
-          uniform vec3 color;
-          uniform float time;
-          uniform bool isNight;
-          varying vec2 vUv;
-
-          float noise(vec2 p) {
-            return fract(sin(dot(p, vec2(12.9898, 78.233))) * 43758.5453);
-          }
-
-          void main() {
-            vec2 center = vec2(0.5, 0.5);
-            float dist = length(vUv - center) * 2.0;
-            
-            // Create base corona shape
-            float corona = 1.0 - smoothstep(0.0, 1.0, dist);
-            corona = pow(corona, 1.5);
-            
-            // Add subtle noise variation
-            float noiseVal = noise(vUv * 5.0 + time * 0.1) * 0.1;
-            corona *= (1.0 + noiseVal);
-            
-            // Different colors for day/night
-            vec3 innerColor = isNight ? vec3(0.95, 0.95, 1.0) : vec3(1.0, 0.95, 0.8);
-            vec3 outerColor = isNight ? vec3(0.7, 0.7, 0.9) : color;
-            vec3 finalColor = mix(outerColor, innerColor, corona);
-            
-            // Reduced opacity at night
-            float alpha = corona * (isNight ? 0.2 : 0.4);
-            
-            gl_FragColor = vec4(finalColor, alpha);
-          }
-        `,
-        transparent: true,
-        blending: THREE.AdditiveBlending,
-        depthWrite: false
-      });
-      const sunGlowMesh = new THREE.Mesh(sunGlowGeometry, sunGlowMaterial);
-      sunGlowMesh.position.set(
-        -0.6 * (frustumSize * aspect / 2),
-        -0.2 * (frustumSize / 2),
-        -6
-      );
-      scene.add(sunGlowMesh);
-      scene.add(sunMesh);
-  
-      // Add thin fog layer
-      const thinFogGeometry = new THREE.PlaneGeometry(
-        frustumSize * aspect * 2,
-        frustumSize * 2
-      );
-      const thinFogMaterial = new THREE.MeshBasicMaterial({
-        color: 0xFFFFFF,
-        transparent: true,
-        opacity: 0.01
-      });
-      const thinFogPlane = new THREE.Mesh(thinFogGeometry, thinFogMaterial);
-      thinFogPlane.position.z = -4; // Between clouds and background
-      scene.add(thinFogPlane);
-  
-      const camera = new THREE.OrthographicCamera(
-        frustumSize * aspect / -2,
-        frustumSize * aspect / 2,
-        frustumSize / 2,
-        frustumSize / -2,
-        0.1,
-        1000
-      );
-  
-      const renderer = new THREE.WebGLRenderer({
-          antialias: true,
-          powerPreference: "high-performance"
-      });
-      renderer.setSize(window.innerWidth, window.innerHeight);
-      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2)); // Limit pixel ratio for performance
-      container.appendChild(renderer.domElement);
-  
-      // Create volumetric fog material
-      const fogTexture = new THREE.Data3DTexture(
-        new Uint8Array(128 * 128 * 128).map(() => Math.random() * 155 + 100),
-        128, 128, 128
-      );
-      fogTexture.format = THREE.RedFormat;
-      fogTexture.minFilter = THREE.LinearFilter;
-      fogTexture.magFilter = THREE.LinearFilter;
-      fogTexture.unpackAlignment = 1;
-      fogTexture.needsUpdate = true;
-  
-      // Create fog material and store in component-scoped variable
-      fogMaterial = new THREE.ShaderMaterial({
-        uniforms: {
-          time: { value: 0 },
-          seed: { value: Math.random() * 100.0 },
-          fogTexture: { value: fogTexture },
-          resolution: { value: new THREE.Vector2(window.innerWidth, window.innerHeight) },
-          sunPosition: { value: new THREE.Vector2(-0.6, -0.2) },
-          cloudDensity: { value: weatherState.cloudDensity },
-          windSpeed: { value: weatherState.windSpeed },
-          stormIntensity: { value: weatherState.stormIntensity },
-          rainIntensity: { value: weatherState.rainIntensity },
-          hour: { value: 0.0 },
-          cameraOffset: { value: new THREE.Vector2(0, 0) },
-        },
-        vertexShader: `
-          varying vec3 vPosition;
-          varying vec2 vUv;
-          void main() {
-            vPosition = position;
-            vUv = uv;
-            gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-          }
-        `,
-        fragmentShader: `
-          uniform float time;
-          uniform float seed;
-          uniform vec2 resolution;
-          uniform vec2 sunPosition;
-          uniform float hour;
-          uniform vec2 cameraOffset;
-          varying vec3 vPosition;
-          varying vec2 vUv;
-  
-          float rand(vec2 n) { 
-            return fract(sin(dot(n, vec2(12.9898, 78.233)) + seed) * 43758.5453);
-          }
-  
-          float noise(vec2 p) {
-            vec2 ip = floor(p);
-            vec2 fp = fract(p);
-            fp = fp * fp * (3.0 - 2.0 * fp);
-            
-            float a = rand(ip);
-            float b = rand(ip + vec2(1.0, 0.0));
-            float c = rand(ip + vec2(0.0, 1.0));
-            float d = rand(ip + vec2(1.0, 1.0));
-  
-            return mix(
-              mix(a, b, fp.x),
-              mix(c, d, fp.x),
-              fp.y
-            );
-          }
-  
-          float fbm(vec2 p) {
-            float sum = 0.0;
-            float amp = 1.0;
-            float freq = 1.2;
-            for(int i = 0; i < 8; i++) {
-              sum += amp * noise(p * freq);
-              freq *= 1.9;
-              amp *= 0.55;
-            }
-            return sum;
-          }
-  
-          void main() {
-            // Calculate world-space position by adding camera offset
-            vec2 worldPos = vPosition.xy + cameraOffset;
-            
-            // Use normal coordinates for cloud movement (removed mouse distortion)
-            vec2 moveUV = worldPos + vec2(-time * 0.08, 0.0);
-            moveUV *= 0.5;
-            
-            float baseLayer = fbm(moveUV * 0.7);
-            float detailLayer = fbm(moveUV * 1.2) * 0.2;
-            float heightLayer = fbm(moveUV * 0.8) * 0.15;
-            
-            float f = baseLayer * 0.5 + detailLayer + heightLayer;
-            
-            f = smoothstep(0.75, 0.95, f);
-            
-            float sparsityNoise = fbm(moveUV * 0.4);
-            f *= smoothstep(0.65, 0.85, sparsityNoise);
-            
-            float secondarySparsity = fbm(moveUV * 0.3);
-            f *= smoothstep(0.6, 0.95, secondarySparsity);
-            
-            // Define cloud colors with smoother transitions
-            vec3 cloudBright;
-            vec3 cloudDark;
-            
-            if (hour < 4.0) {  // Deep night
-                cloudBright = vec3(0.98, 0.98, 1.0);
-                cloudDark = vec3(0.7, 0.7, 0.8);
-            } else if (hour < 4.5) {
-                float t = smoothstep(4.0, 4.5, hour);
-                cloudBright = mix(
-                    vec3(0.98, 0.98, 1.0),   // Night
-                    vec3(0.99, 0.95, 0.9),   // Pre-dawn
-                    t
-                );
-                cloudDark = mix(
-                    vec3(0.7, 0.7, 0.8),     // Night
-                    vec3(0.75, 0.7, 0.75),   // Pre-dawn
-                    t
-                );
-            } else if (hour < 5.0) {
-                float t = smoothstep(4.5, 5.0, hour);
-                cloudBright = mix(
-                    vec3(0.99, 0.95, 0.9),   // Pre-dawn
-                    vec3(1.0, 0.9, 0.8),     // Dawn
-                    t
-                );
-                cloudDark = mix(
-                    vec3(0.75, 0.7, 0.75),   // Pre-dawn
-                    vec3(0.8, 0.7, 0.7),     // Dawn
-                    t
-                );
-            } else if (hour < 7.0) {
-                float t = smoothstep(5.0, 7.0, hour);
-                cloudBright = mix(
-                    vec3(1.0, 0.9, 0.8),     // Dawn
-                    vec3(0.98, 0.98, 1.0),   // Day
-                    t
-                );
-                cloudDark = mix(
-                    vec3(0.8, 0.7, 0.7),     // Dawn
-                    vec3(0.7, 0.7, 0.8),     // Day
-                    t
-                );
-            } else if (hour < 13.0) {  // Day
-                cloudBright = vec3(0.98, 0.98, 1.0);
-                cloudDark = vec3(0.7, 0.7, 0.8);
-            } else if (hour < 16.0) {  // Early dusk transition
-                float t = smoothstep(13.0, 16.0, hour);
-                cloudBright = mix(
-                    vec3(0.98, 0.98, 1.0),   // Day
-                    vec3(1.0, 0.9, 0.85),    // Early dusk
-                    t
-                );
-                cloudDark = mix(
-                    vec3(0.7, 0.7, 0.8),     // Day
-                    vec3(0.8, 0.7, 0.7),     // Early dusk
-                    t
-                );
-            } else if (hour < 19.0) {  // Late dusk transition
-                float t = smoothstep(16.0, 19.0, hour);
-                cloudBright = mix(
-                    vec3(1.0, 0.9, 0.85),    // Early dusk
-                    vec3(0.98, 0.98, 1.0),   // Night
-                    t
-                );
-                cloudDark = mix(
-                    vec3(0.8, 0.7, 0.7),     // Early dusk
-                    vec3(0.7, 0.7, 0.8),     // Night
-                    t
-                );
-            } else {  // Night
-                cloudBright = vec3(0.98, 0.98, 1.0);
-                cloudDark = vec3(0.7, 0.7, 0.8);
-            }
-            
-            float lightInfluence = fbm(moveUV * 0.8 + vec2(time * 0.02, 0.0));
-            vec3 cloudColor = mix(cloudDark, cloudBright, lightInfluence);
-            
-            float depth = fbm(moveUV * 1.5 + f);
-            float depthInfluence = smoothstep(0.2, 0.8, depth);
-            cloudColor = mix(cloudColor, cloudDark, depthInfluence * 0.3);
-            
-            float baseOpacity = f * (0.5 + depth * 0.2);
-            float edgeFade = smoothstep(0.0, 0.4, f);
-            
-            float finalOpacity = baseOpacity * edgeFade * 0.6;
-            
-            gl_FragColor = vec4(cloudColor, finalOpacity);
-          }
-        `,
-        transparent: true,
-      });
-  
-      // Create a plane that's larger than the camera frustum
-      const planeGeometry = new THREE.PlaneGeometry(
-        frustumSize * aspect * 2, // Reduced from 3 to 2
-        frustumSize * 2          // Reduced from 3 to 2
-      );
-      const fogPlane = new THREE.Mesh(planeGeometry, fogMaterial);
-      fogPlane.position.z = -5;
-      scene.add(fogPlane);
-  
-      // Position camera closer
-      camera.position.z = 5;
-  
-      // Update resize handler
-      const handleResize = () => {
+        // Setup camera
+        const frustumSize = 10;
         const aspect = window.innerWidth / window.innerHeight;
-        camera.left = frustumSize * aspect / -2;
-        camera.right = frustumSize * aspect / 2;
-        camera.top = frustumSize / 2;
-        camera.bottom = frustumSize / -2;
-        camera.updateProjectionMatrix();
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        fogMaterial.uniforms.resolution.value.set(window.innerWidth, window.innerHeight);
-      };
-      window.addEventListener('resize', handleResize);
+        camera = new THREE.OrthographicCamera(
+            frustumSize * aspect / -2,
+            frustumSize * aspect / 2,
+            frustumSize / 2,
+            frustumSize / -2,
+            0.1,
+            1000
+        );
+        camera.position.z = 5;
   
-      // Animation loop
-      let time = 0;
-      let animationFrameId;
-      let previousSunX = fogMaterial.uniforms.sunPosition.value.x;
-      const speedMultiplier = 1350.0;
-      
-      // Add lastTime variable at the top of onMount
-      let lastTime;
-      
-      // Add keyboard event listeners
-      const handleKeyDown = (event) => {
-          if (isNavigating) return; // Prevent multiple navigations
-          
-          switch(event.key.toLowerCase()) {
-              case 'arrowup':
-              case 'w':
-                  handleNavButtonPress('up');
-                  break;
-              case 'arrowdown':
-              case 's':
-                  handleNavButtonPress('down');
-                  break;
-          }
-      };
+        // Setup renderer
+        renderer = new THREE.WebGLRenderer({
+            antialias: true,
+            powerPreference: "high-performance"
+        });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        container.appendChild(renderer.domElement);
+  
+        // Create volumetric fog texture
+        const fogTexture = new THREE.Data3DTexture(
+            new Uint8Array(128 * 128 * 128).map(() => Math.random() * 155 + 100),
+            128, 128, 128
+        );
+        fogTexture.format = THREE.RedFormat;
+        fogTexture.minFilter = THREE.LinearFilter;
+        fogTexture.magFilter = THREE.LinearFilter;
+        fogTexture.unpackAlignment = 1;
+        fogTexture.needsUpdate = true;
+  
+        // Create fog material
+        fogMaterial = new THREE.ShaderMaterial({
+            uniforms: {
+                time: { value: 0 },
+                seed: { value: Math.random() * 100.0 },
+                fogTexture: { value: fogTexture },
+                resolution: { value: new THREE.Vector2(window.innerWidth, window.innerHeight) },
+                sunPosition: { value: new THREE.Vector2(-0.6, -0.2) },
+                cloudDensity: { value: weatherState.cloudDensity },
+                windSpeed: { value: weatherState.windSpeed },
+                stormIntensity: { value: weatherState.stormIntensity },
+                rainIntensity: { value: weatherState.rainIntensity },
+                hour: { value: 0.0 },
+                cameraOffset: { value: new THREE.Vector2(0, 0) },
+            },
+            vertexShader: `
+                varying vec3 vPosition;
+                varying vec2 vUv;
+                void main() {
+                    vPosition = position;
+                    vUv = uv;
+                    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+                }
+            `,
+            fragmentShader: `
+                uniform vec3 color;
+                uniform float time;
+                uniform bool isNight;
+                varying vec2 vUv;
 
-      const handleKeyUp = (event) => {
-          switch(event.key.toLowerCase()) {
-              case 'arrowup':
-              case 'w':
-                  keyState.up = false;
-                  handleNavButtonRelease('up');
-                  break;
-              case 'arrowdown':
-              case 's':
-                  keyState.down = false;
-                  handleNavButtonRelease('down');
-                  break;
-          }
-      };
+                float noise(vec2 p) {
+                    return fract(sin(dot(p, vec2(12.9898, 78.233))) * 43758.5453);
+                }
 
-      window.addEventListener('keydown', handleKeyDown);
-      window.addEventListener('keyup', handleKeyUp);
-
-      // Add FPS limiting variables
-      const fps = 30;
-      const fpsInterval = 1000 / fps;
-      let then = performance.now();
-
-      // Update the animate function
-      const animate = () => {
-        animationFrameId = requestAnimationFrame(animate);
-
-        // Calculate elapsed time since last frame
-        const now = performance.now();
-        const elapsed = now - then;
-
-        // Only render if enough time has passed
-        if (elapsed > fpsInterval) {
-            // Adjust for drift by updating 'then' based on intervals
-            then = now - (elapsed % fpsInterval);
-
-            // Calculate delta time
-            let deltaTime = elapsed / 1000; // Convert to seconds
-
-            // Update section based on key state
-            if (keyState.up && currentSection > MIN_SECTION) {
-                currentSection--;
-                targetCameraY = currentSection * -7.5;
-                sectionSpring.set({ y: currentSection * -100 });
-            } else if (keyState.down && currentSection < MAX_SECTION) {
-                currentSection++;
-                targetCameraY = currentSection * -7.5;
-                sectionSpring.set({ y: currentSection * -100 });
-            }
-
-            // Smoothly interpolate camera position
-            cameraPosition.y = THREE.MathUtils.lerp(
-                cameraPosition.y, 
-                targetCameraY, 
+                void main() {
+                    vec2 center = vec2(0.5, 0.5);
+                    float dist = length(vUv - center) * 2.0;
+                    
+                    // Create base corona shape
+                    float corona = 1.0 - smoothstep(0.0, 1.0, dist);
+                    corona = pow(corona, 1.5);
+                    
+                    // Add subtle noise variation
+                    float noiseVal = noise(vUv * 5.0 + time * 0.1) * 0.1;
+                    corona *= (1.0 + noiseVal);
+                    
+                    // Different colors for day/night
+                    vec3 innerColor = isNight ? vec3(0.95, 0.95, 1.0) : vec3(1.0, 0.95, 0.8);
+                    vec3 outerColor = isNight ? vec3(0.7, 0.7, 0.9) : color;
+                    vec3 finalColor = mix(outerColor, innerColor, corona);
+                    
+                    // Reduced opacity at night
+                    float alpha = corona * (isNight ? 0.2 : 0.4);
+                    
+                    gl_FragColor = vec4(finalColor, alpha);
+                }
+            `,
+            transparent: true,
+        });
+  
+        // Create cloud plane
+        const planeGeometry = new THREE.PlaneGeometry(
+            frustumSize * aspect * 2,
+            frustumSize * 2
+        );
+        const fogPlane = new THREE.Mesh(planeGeometry, fogMaterial);
+        fogPlane.position.z = -5;
+        scene.add(fogPlane);
+  
+        // Initialize stars
+        for (let i = 0; i < TOTAL_STARS; i++) {
+            const star = new Star();
+            stars.push(star);
+            scene.add(star.mesh);
+        }
+  
+        // Animation loop
+        let lastTime = performance.now();
+        let time = 0;
+  
+        const animate = () => {
+            const currentTime = performance.now();
+            const deltaTime = (currentTime - lastTime) / 1000;
+            lastTime = currentTime;
+  
+            // Update camera position
+            camera.position.y = THREE.MathUtils.lerp(
+                camera.position.y,
+                targetCameraY,
                 CAMERA_SMOOTHING
             );
-            
-            // Update positions with smoothed camera position
-            camera.position.y = cameraPosition.y;
-            fogPlane.position.y = cameraPosition.y;
-            thinFogPlane.position.y = cameraPosition.y;
-            
-            // Update camera offset uniform in shader with smoothed position
-            fogMaterial.uniforms.cameraOffset.value.set(0, cameraPosition.y);
-            
-            const currentSunX = fogMaterial.uniforms.sunPosition.value.x;
-            const sunMovementSpeed = Math.abs(currentSunX - previousSunX);
-            previousSunX = currentSunX;
-            
-            if (enableCloudMovement) {
-                const baseTimeIncrement = 0.036;
-                const timeIncrement = baseTimeIncrement + (sunMovementSpeed * speedMultiplier);
-                time += timeIncrement;
+  
+            // Update fog material
+            if (fogMaterial) {
+                time += deltaTime * weatherState.windSpeed * 60;
+                fogMaterial.uniforms.time.value = time;
+                fogMaterial.uniforms.cameraOffset.value.set(0, camera.position.y);
             }
-            
-            fogMaterial.uniforms.time.value = time;
-            
-            if (fogPlane) {
-                fogPlane.visible = showClouds;
-            }
-            
-            fogMaterial.uniforms.windSpeed.value = weatherState.windSpeed * (1.0 + sunMovementSpeed * speedMultiplier * 2);
-            
-            // Update sun and glow position - remove camera position offset
-            const aspect = container.clientWidth / container.clientHeight;
-            const sunX = fogMaterial.uniforms.sunPosition.value.x * (frustumSize * aspect / 2);
-            const sunY = fogMaterial.uniforms.sunPosition.value.y * (frustumSize / 2);
-            
-            // Update sun position without adding camera offset
-            sunMesh.position.set(
-                sunX + camera.position.x,  // Add camera offset to keep sun fixed relative to view
-                sunY + camera.position.y,
-                sunMesh.position.z
-            );
-            sunGlowMesh.position.set(
-                sunX + camera.position.x,
-                sunY + camera.position.y,
-                sunGlowMesh.position.z
-            );
-
-            // Much gentler sky color transitions
-            const currentSkyColor = getSkyColor(fogMaterial.uniforms.sunPosition.value.x);
-            if (scene.background) {
-                scene.background.lerp(currentSkyColor, 0.01);
-            }
-
-            // Calculate hour and isNightTime once
-            const hour = ((fogMaterial.uniforms.sunPosition.value.x + 1) * 12);
-            isNightTime = hour < 5 || hour > 19;
-
+  
             // Update stars
-            if (stars.length > 0) {
-                stars.forEach(star => {
-                    star.update(deltaTime);
-                });
-            }
-
-            // Update sun glow time uniform
-            sunGlowMaterial.uniforms.time.value = time * 0.5;
-
-            // Gentler sun/moon transitions
-            if (isNightTime) {
-                sunMaterial.color.lerp(new THREE.Color(0xEEEEFF), 0.01);
-                sunMaterial.opacity = THREE.MathUtils.lerp(sunMaterial.opacity, 0.9, 0.01);
-            } else {
-                sunMaterial.color.lerp(new THREE.Color(0xFFF7E6), 0.01);
-                sunMaterial.opacity = THREE.MathUtils.lerp(sunMaterial.opacity, 1.0, 0.01);
-            }
-
-            // Update glow effect
-            sunGlowMaterial.uniforms.isNight.value = isNightTime;
-
-            fogMaterial.uniforms.hour.value = hour;
-
-            // Render the scene
+            stars.forEach(star => {
+                star.update(deltaTime);
+            });
+  
+            // Render
             renderer.render(scene, camera);
-        }
-      };
-      animate();
+            animationFrameId = requestAnimationFrame(animate);
+        };
   
-      // Add touch event listeners
-      container.addEventListener('mousedown', onMouseDown);
-      container.addEventListener('mousemove', onMouseMove);
-      container.addEventListener('mouseup', onMouseUp);
-      container.addEventListener('mouseleave', onMouseUp);
-      container.addEventListener('touchstart', onTouchStart, { passive: false });
-      container.addEventListener('touchmove', onTouchMove, { passive: false });
-      container.addEventListener('touchend', onTouchEnd);
-      container.addEventListener('touchcancel', onTouchEnd);
+        animate();
   
-      // After everything is set up, add a delay before hiding loading screen
-      setTimeout(() => {
-          showIntro = true;
-          if (container) {
-              container.style.opacity = '1';
-          }
-      }, 1000);  // 1000ms = 1 second delay
+        // Handle resize
+        const handleResize = () => {
+            const aspect = window.innerWidth / window.innerHeight;
+            camera.left = frustumSize * aspect / -2;
+            camera.right = frustumSize * aspect / 2;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            if (fogMaterial) {
+                fogMaterial.uniforms.resolution.value.set(window.innerWidth, window.innerHeight);
+            }
+        };
+        window.addEventListener('resize', handleResize);
   
-      // Create stars and add them to the scene
-      for (let i = 0; i < TOTAL_STARS; i++) {
-          const star = new Star();
-          stars.push(star);
-          scene.add(star.mesh);
-      }
-  
-      // Force initial night time state
-      isNightTime = true;
-  
-      // Add mousemove event listener
-      container.addEventListener('mousemove', updateMousePosition);
-  
-      // Add scroll event listeners
-      container.addEventListener('wheel', handleWheel, { passive: true });
-      container.addEventListener('touchstart', handleTouchStart, { passive: true });
-      container.addEventListener('touchmove', handleTouchMove, { passive: true });
-      container.addEventListener('touchend', handleTouchEnd);
-  
-      // Cleanup
-      return () => {
-        cancelAnimationFrame(animationFrameId);
-        window.removeEventListener('resize', handleResize);
-        container.removeEventListener('mousedown', onMouseDown);
-        container.removeEventListener('mousemove', onMouseMove);
-        container.removeEventListener('mouseup', onMouseUp);
-        container.removeEventListener('mouseleave', onMouseUp);
-        container.removeEventListener('touchstart', onTouchStart);
-        container.removeEventListener('touchmove', onTouchMove);
-        container.removeEventListener('touchend', onTouchEnd);
-        container.removeEventListener('touchcancel', onTouchEnd);
-        container.removeChild(renderer.domElement);
-        renderer.dispose();
-        fogTexture.dispose();
-        planeGeometry.dispose();
-        fogMaterial.dispose();
-        sunGeometry.dispose();
-        sunMaterial.dispose();
-        thinFogGeometry.dispose();
-        thinFogMaterial.dispose();
-        sunGlowGeometry.dispose();
-        sunGlowMaterial.dispose();
-        stars.forEach(star => {
-            scene.remove(star.mesh);
-            star.mesh.geometry.dispose();
-            star.material.dispose();
-        });
-        window.removeEventListener('keydown', handleKeyDown);
-        window.removeEventListener('keyup', handleKeyUp);
-        container.removeEventListener('mousemove', updateMousePosition);
-        container.removeEventListener('wheel', handleWheel);
-        container.removeEventListener('touchstart', handleTouchStart);
-        container.removeEventListener('touchmove', handleTouchMove);
-        container.removeEventListener('touchend', handleTouchEnd);
-      };
+        // Cleanup
+        return () => {
+            cancelAnimationFrame(animationFrameId);
+            window.removeEventListener('resize', handleResize);
+            // ... add other cleanup code ...
+        };
     });
   
     const transitionWeather = async (targetState, duration = 2000) => {
