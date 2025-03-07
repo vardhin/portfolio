@@ -1144,13 +1144,22 @@
                     <div class="project-card" in:fly="{{ y: 50, duration: 1000 }}" out:fade>
                         <div class="project-content">
                             <div class="project-header">
-                                <h2>Decentralized Cloud Computing</h2>
-                                <h3>Decloud</h3>
+                                <div class="project-header-text">
+                                    <h2>Decentralized Cloud Computing</h2>
+                                    <h3>Decloud</h3>
+                                </div>
+                                <a href="https://github.com/yourusername/decloud" 
+                                   class="github-button" 
+                                   target="_blank" 
+                                   rel="noopener noreferrer">
+                                    <Github size={16} />
+                                    <span>GitHub</span>
+                                </a>
                             </div>
                             
                             <div class="tech-stack">
                                 {#each ['Electron', 'Svelte', 'IPFS', 'Docker', 'TypeScript'] as tech}
-                                    <button class="tech-button">{tech}</button>
+                                    <span class="tech-button">{tech}</span>
                                 {/each}
                             </div>
 
@@ -1169,29 +1178,28 @@
                                 <p>Built using Electron and Svelte for the frontend, with IPFS for decentralized communication 
                                 and Docker for containerization. TypeScript ensures type safety and better development experience.</p>
                             </div>
-
-                            <div class="project-links">
-                                <a href="https://github.com/yourusername/decloud" 
-                                   class="github-button" 
-                                   target="_blank" 
-                                   rel="noopener noreferrer">
-                                    <Github size={20} />
-                                    <span>View Repository</span>
-                                </a>
-                            </div>
                         </div>
                     </div>
                 {:else if section.id === 'recon'}
                     <div class="project-card" in:fly="{{ y: 50, duration: 1000 }}" out:fade>
                         <div class="project-content">
                             <div class="project-header">
-                                <h2>Decentralized Messaging</h2>
-                                <h3>Recon</h3>
+                                <div class="project-header-text">
+                                    <h2>Decentralized Messaging</h2>
+                                    <h3>Recon</h3>
+                                </div>
+                                <a href="https://github.com/yourusername/recon" 
+                                   class="github-button" 
+                                   target="_blank" 
+                                   rel="noopener noreferrer">
+                                    <Github size={16} />
+                                    <span>GitHub</span>
+                                </a>
                             </div>
                             
                             <div class="tech-stack">
                                 {#each ['Svelte', 'Capacitor', 'GunJs', 'TypeScript'] as tech}
-                                    <button class="tech-button">{tech}</button>
+                                    <span class="tech-button">{tech}</span>
                                 {/each}
                             </div>
 
@@ -1211,29 +1219,28 @@
                                 and Capacitor for native mobile deployment. TypeScript ensures robust type checking 
                                 and better code organization.</p>
                             </div>
-
-                            <div class="project-links">
-                                <a href="https://github.com/yourusername/recon" 
-                                   class="github-button" 
-                                   target="_blank" 
-                                   rel="noopener noreferrer">
-                                    <Github size={20} />
-                                    <span>View Repository</span>
-                                </a>
-                            </div>
                         </div>
                     </div>
                 {:else if section.id === 'yantra'}
                     <div class="project-card" in:fly="{{ y: 50, duration: 1000 }}" out:fade>
                         <div class="project-content">
                             <div class="project-header">
-                                <h2>Disaster Resistant Shelter</h2>
-                                <h3>Yantra</h3>
+                                <div class="project-header-text">
+                                    <h2>Disaster Resistant Shelter</h2>
+                                    <h3>Yantra</h3>
+                                </div>
+                                <a href="https://github.com/yourusername/yantra" 
+                                   class="github-button" 
+                                   target="_blank" 
+                                   rel="noopener noreferrer">
+                                    <Github size={16} />
+                                    <span>GitHub</span>
+                                </a>
                             </div>
                             
                             <div class="tech-stack">
                                 {#each ['Python', 'NumPy', 'Matplotlib'] as tech}
-                                    <button class="tech-button">{tech}</button>
+                                    <span class="tech-button">{tech}</span>
                                 {/each}
                             </div>
 
@@ -1253,29 +1260,28 @@
                                 <p>Utilized Python with NumPy for computational analysis and Matplotlib for 
                                 visualization of stress distributions and fluid dynamics.</p>
                             </div>
-
-                            <div class="project-links">
-                                <a href="https://github.com/yourusername/yantra" 
-                                   class="github-button" 
-                                   target="_blank" 
-                                   rel="noopener noreferrer">
-                                    <Github size={20} />
-                                    <span>View Repository</span>
-                                </a>
-                            </div>
                         </div>
                     </div>
                 {:else if section.id === 'carbon'}
                     <div class="project-card" in:fly="{{ y: 50, duration: 1000 }}" out:fade>
                         <div class="project-content">
                             <div class="project-header">
-                                <h2>Carbon Credit Marketplace</h2>
-                                <h3>Code4Change</h3>
+                                <div class="project-header-text">
+                                    <h2>Carbon Credit Marketplace</h2>
+                                    <h3>Code4Change</h3>
+                                </div>
+                                <a href="https://github.com/yourusername/carbon-credits" 
+                                   class="github-button" 
+                                   target="_blank" 
+                                   rel="noopener noreferrer">
+                                    <Github size={16} />
+                                    <span>GitHub</span>
+                                </a>
                             </div>
                             
                             <div class="tech-stack">
                                 {#each ['React Native', 'Ethereum', 'Blockchain'] as tech}
-                                    <button class="tech-button">{tech}</button>
+                                    <span class="tech-button">{tech}</span>
                                 {/each}
                             </div>
 
@@ -1293,16 +1299,6 @@
                                 <h4>Implementation</h4>
                                 <p>Built using React Native for cross-platform compatibility, with Ethereum blockchain 
                                 for secure and transparent transactions.</p>
-                            </div>
-
-                            <div class="project-links">
-                                <a href="https://github.com/yourusername/carbon-credits" 
-                                   class="github-button" 
-                                   target="_blank" 
-                                   rel="noopener noreferrer">
-                                    <Github size={20} />
-                                    <span>View Repository</span>
-                                </a>
                             </div>
                         </div>
                     </div>
@@ -1547,42 +1543,144 @@
     }
 
     /* Project card styles */
-    .project-content h3 {
-        font-weight: 400;  /* Changed from 600 to 400 */
-        font-size: 1.5rem;
-        margin-bottom: 0.5rem;
-        letter-spacing: 0.01em;  /* Added slight tracking */
+    .project-card {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 12px;
+        padding: 1.25rem;
+        backdrop-filter: blur(10px);
+        width: 100%;
+        max-width: 600px;
+        margin: 0 auto;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
     }
 
-    .project-description {
-        font-weight: 300;  /* Changed from 400 to 300 */
-        line-height: 1.7;  /* Increased from 1.6 for better readability */
-        font-size: 1rem;
-    }
-
-    .tech-tag {
-        font-weight: 400;  /* Changed from 500 to 400 */
-        font-size: 0.875rem;
-    }
-
-    .project-links {
+    .project-header {
         display: flex;
-        gap: 1rem;
-        margin-top: 1rem;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 1rem;
     }
 
-    .project-link {
+    .project-header-text {
+        flex: 1;
+    }
+
+    .project-header h2 {
+        font-size: 1.5rem;
+        font-weight: 300;
+        margin: 0;
+        letter-spacing: 0.02em;
+    }
+
+    .project-header h3 {
+        font-size: 1rem;
+        font-weight: 400;
+        margin: 0.15rem 0 0;
+        color: rgba(255, 255, 255, 0.7);
+    }
+
+    .github-button {
         display: flex;
         align-items: center;
-        gap: 0.5rem;
+        gap: 0.4rem;
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        border-radius: 8px;
+        padding: 0.4rem 0.75rem;
+        color: rgba(255, 255, 255, 0.9);
         text-decoration: none;
-        color: white;
-        opacity: 0.8;
-        transition: opacity 0.2s ease;
+        font-size: 0.85rem;
+        transition: all 0.2s ease;
+        margin-left: 1rem;
     }
 
-    .project-link:hover {
-        opacity: 1;
+    .github-button:hover {
+        background: rgba(255, 255, 255, 0.12);
+        transform: translateY(-1px);
+    }
+
+    .tech-stack {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.4rem;
+        margin-bottom: 1rem;
+    }
+
+    .tech-button {
+        background: rgba(255, 255, 255, 0.06);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        border-radius: 6px;
+        padding: 0.25rem 0.5rem;
+        color: rgba(255, 255, 255, 0.8);
+        font-size: 0.8rem;
+    }
+
+    .project-details {
+        margin-bottom: 0.75rem;
+    }
+
+    .project-details h4 {
+        font-size: 0.95rem;
+        font-weight: 500;
+        margin: 1rem 0 0.5rem;
+        color: rgba(255, 255, 255, 0.9);
+    }
+
+    .project-details h4:first-child {
+        margin-top: 0;
+    }
+
+    .project-details p {
+        font-size: 0.9rem;
+        line-height: 1.5;
+        color: rgba(255, 255, 255, 0.8);
+        margin-bottom: 0.5rem;
+    }
+
+    .project-details ul {
+        list-style-type: none;
+        padding: 0;
+        margin: 0 0 0.5rem;
+    }
+
+    .project-details li {
+        position: relative;
+        padding-left: 1rem;
+        margin-bottom: 0.3rem;
+        line-height: 1.4;
+        font-size: 0.9rem;
+        color: rgba(255, 255, 255, 0.8);
+    }
+
+    .project-details li::before {
+        content: "•";
+        position: absolute;
+        left: 0;
+        color: rgba(255, 255, 255, 0.6);
+    }
+
+    @media (max-width: 768px) {
+        .project-card {
+            padding: 1rem;
+        }
+
+        .project-header {
+            flex-direction: column;
+        }
+
+        .github-button {
+            margin: 0.75rem 0 0;
+        }
+
+        .project-header h2 {
+            font-size: 1.25rem;
+        }
+
+        .project-header h3 {
+            font-size: 0.9rem;
+        }
     }
 
     /* About section */
