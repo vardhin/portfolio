@@ -1,6 +1,7 @@
 <script>
     import { onMount } from 'svelte';
     import * as THREE from 'three';
+    import { spring } from 'svelte/motion';
     import { fade, fly } from 'svelte/transition';
     import Cloud from 'lucide-svelte/icons/cloud';
     import CloudSun from 'lucide-svelte/icons/cloud-sun';
@@ -239,6 +240,7 @@
                     isNavigating = true;
                     currentSection--;
                     targetCameraY = currentSection * -5;
+                    sectionSpring.set({ y: currentSection * -100 });
                     
                     navigationTimeout = setTimeout(() => {
                         isNavigating = false;
@@ -250,6 +252,7 @@
                     isNavigating = true;
                     currentSection++;
                     targetCameraY = currentSection * -5;
+                    sectionSpring.set({ y: currentSection * -100 });
                     
                     navigationTimeout = setTimeout(() => {
                         isNavigating = false;
@@ -833,9 +836,11 @@
             if (keyState.up && currentSection > MIN_SECTION) {
                 currentSection--;
                 targetCameraY = currentSection * -7.5;
+                sectionSpring.set({ y: currentSection * -100 });
             } else if (keyState.down && currentSection < MAX_SECTION) {
                 currentSection++;
                 targetCameraY = currentSection * -7.5;
+                sectionSpring.set({ y: currentSection * -100 });
             }
 
             // Smoothly interpolate camera position
@@ -1044,6 +1049,13 @@
         { id: 'contact', title: 'Contact' }
     ];
     
+    // Create spring store for section transitions
+    const sectionSpring = spring({ y: 0 }, {
+        stiffness: 0.15,
+        damping: 0.65,
+        precision: 0.001  // Added precision for smoother small movements
+    });
+
     // Create a sequence of transitions
     const startSequence = async () => {
         if (container) {
@@ -1109,7 +1121,7 @@
 
     <!-- Modified content overlay -->
     <div class="content-overlay" 
-         style="transform: translateY({currentSection * -100}vh)">
+         style="transform: translateY({$sectionSpring.y}vh)">
         {#each sections as section, i}
             <section 
                 class="portfolio-section" 
@@ -1453,7 +1465,7 @@
         width: 100%;
         height: 100vh;
         z-index: 2;
-        transition: transform 0.5s ease; /* Changed from 0.8s cubic-bezier */
+        transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
         pointer-events: none;
     }
 
@@ -1471,7 +1483,6 @@
 
     .portfolio-section.active {
         opacity: 1;
-        transition-delay: 0.2s; /* Add slight delay for smoother fade */
     }
 
     .intro-content {
@@ -1547,8 +1558,8 @@
         padding: 1.25rem;
         backdrop-filter: blur(10px);
         width: 100%;
-        max-width: 800px; /* Increased from 600px */
-        height: 300px;
+        max-width: 900px; /* Increased from 800px */
+        height: 400px; /* Increased from 300px */
         margin: 0 auto;
         box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
         transition: all 0.3s ease;
@@ -1580,16 +1591,16 @@
     }
 
     .project-header h2 {
-        font-size: 1.1rem; /* Reduced from 1.25rem */
+        font-size: 1rem; /* Reduced from 1.1rem */
         font-weight: 300;
         margin: 0;
         letter-spacing: 0.02em;
     }
 
     .project-header h3 {
-        font-size: 0.85rem; /* Reduced from 0.9rem */
+        font-size: 0.8rem; /* Reduced from 0.85rem */
         font-weight: 400;
-        margin: 0.15rem 0 0;
+        margin: 0.1rem 0 0; /* Reduced from 0.15rem */
         color: rgba(255, 255, 255, 0.7);
     }
 
@@ -1598,9 +1609,9 @@
     }
 
     .project-details h4 {
-        font-size: 0.85rem; /* Reduced from 0.9rem */
+        font-size: 0.8rem; /* Reduced from 0.85rem */
         font-weight: 500;
-        margin: 0.75rem 0 0.5rem;
+        margin: 0.5rem 0 0.3rem; /* Reduced from 0.75rem 0 0.5rem */
         color: rgba(255, 255, 255, 0.9);
     }
 
@@ -1609,25 +1620,27 @@
     }
 
     .project-details p {
-        font-size: 0.8rem; /* Reduced from 0.85rem */
-        line-height: 1.5;
+        font-size: 0.75rem; /* Reduced from 0.8rem */
+        line-height: 1.3; /* Reduced from 1.5 */
         color: rgba(255, 255, 255, 0.8);
-        margin-bottom: 0.5rem;
+        margin-bottom: 0.3rem; /* Reduced from 0.5rem */
+        word-spacing: -0.05em; /* Added to reduce word spacing */
     }
 
     .project-details ul {
         list-style-type: none;
         padding: 0;
-        margin: 0 0 0.5rem;
+        margin: 0 0 0.3rem; /* Reduced from 0.5rem */
     }
 
     .project-details li {
         position: relative;
-        padding-left: 1rem;
-        margin-bottom: 0.3rem;
-        line-height: 1.4;
-        font-size: 0.8rem; /* Reduced from 0.85rem */
+        padding-left: 0.8rem; /* Reduced from 1rem */
+        margin-bottom: 0.2rem; /* Reduced from 0.3rem */
+        line-height: 1.2; /* Reduced from 1.4 */
+        font-size: 0.75rem; /* Reduced from 0.8rem */
         color: rgba(255, 255, 255, 0.8);
+        word-spacing: -0.05em; /* Added to reduce word spacing */
     }
 
     .tech-stack {
