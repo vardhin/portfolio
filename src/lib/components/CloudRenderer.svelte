@@ -226,211 +226,62 @@
     const MIN_SECTION = 0;
     const MAX_SECTION = 6;  // sections.length - 1
 
-    // Add these variables to track navigation state
-    let isNavigating = false;
-    let navigationTimeout;
+    // Add these scroll-related variables and functions
+    let lastScrollTime = 0;
+    let scrollThrottle = 50; // ms between scroll events
+    let scrolling = false;
 
-    // Update the handleNavButtonPress function
-    const handleNavButtonPress = (direction) => {
-        if (isNavigating) return;
-        
-        switch(direction) {
-            case 'up':
-                if (currentSection > MIN_SECTION) {
-                    isNavigating = true;
-                    currentSection--;
-                    targetCameraY = currentSection * -5;
-                    sectionSpring.set({ y: currentSection * -100 });
-                    
-                    navigationTimeout = setTimeout(() => {
-                        isNavigating = false;
-                    }, 500);
-                }
-                break;
-            case 'down':
-                if (currentSection < MAX_SECTION) {
-                    isNavigating = true;
-                    currentSection++;
-                    targetCameraY = currentSection * -5;
-                    sectionSpring.set({ y: currentSection * -100 });
-                    
-                    navigationTimeout = setTimeout(() => {
-                        isNavigating = false;
-                    }, 500);
-                }
-                break;
+    // Add wheel and touch event handlers
+    const handleWheel = (event) => {
+        const now = performance.now();
+        if (now - lastScrollTime < scrollThrottle) return;
+        lastScrollTime = now;
+
+        const delta = event.deltaY;
+        if (!scrolling) {
+            scrolling = true;
+            
+            // Update camera position based on scroll
+            targetCameraY += delta * 0.01; // Adjust multiplier to control scroll sensitivity
+            
+            // Clamp the camera position
+            const maxScroll = -(MAX_SECTION * 5); // Adjust based on your section heights
+            targetCameraY = Math.max(Math.min(targetCameraY, 0), maxScroll);
+            
+            // Update section position
+            const currentSection = Math.round(-targetCameraY / 5);
+            sectionSpring.set({ y: currentSection * -100 });
+            
+            scrolling = false;
         }
     };
 
-    const handleNavButtonRelease = (direction) => {
-        switch(direction) {
-            case 'up':
-                keyState.up = false;
-                break;
-            case 'down':
-                keyState.down = false;
-                break;
-        }
+    const handleTouchStart = (event) => {
+        touchStartY = event.touches[0].clientY;
     };
 
-    // Modify the mouse interaction variables
-    let mousePosition = { x: 0, y: 0 };
-    let normalizedMousePosition = { x: 0, y: 0 };
-    let isDragging = false;
-
-    // Update the mouse handlers
-    const updateMousePosition = (event) => {
-        const rect = container.getBoundingClientRect();
+    const handleTouchMove = (event) => {
+        if (!touchStartY) return;
         
-        // Calculate normalized coordinates (-1 to 1)
-        normalizedMousePosition.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
-        normalizedMousePosition.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
-
-        // Update cursor if near sun
-        if (fogMaterial) {
-            const sunPos = fogMaterial.uniforms.sunPosition.value;
-            const distance = Math.sqrt(
-                Math.pow((normalizedMousePosition.x - sunPos.x), 2) + 
-                Math.pow((normalizedMousePosition.y - sunPos.y), 2)
-            );
-            
-            if (distance < 0.2) {
-                container.style.cursor = 'grab';
-            } else {
-                container.style.cursor = 'default';
-            }
-        }
+        const touchY = event.touches[0].clientY;
+        const delta = touchStartY - touchY;
+        
+        // Update camera position based on touch movement
+        targetCameraY += delta * 0.01; // Adjust multiplier for touch sensitivity
+        
+        // Clamp the camera position
+        const maxScroll = -(MAX_SECTION * 5); // Adjust based on your section heights
+        targetCameraY = Math.max(Math.min(targetCameraY, 0), maxScroll);
+        
+        // Update section position
+        const currentSection = Math.round(-targetCameraY / 5);
+        sectionSpring.set({ y: currentSection * -100 });
+        
+        touchStartY = touchY;
     };
 
-    const onMouseDown = (event) => {
-        updateMousePosition(event);
-        if (fogMaterial) {
-            const sunPos = fogMaterial.uniforms.sunPosition.value;
-            
-            // Calculate distance in normalized coordinates
-            const distance = Math.sqrt(
-                Math.pow((normalizedMousePosition.x - sunPos.x), 2) + 
-                Math.pow((normalizedMousePosition.y - sunPos.y), 2)
-            );
-            
-            // Increased hit area from 0.06 to 0.2
-            if (distance < 0.2) {
-                isDragging = true;
-                container.style.cursor = 'grabbing';
-            }
-        }
-    };
-
-    const onMouseMove = (event) => {
-        updateMousePosition(event);
-        
-        if (isDragging && fogMaterial) {
-            // Update sun position directly with normalized coordinates
-            const newX = THREE.MathUtils.clamp(normalizedMousePosition.x, -1, 1);
-            const newY = THREE.MathUtils.clamp(normalizedMousePosition.y, -1, 1);
-            
-            // Update sun position
-            fogMaterial.uniforms.sunPosition.value.set(newX, newY);
-            
-            // Update coordinates and time display
-            sunCoordinates = { x: newX, y: newY };
-            currentTime = getTimeFromX(newX);
-            
-            // Update sky color
-            scene.background = getSkyColor(newX);
-            
-            // Update isNightTime based on hour
-            const hour = ((newX + 1) * 12);
-            isNightTime = hour < 5 || hour > 19;
-        }
-    };
-
-    const onMouseUp = () => {
-        isDragging = false;
-        container.style.cursor = 'default';
-    };
-
-    // Add fogMaterial to component scope
-    let fogMaterial;
-    let scene;  // Also add scene to component scope
-
-    // Add these lerp helper functions near the top
-    function lerp(start, end, t) {
-        return start * (1 - t) + end * t;
-    }
-
-    function lerpVector2(v1, v2, t) {
-        return {
-            x: lerp(v1.x, v2.x, t),
-            y: lerp(v1.y, v2.y, t)
-        };
-    }
-
-    // Add these touch event handlers near the other mouse handlers
-    const onTouchStart = (event) => {
-        // Check if the touch target is a control button
-        if (event.target.closest('.controls')) {
-            return; // Let the button handle the touch event
-        }
-        
-        event.preventDefault(); // Prevent scrolling only for canvas interactions
-        const touch = event.touches[0];
-        const rect = container.getBoundingClientRect();
-        
-        normalizedMousePosition.x = ((touch.clientX - rect.left) / rect.width) * 2 - 1;
-        normalizedMousePosition.y = -((touch.clientY - rect.top) / rect.height) * 2 + 1;
-        
-        if (fogMaterial) {
-            const sunPos = fogMaterial.uniforms.sunPosition.value;
-            const distance = Math.sqrt(
-                Math.pow((normalizedMousePosition.x - sunPos.x), 2) + 
-                Math.pow((normalizedMousePosition.y - sunPos.y), 2)
-            );
-            
-            if (distance < 0.3) {
-                isDragging = true;
-            }
-        }
-    };
-
-    const onTouchMove = (event) => {
-        // Don't prevent default if touching controls
-        if (event.target.closest('.controls')) {
-            return;
-        }
-        
-        if (!isDragging) return;
-        event.preventDefault();
-        
-        const touch = event.touches[0];
-        const rect = container.getBoundingClientRect();
-        
-        normalizedMousePosition.x = ((touch.clientX - rect.left) / rect.width) * 2 - 1;
-        normalizedMousePosition.y = -((touch.clientY - rect.top) / rect.height) * 2 + 1;
-        
-        if (fogMaterial) {
-            // Update sun position directly with normalized coordinates
-            const newX = THREE.MathUtils.clamp(normalizedMousePosition.x, -1, 1);
-            const newY = THREE.MathUtils.clamp(normalizedMousePosition.y, -1, 1);
-            
-            // Update sun position
-            fogMaterial.uniforms.sunPosition.value.set(newX, newY);
-            
-            // Update coordinates and time display
-            sunCoordinates = { x: newX, y: newY };
-            currentTime = getTimeFromX(newX);
-            
-            // Update sky color
-            scene.background = getSkyColor(newX);
-            
-            // Update isNightTime based on hour
-            const hour = ((newX + 1) * 12);
-            isNightTime = hour < 5 || hour > 19;
-        }
-    };
-
-    const onTouchEnd = () => {
-        isDragging = false;
+    const handleTouchEnd = () => {
+        touchStartY = null;
     };
 
     onMount(() => {
@@ -964,6 +815,12 @@
       // Add mousemove event listener
       container.addEventListener('mousemove', updateMousePosition);
   
+      // Add scroll event listeners
+      container.addEventListener('wheel', handleWheel, { passive: true });
+      container.addEventListener('touchstart', handleTouchStart, { passive: true });
+      container.addEventListener('touchmove', handleTouchMove, { passive: true });
+      container.addEventListener('touchend', handleTouchEnd);
+  
       // Cleanup
       return () => {
         cancelAnimationFrame(animationFrameId);
@@ -995,7 +852,10 @@
         window.removeEventListener('keydown', handleKeyDown);
         window.removeEventListener('keyup', handleKeyUp);
         container.removeEventListener('mousemove', updateMousePosition);
-        clearTimeout(navigationTimeout);
+        container.removeEventListener('wheel', handleWheel);
+        container.removeEventListener('touchstart', handleTouchStart);
+        container.removeEventListener('touchmove', handleTouchMove);
+        container.removeEventListener('touchend', handleTouchEnd);
       };
     });
   
@@ -1082,32 +942,6 @@
             on:click={() => enableCloudMovement = !enableCloudMovement}
         >
             <svelte:component this={enableCloudMovement ? Pause : Play} size={20} />
-        </button>
-    </div>
-
-    <!-- Navigation controls -->
-    <div class="controls nav-controls">
-        <button 
-            class="control-button nav-button"
-            on:mousedown={() => handleNavButtonPress('up')}
-            on:mouseup={() => handleNavButtonRelease('up')}
-            on:mouseleave={() => handleNavButtonRelease('up')}
-            on:touchstart|preventDefault={() => handleNavButtonPress('up')}
-            on:touchend|preventDefault={() => handleNavButtonRelease('up')}
-            disabled={currentSection <= MIN_SECTION}
-        >
-            <svelte:component this={ChevronUp} size={20} />
-        </button>
-        <button 
-            class="control-button nav-button"
-            on:mousedown={() => handleNavButtonPress('down')}
-            on:mouseup={() => handleNavButtonRelease('down')}
-            on:mouseleave={() => handleNavButtonRelease('down')}
-            on:touchstart|preventDefault={() => handleNavButtonPress('down')}
-            on:touchend|preventDefault={() => handleNavButtonRelease('down')}
-            disabled={currentSection >= MAX_SECTION}
-        >
-            <svelte:component this={ChevronDown} size={20} />
         </button>
     </div>
 
@@ -1474,8 +1308,8 @@
         width: 100%;
         height: 100vh;
         z-index: 2;
-        transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
-        pointer-events: none;
+        transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+        pointer-events: auto; /* Changed from none to auto to enable scrolling */
     }
 
     .portfolio-section {
@@ -1486,8 +1320,7 @@
         justify-content: center;
         opacity: 0;
         transition: opacity 0.5s ease;
-        padding: 2rem;
-        pointer-events: none;
+        pointer-events: auto; /* Changed from none to auto */
     }
 
     .portfolio-section.active {
