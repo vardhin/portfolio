@@ -10,7 +10,6 @@
     import ChevronUp from 'lucide-svelte/icons/chevron-up';
     import ChevronDown from 'lucide-svelte/icons/chevron-down';
     import Link from 'lucide-svelte/icons/link';
-    import Github from 'lucide-svelte/icons/github';
   
     let container;
     let showIntro = true;
@@ -1152,19 +1151,7 @@
                             
                             <div class="scrollable-content">
                                 <div class="project-details">
-                                    <h4>Overview</h4>
-                                    <p>A desktop application enabling secure, decentralized sharing of computing resources.</p>
-                                    
-                                    <h4>Key Features</h4>
-                                    <ul>
-                                        <li>Two-way communication protocol over IPFS PubSub for tamper-proof records</li>
-                                        <li>Automated Docker container deployment for dynamic resource provisioning</li>
-                                        <li>Decentralized architecture ensuring data privacy and security</li>
-                                    </ul>
-
-                                    <h4>Implementation</h4>
-                                    <p>Built using Electron and Svelte for the frontend, with IPFS for decentralized communication 
-                                    and Docker for containerization. TypeScript ensures type safety and better development experience.</p>
+                                    <p>Desktop app for secure, decentralized computing resource sharing using IPFS PubSub and Docker containers.</p>
                                 </div>
                             </div>
                         </div>
@@ -1173,13 +1160,6 @@
                             {#each ['Electron', 'Svelte', 'IPFS', 'Docker', 'TypeScript'] as tech}
                                 <span class="tech-button">{tech}</span>
                             {/each}
-                            <a href="https://github.com/yourusername/decloud" 
-                               class="github-button" 
-                               target="_blank" 
-                               rel="noopener noreferrer">
-                                <Github size={12} /> <!-- Reduced from 16 -->
-                                <span>GitHub</span>
-                            </a>
                         </div>
                     </div>
                 {:else if section.id === 'recon'}
@@ -1190,31 +1170,11 @@
                                     <h2>Decentralized Messaging</h2>
                                     <h3>Recon</h3>
                                 </div>
-                                <a href="https://github.com/yourusername/recon" 
-                                   class="github-button" 
-                                   target="_blank" 
-                                   rel="noopener noreferrer">
-                                    <Github size={16} />
-                                    <span>GitHub</span>
-                                </a>
                             </div>
                             
                             <div class="scrollable-content">
                                 <div class="project-details">
-                                    <h4>Overview</h4>
-                                    <p>A decentralized mobile messaging application ensuring private and secure communication.</p>
-                                    
-                                    <h4>Key Features</h4>
-                                    <ul>
-                                        <li>Serverless architecture using GunJs for peer-to-peer data sync</li>
-                                        <li>Custom event-driven protocol for seamless integration</li>
-                                        <li>Cross-platform mobile deployment using Capacitor</li>
-                                    </ul>
-
-                                    <h4>Implementation</h4>
-                                    <p>Developed using Svelte for the UI, GunJs for decentralized data management, 
-                                    and Capacitor for native mobile deployment. TypeScript ensures robust type checking 
-                                    and better code organization.</p>
+                                    <p>P2P mobile messaging app using GunJs for serverless data sync and Capacitor for cross-platform deployment.</p>
                                 </div>
                             </div>
                         </div>
@@ -1233,31 +1193,11 @@
                                     <h2>Disaster Resistant Shelter</h2>
                                     <h3>Yantra</h3>
                                 </div>
-                                <a href="https://github.com/yourusername/yantra" 
-                                   class="github-button" 
-                                   target="_blank" 
-                                   rel="noopener noreferrer">
-                                    <Github size={16} />
-                                    <span>GitHub</span>
-                                </a>
                             </div>
                             
                             <div class="scrollable-content">
                                 <div class="project-details">
-                                    <h4>Overview</h4>
-                                    <p>Winner of Design-a-thon by Indian Geotechnical Society. A innovative shelter design 
-                                    with advanced safety features.</p>
-                                    
-                                    <h4>Key Features</h4>
-                                    <ul>
-                                        <li>Advanced structural analysis using Python</li>
-                                        <li>Comprehensive stress and fluid analysis</li>
-                                        <li>Mechanical contraptions for enhanced safety</li>
-                                    </ul>
-
-                                    <h4>Implementation</h4>
-                                    <p>Utilized Python with NumPy for computational analysis and Matplotlib for 
-                                    visualization of stress distributions and fluid dynamics.</p>
+                                    <p>Design-a-thon winning shelter design with advanced safety features and computational stress analysis.</p>
                                 </div>
                             </div>
                         </div>
@@ -1276,30 +1216,11 @@
                                     <h2>Carbon Credit Marketplace</h2>
                                     <h3>Code4Change</h3>
                                 </div>
-                                <a href="https://github.com/yourusername/carbon-credits" 
-                                   class="github-button" 
-                                   target="_blank" 
-                                   rel="noopener noreferrer">
-                                    <Github size={16} />
-                                    <span>GitHub</span>
-                                </a>
                             </div>
                             
                             <div class="scrollable-content">
                                 <div class="project-details">
-                                    <h4>Overview</h4>
-                                    <p>Finalist in IEEE Code4Change 2.0. A blockchain-based marketplace for carbon credits.</p>
-                                    
-                                    <h4>Key Features</h4>
-                                    <ul>
-                                        <li>Transparent carbon credit trading system</li>
-                                        <li>Secure blockchain transactions</li>
-                                        <li>Cross-platform mobile application</li>
-                                    </ul>
-
-                                    <h4>Implementation</h4>
-                                    <p>Built using React Native for cross-platform compatibility, with Ethereum blockchain 
-                                    for secure and transparent transactions.</p>
+                                    <p>IEEE Code4Change finalist. Blockchain-based marketplace for transparent carbon credit trading.</p>
                                 </div>
                             </div>
                         </div>
@@ -1640,27 +1561,6 @@
         padding: 0.15rem 0.35rem; /* Reduced from 0.2rem 0.4rem */
     }
 
-    .github-button {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.4rem;
-        background: rgba(255, 255, 255, 0.08);
-        border: 1px solid rgba(255, 255, 255, 0.15);
-        border-radius: 8px;
-        padding: 0.35rem 0.6rem;
-        color: rgba(255, 255, 255, 0.9);
-        font-size: 0.7rem;
-        text-decoration: none;
-        transition: all 0.2s ease;
-        margin-top: 0;
-        white-space: nowrap;
-    }
-
-    .github-button:hover {
-        background: rgba(255, 255, 255, 0.12);
-        transform: translateY(-1px);
-    }
-
     /* Mobile optimizations */
     @media (max-width: 768px) {
         .project-card {
@@ -1678,10 +1578,6 @@
             border-left: none;
             border-top: 1px solid rgba(255, 255, 255, 0.1);
             gap: 0.3rem; /* Reduced from 0.5rem */
-        }
-
-        .github-button {
-            margin-top: 0;
         }
     }
 
