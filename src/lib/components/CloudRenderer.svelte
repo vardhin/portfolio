@@ -224,7 +224,7 @@
 
     // Add these constants near the top with other state variables
     const MIN_SECTION = 0;
-    const MAX_SECTION = 3;  // sections.length - 1
+    const MAX_SECTION = 6;  // sections.length - 1
 
     // Add these variables to track navigation state
     let isNavigating = false;
@@ -1039,9 +1039,12 @@
 
     // Add new state variables
     let currentSection = 0;
-    const sections = [
+    let sections = [
         { id: 'intro', title: 'Surya Vardhin Gamidi' },
-        { id: 'projects', title: 'Projects' },
+        { id: 'decloud', title: 'Decloud' },
+        { id: 'recon', title: 'Recon' },
+        { id: 'yantra', title: 'Yantra' },
+        { id: 'carbon', title: 'Code4Change' },
         { id: 'about', title: 'About' },
         { id: 'contact', title: 'Contact' }
     ];
@@ -1137,173 +1140,171 @@
                         </h1>
                         <p>Web Developer & Designer</p>
                     </div>
-                {:else if section.id === 'projects'}
-                    <div class="projects-container" in:fly="{{ y: 50, duration: 1000 }}" out:fade>
-                        {#each sections as section, i}
-                            {#if section.id === 'projects' && currentSection === i}
-                                <div class="project-card" in:fly="{{ y: 50, duration: 1000 }}" out:fade>
-                                    {#if currentSection === 1}
-                                        <div class="project-content">
-                                            <div class="project-header">
-                                                <h2>Decentralized Cloud Computing</h2>
-                                                <h3>Decloud</h3>
-                                            </div>
-                                            
-                                            <div class="tech-stack">
-                                                {#each ['Electron', 'Svelte', 'IPFS', 'Docker', 'TypeScript'] as tech}
-                                                    <button class="tech-button">{tech}</button>
-                                                {/each}
-                                            </div>
+                {:else if section.id === 'decloud'}
+                    <div class="project-card" in:fly="{{ y: 50, duration: 1000 }}" out:fade>
+                        <div class="project-content">
+                            <div class="project-header">
+                                <h2>Decentralized Cloud Computing</h2>
+                                <h3>Decloud</h3>
+                            </div>
+                            
+                            <div class="tech-stack">
+                                {#each ['Electron', 'Svelte', 'IPFS', 'Docker', 'TypeScript'] as tech}
+                                    <button class="tech-button">{tech}</button>
+                                {/each}
+                            </div>
 
-                                            <div class="project-details">
-                                                <h4>Overview</h4>
-                                                <p>A desktop application enabling secure, decentralized sharing of computing resources.</p>
-                                                
-                                                <h4>Key Features</h4>
-                                                <ul>
-                                                    <li>Two-way communication protocol over IPFS PubSub for tamper-proof records</li>
-                                                    <li>Automated Docker container deployment for dynamic resource provisioning</li>
-                                                    <li>Decentralized architecture ensuring data privacy and security</li>
-                                                </ul>
+                            <div class="project-details">
+                                <h4>Overview</h4>
+                                <p>A desktop application enabling secure, decentralized sharing of computing resources.</p>
+                                
+                                <h4>Key Features</h4>
+                                <ul>
+                                    <li>Two-way communication protocol over IPFS PubSub for tamper-proof records</li>
+                                    <li>Automated Docker container deployment for dynamic resource provisioning</li>
+                                    <li>Decentralized architecture ensuring data privacy and security</li>
+                                </ul>
 
-                                                <h4>Implementation</h4>
-                                                <p>Built using Electron and Svelte for the frontend, with IPFS for decentralized communication 
-                                                and Docker for containerization. TypeScript ensures type safety and better development experience.</p>
-                                            </div>
+                                <h4>Implementation</h4>
+                                <p>Built using Electron and Svelte for the frontend, with IPFS for decentralized communication 
+                                and Docker for containerization. TypeScript ensures type safety and better development experience.</p>
+                            </div>
 
-                                            <div class="project-links">
-                                                <a href="https://github.com/yourusername/decloud" 
-                                                   class="github-button" 
-                                                   target="_blank" 
-                                                   rel="noopener noreferrer">
-                                                    <Github size={20} />
-                                                    <span>View Repository</span>
-                                                </a>
-                                            </div>
-                                        </div>
-                                    {:else if currentSection === 2}
-                                        <div class="project-content">
-                                            <div class="project-header">
-                                                <h2>Decentralized Messaging</h2>
-                                                <h3>Recon</h3>
-                                            </div>
-                                            
-                                            <div class="tech-stack">
-                                                {#each ['Svelte', 'Capacitor', 'GunJs', 'TypeScript'] as tech}
-                                                    <button class="tech-button">{tech}</button>
-                                                {/each}
-                                            </div>
+                            <div class="project-links">
+                                <a href="https://github.com/yourusername/decloud" 
+                                   class="github-button" 
+                                   target="_blank" 
+                                   rel="noopener noreferrer">
+                                    <Github size={20} />
+                                    <span>View Repository</span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                {:else if section.id === 'recon'}
+                    <div class="project-card" in:fly="{{ y: 50, duration: 1000 }}" out:fade>
+                        <div class="project-content">
+                            <div class="project-header">
+                                <h2>Decentralized Messaging</h2>
+                                <h3>Recon</h3>
+                            </div>
+                            
+                            <div class="tech-stack">
+                                {#each ['Svelte', 'Capacitor', 'GunJs', 'TypeScript'] as tech}
+                                    <button class="tech-button">{tech}</button>
+                                {/each}
+                            </div>
 
-                                            <div class="project-details">
-                                                <h4>Overview</h4>
-                                                <p>A decentralized mobile messaging application ensuring private and secure communication.</p>
-                                                
-                                                <h4>Key Features</h4>
-                                                <ul>
-                                                    <li>Serverless architecture using GunJs for peer-to-peer data sync</li>
-                                                    <li>Custom event-driven protocol for seamless integration</li>
-                                                    <li>Cross-platform mobile deployment using Capacitor</li>
-                                                </ul>
+                            <div class="project-details">
+                                <h4>Overview</h4>
+                                <p>A decentralized mobile messaging application ensuring private and secure communication.</p>
+                                
+                                <h4>Key Features</h4>
+                                <ul>
+                                    <li>Serverless architecture using GunJs for peer-to-peer data sync</li>
+                                    <li>Custom event-driven protocol for seamless integration</li>
+                                    <li>Cross-platform mobile deployment using Capacitor</li>
+                                </ul>
 
-                                                <h4>Implementation</h4>
-                                                <p>Developed using Svelte for the UI, GunJs for decentralized data management, 
-                                                and Capacitor for native mobile deployment. TypeScript ensures robust type checking 
-                                                and better code organization.</p>
-                                            </div>
+                                <h4>Implementation</h4>
+                                <p>Developed using Svelte for the UI, GunJs for decentralized data management, 
+                                and Capacitor for native mobile deployment. TypeScript ensures robust type checking 
+                                and better code organization.</p>
+                            </div>
 
-                                            <div class="project-links">
-                                                <a href="https://github.com/yourusername/recon" 
-                                                   class="github-button" 
-                                                   target="_blank" 
-                                                   rel="noopener noreferrer">
-                                                    <Github size={20} />
-                                                    <span>View Repository</span>
-                                                </a>
-                                            </div>
-                                        </div>
-                                    {:else if currentSection === 3}
-                                        <div class="project-content">
-                                            <div class="project-header">
-                                                <h2>Disaster Resistant Shelter</h2>
-                                                <h3>Yantra</h3>
-                                            </div>
-                                            
-                                            <div class="tech-stack">
-                                                {#each ['Python', 'NumPy', 'Matplotlib'] as tech}
-                                                    <button class="tech-button">{tech}</button>
-                                                {/each}
-                                            </div>
+                            <div class="project-links">
+                                <a href="https://github.com/yourusername/recon" 
+                                   class="github-button" 
+                                   target="_blank" 
+                                   rel="noopener noreferrer">
+                                    <Github size={20} />
+                                    <span>View Repository</span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                {:else if section.id === 'yantra'}
+                    <div class="project-card" in:fly="{{ y: 50, duration: 1000 }}" out:fade>
+                        <div class="project-content">
+                            <div class="project-header">
+                                <h2>Disaster Resistant Shelter</h2>
+                                <h3>Yantra</h3>
+                            </div>
+                            
+                            <div class="tech-stack">
+                                {#each ['Python', 'NumPy', 'Matplotlib'] as tech}
+                                    <button class="tech-button">{tech}</button>
+                                {/each}
+                            </div>
 
-                                            <div class="project-details">
-                                                <h4>Overview</h4>
-                                                <p>Winner of Design-a-thon by Indian Geotechnical Society. A innovative shelter design 
-                                                with advanced safety features.</p>
-                                                
-                                                <h4>Key Features</h4>
-                                                <ul>
-                                                    <li>Advanced structural analysis using Python</li>
-                                                    <li>Comprehensive stress and fluid analysis</li>
-                                                    <li>Mechanical contraptions for enhanced safety</li>
-                                                </ul>
+                            <div class="project-details">
+                                <h4>Overview</h4>
+                                <p>Winner of Design-a-thon by Indian Geotechnical Society. A innovative shelter design 
+                                with advanced safety features.</p>
+                                
+                                <h4>Key Features</h4>
+                                <ul>
+                                    <li>Advanced structural analysis using Python</li>
+                                    <li>Comprehensive stress and fluid analysis</li>
+                                    <li>Mechanical contraptions for enhanced safety</li>
+                                </ul>
 
-                                                <h4>Implementation</h4>
-                                                <p>Utilized Python with NumPy for computational analysis and Matplotlib for 
-                                                visualization of stress distributions and fluid dynamics.</p>
-                                            </div>
+                                <h4>Implementation</h4>
+                                <p>Utilized Python with NumPy for computational analysis and Matplotlib for 
+                                visualization of stress distributions and fluid dynamics.</p>
+                            </div>
 
-                                            <div class="project-links">
-                                                <a href="https://github.com/yourusername/yantra" 
-                                                   class="github-button" 
-                                                   target="_blank" 
-                                                   rel="noopener noreferrer">
-                                                    <Github size={20} />
-                                                    <span>View Repository</span>
-                                                </a>
-                                            </div>
-                                        </div>
-                                    {:else if currentSection === 4}
-                                        <div class="project-content">
-                                            <div class="project-header">
-                                                <h2>Carbon Credit Marketplace</h2>
-                                                <h3>Code4Change</h3>
-                                            </div>
-                                            
-                                            <div class="tech-stack">
-                                                {#each ['React Native', 'Ethereum', 'Blockchain'] as tech}
-                                                    <button class="tech-button">{tech}</button>
-                                                {/each}
-                                            </div>
+                            <div class="project-links">
+                                <a href="https://github.com/yourusername/yantra" 
+                                   class="github-button" 
+                                   target="_blank" 
+                                   rel="noopener noreferrer">
+                                    <Github size={20} />
+                                    <span>View Repository</span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                {:else if section.id === 'carbon'}
+                    <div class="project-card" in:fly="{{ y: 50, duration: 1000 }}" out:fade>
+                        <div class="project-content">
+                            <div class="project-header">
+                                <h2>Carbon Credit Marketplace</h2>
+                                <h3>Code4Change</h3>
+                            </div>
+                            
+                            <div class="tech-stack">
+                                {#each ['React Native', 'Ethereum', 'Blockchain'] as tech}
+                                    <button class="tech-button">{tech}</button>
+                                {/each}
+                            </div>
 
-                                            <div class="project-details">
-                                                <h4>Overview</h4>
-                                                <p>Finalist in IEEE Code4Change 2.0. A blockchain-based marketplace for carbon credits.</p>
-                                                
-                                                <h4>Key Features</h4>
-                                                <ul>
-                                                    <li>Transparent carbon credit trading system</li>
-                                                    <li>Secure blockchain transactions</li>
-                                                    <li>Cross-platform mobile application</li>
-                                                </ul>
+                            <div class="project-details">
+                                <h4>Overview</h4>
+                                <p>Finalist in IEEE Code4Change 2.0. A blockchain-based marketplace for carbon credits.</p>
+                                
+                                <h4>Key Features</h4>
+                                <ul>
+                                    <li>Transparent carbon credit trading system</li>
+                                    <li>Secure blockchain transactions</li>
+                                    <li>Cross-platform mobile application</li>
+                                </ul>
 
-                                                <h4>Implementation</h4>
-                                                <p>Built using React Native for cross-platform compatibility, with Ethereum blockchain 
-                                                for secure and transparent transactions.</p>
-                                            </div>
+                                <h4>Implementation</h4>
+                                <p>Built using React Native for cross-platform compatibility, with Ethereum blockchain 
+                                for secure and transparent transactions.</p>
+                            </div>
 
-                                            <div class="project-links">
-                                                <a href="https://github.com/yourusername/carbon-credits" 
-                                                   class="github-button" 
-                                                   target="_blank" 
-                                                   rel="noopener noreferrer">
-                                                    <Github size={20} />
-                                                    <span>View Repository</span>
-                                                </a>
-                                            </div>
-                                        </div>
-                                    {/if}
-                                </div>
-                            {/if}
-                        {/each}
+                            <div class="project-links">
+                                <a href="https://github.com/yourusername/carbon-credits" 
+                                   class="github-button" 
+                                   target="_blank" 
+                                   rel="noopener noreferrer">
+                                    <Github size={20} />
+                                    <span>View Repository</span>
+                                </a>
+                            </div>
+                        </div>
                     </div>
                 {:else if section.id === 'about'}
                     <div class="about-content"
