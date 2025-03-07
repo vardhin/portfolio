@@ -1571,24 +1571,15 @@
         flex: 1;
         overflow-y: auto;
         padding-right: 0.75rem;
-        margin-bottom: 1rem; /* Add margin to prevent overlap */
-        min-height: 0; /* Allow content to shrink */
-    }
-
-    .scrollable-content {
-        padding-bottom: 1rem; /* Add padding at bottom of scrollable area */
     }
 
     .tech-stack {
-        flex-shrink: 0; /* Prevent tech stack from shrinking */
         display: flex;
         flex-wrap: wrap;
         gap: 0.3rem;
         padding-top: 0.75rem;
+        margin-top: auto; /* Push to bottom */
         border-top: 1px solid rgba(255, 255, 255, 0.1);
-        background: rgba(255, 255, 255, 0.05); /* Optional: add slight background to differentiate */
-        position: relative; /* Ensure it stays above content */
-        z-index: 2; /* Ensure it stays above content */
     }
 
     .tech-button, .github-button {
@@ -1612,11 +1603,9 @@
     @media (max-width: 768px) {
         .project-card {
             height: auto;
-            min-height: 450px; /* Minimum height on mobile */
-        }
-
-        .project-content {
-            margin-bottom: 0.75rem; /* Smaller margin on mobile */
+            max-width: calc(100% - 1.5rem);
+            margin: 0 0.75rem;
+            padding: 0.75rem;
         }
 
         .tech-stack {
@@ -1950,11 +1939,9 @@
     @media (max-width: 768px) {
         .project-card {
             height: auto;
-            min-height: 450px; /* Minimum height on mobile */
-        }
-
-        .project-content {
-            margin-bottom: 0.75rem; /* Smaller margin on mobile */
+            max-width: calc(100% - 1.5rem); /* Slightly reduced margin */
+            margin: 0 0.75rem;
+            padding: 0.75rem; /* Reduced from 1rem */
         }
 
         .tech-stack {
