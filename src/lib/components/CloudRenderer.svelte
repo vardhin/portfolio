@@ -1170,14 +1170,16 @@
                         </div>
                         
                         <div class="tech-stack">
-                            {#each ['Electron', 'Svelte', 'IPFS', 'Docker', 'TypeScript'] as tech}
-                                <span class="tech-button">{tech}</span>
-                            {/each}
+                            <div class="tech-buttons">
+                                {#each ['Electron', 'Svelte', 'IPFS', 'Docker', 'TypeScript'] as tech}
+                                    <span class="tech-button">{tech}</span>
+                                {/each}
+                            </div>
                             <a href="https://github.com/yourusername/decloud" 
                                class="github-button" 
                                target="_blank" 
                                rel="noopener noreferrer">
-                                <Github size={12} /> <!-- Reduced from 16 -->
+                                <Github size={12} />
                                 <span>GitHub</span>
                             </a>
                         </div>
@@ -1565,108 +1567,59 @@
         padding: 1.25rem;
         backdrop-filter: blur(10px);
         width: 100%;
-        max-width: 1400px; /* Increased from 1200px */
+        max-width: 1400px;
         height: 450px;
         margin: 0 auto;
         box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
         transition: all 0.3s ease;
-        display: flex;
-        flex-direction: column; /* Added to ensure proper layout */
-        gap: 0.75rem;
+        display: grid;
+        grid-template-columns: 1fr 200px; /* Main content and tech stack */
+        gap: 1rem;
     }
 
     .project-content {
-        flex: 1; /* Take up remaining space */
-        overflow: hidden; /* Prevent content overflow */
-    }
-
-    .project-header {
-        display: flex;
-        flex-direction: column; /* Changed to stack vertically */
-        margin-bottom: 0.5rem; /* Reduced from 0.75rem */
-    }
-
-    .project-header h2 {
-        font-size: 0.9rem; /* Reduced from 1rem */
-        font-weight: 300;
-        margin: 0;
-        letter-spacing: 0.02em;
-    }
-
-    .project-header h3 {
-        font-size: 0.75rem; /* Reduced from 0.8rem */
-        font-weight: 400;
-        margin: 0.05rem 0 0; /* Reduced from 0.1rem */
-        color: rgba(255, 255, 255, 0.7);
-    }
-
-    .project-details {
-        height: 100%;
-    }
-
-    .project-details h4 {
-        font-size: 0.75rem; /* Reduced from 0.8rem */
-        font-weight: 500;
-        margin: 0.4rem 0 0.2rem; /* Reduced from 0.5rem 0 0.3rem */
-        color: rgba(255, 255, 255, 0.9);
-    }
-
-    .project-details h4:first-child {
-        margin-top: 0;
-    }
-
-    .project-details p {
-        font-size: 0.7rem; /* Reduced from 0.75rem */
-        line-height: 1.25; /* Reduced from 1.3 */
-        color: rgba(255, 255, 255, 0.8);
-        margin-bottom: 0.25rem; /* Reduced from 0.3rem */
-        word-spacing: -0.06em; /* Increased negative word spacing */
-    }
-
-    .project-details ul {
-        list-style-type: none;
-        padding: 0;
-        margin: 0 0 0.25rem; /* Reduced from 0.3rem */
-    }
-
-    .project-details li {
-        position: relative;
-        padding-left: 0.7rem; /* Reduced from 0.8rem */
-        margin-bottom: 0.15rem; /* Reduced from 0.2rem */
-        line-height: 1.15; /* Reduced from 1.2 */
-        font-size: 0.7rem; /* Reduced from 0.75rem */
-        color: rgba(255, 255, 255, 0.8);
-        word-spacing: -0.06em; /* Increased negative word spacing */
+        overflow: hidden;
+        padding-right: 1rem;
+        border-right: 1px solid rgba(255, 255, 255, 0.1);
     }
 
     .tech-stack {
         display: flex;
-        flex-wrap: wrap;
-        gap: 0.3rem;
-        padding-top: 0.5rem;
-        border-top: 1px solid rgba(255, 255, 255, 0.1);
-        align-items: center;
+        flex-direction: column;
+        gap: 1rem;
+        padding-left: 1rem;
+    }
+
+    .tech-buttons {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
     }
 
     .tech-button {
-        font-size: 0.6rem; /* Reduced from 0.65rem */
-        padding: 0.15rem 0.35rem; /* Reduced from 0.2rem 0.4rem */
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        border-radius: 8px;
+        padding: 0.35rem 0.75rem;
+        font-size: 0.7rem;
+        text-align: center;
+        white-space: nowrap;
     }
 
     .github-button {
-        display: inline-flex;
+        display: flex;
         align-items: center;
+        justify-content: center;
         gap: 0.4rem;
         background: rgba(255, 255, 255, 0.08);
         border: 1px solid rgba(255, 255, 255, 0.15);
         border-radius: 8px;
-        padding: 0.35rem 0.6rem;
+        padding: 0.5rem;
         color: rgba(255, 255, 255, 0.9);
         font-size: 0.7rem;
         text-decoration: none;
         transition: all 0.2s ease;
-        margin-top: 0;
-        white-space: nowrap;
+        margin-top: auto;
     }
 
     .github-button:hover {
@@ -1674,12 +1627,31 @@
         transform: translateY(-1px);
     }
 
-    /* Mobile optimizations */
+    /* Mobile adjustments */
     @media (max-width: 768px) {
         .project-card {
-            max-width: calc(100% - 2rem);
+            grid-template-columns: 1fr;
             height: auto;
+            max-width: calc(100% - 2rem);
             padding: 1rem;
+        }
+
+        .project-content {
+            padding-right: 0;
+            border-right: none;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding-bottom: 1rem;
+        }
+
+        .tech-stack {
+            padding-left: 0;
+            padding-top: 1rem;
+        }
+
+        .tech-buttons {
+            flex-direction: row;
+            flex-wrap: wrap;
+            justify-content: center;
         }
     }
 
@@ -1954,16 +1926,17 @@
     .project-details ul {
         list-style-type: none;
         padding: 0;
-        margin: 0 0 0.75rem;
+        margin: 0 0 0.25rem; /* Reduced from 0.3rem */
     }
 
     .project-details li {
         position: relative;
-        padding-left: 1.25rem;
-        margin-bottom: 0.4rem;
-        line-height: 1.5;
-        font-size: 0.95rem;
+        padding-left: 0.7rem; /* Reduced from 0.8rem */
+        margin-bottom: 0.15rem; /* Reduced from 0.2rem */
+        line-height: 1.15; /* Reduced from 1.2 */
+        font-size: 0.7rem; /* Reduced from 0.75rem */
         color: rgba(255, 255, 255, 0.8);
+        word-spacing: -0.06em; /* Increased negative word spacing */
     }
 
     .project-details li::before {
@@ -2000,33 +1973,12 @@
         transform: translateY(-1px);
     }
 
-    /* Mobile responsiveness */
+    /* Mobile optimizations */
     @media (max-width: 768px) {
         .project-card {
-            padding: 1.25rem;
-            border-radius: 14px;
-        }
-
-        .project-header h2 {
-            font-size: 1.75rem;
-        }
-
-        .project-header h3 {
-            font-size: 1.1rem;
-        }
-
-        .tech-button {
-            font-size: 0.8rem;
-            padding: 0.3rem 0.6rem;
-        }
-
-        .project-details h4 {
-            font-size: 1rem;
-        }
-
-        .project-details p,
-        .project-details li {
-            font-size: 0.9rem;
+            max-width: calc(100% - 2rem);
+            height: auto;
+            padding: 1rem;
         }
     }
 
