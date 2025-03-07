@@ -1233,13 +1233,6 @@
                                     <h2>Disaster Resistant Shelter</h2>
                                     <h3>Yantra</h3>
                                 </div>
-                                <a href="https://github.com/yourusername/yantra" 
-                                   class="github-button" 
-                                   target="_blank" 
-                                   rel="noopener noreferrer">
-                                    <Github size={16} />
-                                    <span>GitHub</span>
-                                </a>
                             </div>
                             
                             <div class="scrollable-content">
@@ -1266,6 +1259,13 @@
                             {#each ['Python', 'NumPy', 'Matplotlib'] as tech}
                                 <span class="tech-button">{tech}</span>
                             {/each}
+                            <a href="https://github.com/yourusername/yantra" 
+                               class="github-button" 
+                               target="_blank" 
+                               rel="noopener noreferrer">
+                                <Github size={12} />
+                                <span>GitHub</span>
+                            </a>
                         </div>
                     </div>
                 {:else if section.id === 'carbon'}
@@ -1308,6 +1308,13 @@
                             {#each ['React Native', 'Ethereum', 'Blockchain'] as tech}
                                 <span class="tech-button">{tech}</span>
                             {/each}
+                            <a href="https://github.com/yourusername/carbon-credits" 
+                               class="github-button" 
+                               target="_blank" 
+                               rel="noopener noreferrer">
+                                <Github size={12} />
+                                <span>GitHub</span>
+                            </a>
                         </div>
                     </div>
                 {:else if section.id === 'about'}
@@ -1558,13 +1565,19 @@
         padding: 1.25rem;
         backdrop-filter: blur(10px);
         width: 100%;
-        max-width: 1200px; /* Increased from 1000px */
+        max-width: 1400px; /* Increased from 1200px */
         height: 450px;
         margin: 0 auto;
         box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
         transition: all 0.3s ease;
         display: flex;
+        flex-direction: column; /* Added to ensure proper layout */
         gap: 0.75rem;
+    }
+
+    .project-content {
+        flex: 1; /* Take up remaining space */
+        overflow: hidden; /* Prevent content overflow */
     }
 
     .project-header {
@@ -1628,11 +1641,11 @@
 
     .tech-stack {
         display: flex;
-        flex-direction: column;
-        gap: 0.3rem; /* Reduced from 0.4rem */
-        padding-left: 0.4rem; /* Reduced from 0.5rem */
-        border-left: 1px solid rgba(255, 255, 255, 0.1);
-        min-width: fit-content;
+        flex-wrap: wrap;
+        gap: 0.3rem;
+        padding-top: 0.5rem;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        align-items: center;
     }
 
     .tech-button {
@@ -1664,24 +1677,9 @@
     /* Mobile optimizations */
     @media (max-width: 768px) {
         .project-card {
+            max-width: calc(100% - 2rem);
             height: auto;
-            max-width: calc(100% - 1.5rem); /* Slightly reduced margin */
-            margin: 0 0.75rem;
-            padding: 0.75rem; /* Reduced from 1rem */
-        }
-
-        .tech-stack {
-            flex-direction: row;
-            flex-wrap: wrap;
-            padding: 0.5rem 0 0; /* Reduced from 0.75rem */
-            margin: 0.5rem 0 0;
-            border-left: none;
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-            gap: 0.3rem; /* Reduced from 0.5rem */
-        }
-
-        .github-button {
-            margin-top: 0;
+            padding: 1rem;
         }
     }
 
