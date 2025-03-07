@@ -863,7 +863,7 @@
             previousSunX = currentSunX;
             
             if (enableCloudMovement) {
-                const baseTimeIncrement = 0.018;
+                const baseTimeIncrement = 0.036;
                 const timeIncrement = baseTimeIncrement + (sunMovementSpeed * speedMultiplier);
                 time += timeIncrement;
             }
