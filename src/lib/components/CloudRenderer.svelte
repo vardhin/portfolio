@@ -12,7 +12,6 @@
     import Link from 'lucide-svelte/icons/link';
     import Github from 'lucide-svelte/icons/github';
     import { Mail, Phone, Linkedin, Globe } from 'lucide-svelte';
-    import { inView } from 'svelte-inview';
   
     let container;
     let showIntro = true;
@@ -232,6 +231,11 @@
     let isNavigating = false;
     let navigationTimeout;
 
+    // Add these variables near the top with other state variables
+    let lastScrollY = 0;
+    let isScrolling = false;
+    let scrollTimeout;
+
     // Update the handleNavButtonPress function
     const handleNavButtonPress = (direction) => {
         if (isNavigating) return;
@@ -433,6 +437,60 @@
 
     const onTouchEnd = () => {
         isDragging = false;
+    };
+
+    // Add this function near other event handlers
+    const handleScroll = (event) => {
+        if (isNavigating) return;
+        
+        // Get the scroll direction and amount
+        const currentScrollY = window.scrollY;
+        const scrollDelta = currentScrollY - lastScrollY;
+        lastScrollY = currentScrollY;
+        
+        // Update target camera position based on scroll
+        if (scrollDelta > 0 && currentSection < MAX_SECTION) {
+            // Scrolling down
+            targetCameraY = Math.min(
+                MAX_SECTION * -5,
+                targetCameraY - (scrollDelta * 0.05)
+            );
+            
+            // Update section if we've scrolled far enough
+            const nextSection = Math.min(
+                MAX_SECTION,
+                Math.floor(Math.abs(targetCameraY) / 5)
+            );
+            if (nextSection !== currentSection) {
+                currentSection = nextSection;
+                sectionSpring.set({ y: currentSection * -100 });
+            }
+        } else if (scrollDelta < 0 && currentSection > MIN_SECTION) {
+            // Scrolling up
+            targetCameraY = Math.max(
+                MIN_SECTION * -5,
+                targetCameraY - (scrollDelta * 0.05)
+            );
+            
+            // Update section if we've scrolled far enough
+            const nextSection = Math.max(
+                MIN_SECTION,
+                Math.floor(Math.abs(targetCameraY) / 5)
+            );
+            if (nextSection !== currentSection) {
+                currentSection = nextSection;
+                sectionSpring.set({ y: currentSection * -100 });
+            }
+        }
+        
+        // Set scrolling flag and clear previous timeout
+        isScrolling = true;
+        clearTimeout(scrollTimeout);
+        
+        // Reset scrolling flag after a delay
+        scrollTimeout = setTimeout(() => {
+            isScrolling = false;
+        }, 150);
     };
 
     onMount(() => {
@@ -781,14 +839,16 @@
       
       // Add keyboard event listeners
       const handleKeyDown = (event) => {
+          if (isNavigating) return; // Prevent multiple navigations
+          
           switch(event.key.toLowerCase()) {
               case 'arrowup':
               case 'w':
-                  keyState.up = true;
+                  handleNavButtonPress('up');
                   break;
               case 'arrowdown':
               case 's':
-                  keyState.down = true;
+                  handleNavButtonPress('down');
                   break;
           }
       };
@@ -798,10 +858,12 @@
               case 'arrowup':
               case 'w':
                   keyState.up = false;
+                  handleNavButtonRelease('up');
                   break;
               case 'arrowdown':
               case 's':
                   keyState.down = false;
+                  handleNavButtonRelease('down');
                   break;
           }
       };
@@ -830,18 +892,11 @@
             // Calculate delta time
             let deltaTime = elapsed / 1000; // Convert to seconds
 
-            // Update section based on key state
-            if (keyState.up) {
-                targetCameraY += CAMERA_MOVEMENT_SPEED * deltaTime;
-            } else if (keyState.down) {
-                targetCameraY -= CAMERA_MOVEMENT_SPEED * deltaTime;
-            }
-
             // Smoothly interpolate camera position
             cameraPosition.y = THREE.MathUtils.lerp(
                 cameraPosition.y, 
                 targetCameraY, 
-                CAMERA_SMOOTHING
+                isScrolling ? CAMERA_SMOOTHING * 2 : CAMERA_SMOOTHING
             );
             
             // Update positions with smoothed camera position
@@ -849,7 +904,7 @@
             fogPlane.position.y = cameraPosition.y;
             thinFogPlane.position.y = cameraPosition.y;
             
-            // Update camera offset uniform in shader with smoothed position
+            // Update camera offset uniform in shader
             fogMaterial.uniforms.cameraOffset.value.set(0, cameraPosition.y);
             
             const currentSunX = fogMaterial.uniforms.sunPosition.value.x;
@@ -958,6 +1013,9 @@
       // Add mousemove event listener
       container.addEventListener('mousemove', updateMousePosition);
   
+      // Add scroll event listener
+      window.addEventListener('scroll', handleScroll, { passive: true });
+  
       // Cleanup
       return () => {
         cancelAnimationFrame(animationFrameId);
@@ -990,6 +1048,8 @@
         window.removeEventListener('keyup', handleKeyUp);
         container.removeEventListener('mousemove', updateMousePosition);
         clearTimeout(navigationTimeout);
+        window.removeEventListener('scroll', handleScroll);
+        clearTimeout(scrollTimeout);
       };
     });
   
@@ -1034,13 +1094,13 @@
     // Add new state variables
     let currentSection = 0;
     let sections = [
-        { id: 'intro', title: 'Surya Vardhin Gamidi', visible: false },
-        { id: 'decloud', title: 'Decloud', visible: false },
-        { id: 'recon', title: 'Recon', visible: false },
-        { id: 'yantra', title: 'Yantra', visible: false },
-        { id: 'carbon', title: 'Code4Change', visible: false },
-        { id: 'about', title: 'About', visible: false },
-        { id: 'contact', title: 'Contact', visible: false }
+        { id: 'intro', title: 'Surya Vardhin Gamidi' },
+        { id: 'decloud', title: 'Decloud' },
+        { id: 'recon', title: 'Recon' },
+        { id: 'yantra', title: 'Yantra' },
+        { id: 'carbon', title: 'Code4Change' },
+        { id: 'about', title: 'About' },
+        { id: 'contact', title: 'Contact' }
     ];
     
     // Create spring store for section transitions
@@ -1079,19 +1139,47 @@
         </button>
     </div>
 
+    <!-- Navigation controls -->
+    <div class="controls nav-controls">
+        <button 
+            class="control-button nav-button"
+            on:mousedown={() => handleNavButtonPress('up')}
+            on:mouseup={() => handleNavButtonRelease('up')}
+            on:mouseleave={() => handleNavButtonRelease('up')}
+            on:touchstart|preventDefault={() => handleNavButtonPress('up')}
+            on:touchend|preventDefault={() => handleNavButtonRelease('up')}
+            disabled={currentSection <= MIN_SECTION}
+        >
+            <svelte:component this={ChevronUp} size={20} />
+        </button>
+        <button 
+            class="control-button nav-button"
+            on:mousedown={() => handleNavButtonPress('down')}
+            on:mouseup={() => handleNavButtonRelease('down')}
+            on:mouseleave={() => handleNavButtonRelease('down')}
+            on:touchstart|preventDefault={() => handleNavButtonPress('down')}
+            on:touchend|preventDefault={() => handleNavButtonRelease('down')}
+            disabled={currentSection >= MAX_SECTION}
+        >
+            <svelte:component this={ChevronDown} size={20} />
+        </button>
+    </div>
+
     <div bind:this={container} 
-         class="canvas-container">
+         class="canvas-container" 
+         style="opacity: 0; 
+                transition: opacity 1s ease-in-out;
+                background: #000000;">
         <!-- Canvas will be added here by Three.js -->
     </div>
 
     <!-- Modified content overlay -->
-    <div class="content-overlay">
-        {#each sections as section}
+    <div class="content-overlay" 
+         style="transform: translateY({$sectionSpring.y}vh)">
+        {#each sections as section, i}
             <section 
-                class="portfolio-section"
-                use:inView={{ threshold: 0.3 }}
-                on:enter={() => section.visible = true}
-                class:visible={section.visible}
+                class="portfolio-section" 
+                class:active={currentSection === i}
             >
                 {#if section.id === 'intro' && showIntro}
                     <div class="intro-content" 
@@ -2618,49 +2706,6 @@
         .panel-header h3 {
             font-size: 1.2rem;
         }
-    }
-
-    /* Remove scroll-snap styles */
-    .content-overlay {
-        position: relative;
-        width: 100%;
-        z-index: 2;
-        overflow-y: auto;
-        height: 100vh;
-        /* Remove scroll-snap-type */
-    }
-
-    .portfolio-section {
-        height: 100vh;
-        width: 100%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 2rem;
-        pointer-events: none;
-        /* Remove scroll-snap-align */
-    }
-
-    /* Add smooth scrolling to html */
-    :global(html) {
-        scroll-behavior: smooth;
-    }
-
-    /* Update the navigation controls */
-    .nav-controls {
-        display: none; /* Hide the navigation buttons since we're using free scroll */
-    }
-
-    /* Add styles for smooth content transitions */
-    .portfolio-section {
-        opacity: 0;
-        transform: translateY(20px);
-        transition: opacity 0.5s ease, transform 0.5s ease;
-    }
-
-    .portfolio-section.visible {
-        opacity: 1;
-        transform: translateY(0);
     }
 </style>
 
