@@ -278,34 +278,6 @@
         }
     };
 
-    const onMouseDown = (event) => {
-        // Check if the click target is a control button or content overlay
-        if (event.target.closest('.controls') || event.target.closest('.content-overlay')) {
-            return; // Let the button or content handle the click event
-        }
-        
-        // Prevent default behavior immediately to avoid text selection
-        event.preventDefault();
-        
-        const rect = container.getBoundingClientRect();
-        normalizedMousePosition.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
-        normalizedMousePosition.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
-        
-        if (fogMaterial && fogMaterial.uniforms && fogMaterial.uniforms.sunPosition) {
-            const sunPos = fogMaterial.uniforms.sunPosition.value;
-            const distance = Math.sqrt(
-                Math.pow((normalizedMousePosition.x - sunPos.x), 2) + 
-                Math.pow((normalizedMousePosition.y - sunPos.y), 2)
-            );
-            
-            // Use much larger hit area
-            if (distance < SUN_HIT_RADIUS) {
-                isDragging = true;
-                console.log("Sun grabbed via mouse!");  // Debug log
-            }
-        }
-    };
-
     // Make sure the move handlers are properly checking isDragging
     const onMouseMove = (event) => {
         // Don't prevent default if interacting with controls or content
