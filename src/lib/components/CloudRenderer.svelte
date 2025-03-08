@@ -1205,7 +1205,7 @@
                                 </span>
                             {/each}
                         </h1>
-                        <p>Web Developer & Designer</p>
+                        <p>Computer Science Engineer specializing in Data Science</p>
                     </div>
                 {:else if section.id === 'decloud'}
                     <div class="project-section" in:fly="{{ y: 50, duration: 1000 }}" out:fade>
