@@ -248,6 +248,10 @@
     // Increase the sun hit area significantly
     const SUN_HIT_RADIUS = 1.0 //changed to 1.0 for much larger hit area (was 0.6)
 
+    // Add these variables near the top with other state variables
+    let targetSunPosition = { x: -0.6, y: -0.2 }; // Initial target position
+    const SUN_MOVEMENT_SPEED = 0.03; // Controls how quickly the sun moves to target position
+
     const onTouchStart = (event) => {
         // Check if the touch target is a control button or content overlay
         if (event.target.closest('.controls') || event.target.closest('.content-overlay')) {
@@ -260,22 +264,12 @@
         const touch = event.touches[0];
         const rect = container.getBoundingClientRect();
         
-        normalizedMousePosition.x = ((touch.clientX - rect.left) / rect.width) * 2 - 1;
-        normalizedMousePosition.y = -((touch.clientY - rect.top) / rect.height) * 2 + 1;
+        const touchX = ((touch.clientX - rect.left) / rect.width) * 2 - 1;
+        const touchY = -((touch.clientY - rect.top) / rect.height) * 2 + 1;
         
-        if (fogMaterial && fogMaterial.uniforms && fogMaterial.uniforms.sunPosition) {
-            const sunPos = fogMaterial.uniforms.sunPosition.value;
-            const distance = Math.sqrt(
-                Math.pow((normalizedMousePosition.x - sunPos.x), 2) + 
-                Math.pow((normalizedMousePosition.y - sunPos.y), 2)
-            );
-            
-            // Use much larger hit area
-            if (distance < SUN_HIT_RADIUS) {
-                isDragging = true;
-                console.log("Sun grabbed via touch!");  // Debug log
-            }
-        }
+        // Set the target position for the sun to move to
+        targetSunPosition = { x: touchX, y: touchY };
+        console.log("New sun target (touch):", targetSunPosition.x, targetSunPosition.y);
     };
 
     // Add the missing onTouchMove function
@@ -803,6 +797,39 @@
             sunGlowMaterial.uniforms.isNight.value = isNightTime;
 
             fogMaterial.uniforms.hour.value = hour;
+
+            // Smoothly move sun position toward target position
+            if (fogMaterial && fogMaterial.uniforms && fogMaterial.uniforms.sunPosition) {
+                const currentX = fogMaterial.uniforms.sunPosition.value.x;
+                const currentY = fogMaterial.uniforms.sunPosition.value.y;
+                
+                // Calculate new position with smooth interpolation
+                const newX = currentX + (targetSunPosition.x - currentX) * SUN_MOVEMENT_SPEED;
+                const newY = currentY + (targetSunPosition.y - currentY) * SUN_MOVEMENT_SPEED;
+                
+                // Update sun position
+                fogMaterial.uniforms.sunPosition.value.x = newX;
+                fogMaterial.uniforms.sunPosition.value.y = newY;
+                
+                // Update time display based on sun position
+                currentTime = getTimeFromX(newX);
+                
+                // Update sun and glow mesh positions
+                const aspect = container.clientWidth / container.clientHeight;
+                const sunX = newX * (frustumSize * aspect / 2);
+                const sunY = newY * (frustumSize / 2);
+                
+                sunMesh.position.set(
+                    sunX,
+                    sunY,
+                    -3 // Keep at -3 to stay in front
+                );
+                sunGlowMesh.position.set(
+                    sunX,
+                    sunY,
+                    -3.5 // Keep at -3.5 to stay behind the sun but in front of clouds
+                );
+            }
 
             // Render the scene
             renderer.render(scene, camera);
