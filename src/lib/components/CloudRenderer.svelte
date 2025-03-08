@@ -246,7 +246,7 @@
     let isDragging = false;
 
     // Increase the sun hit area significantly
-    const SUN_HIT_RADIUS = 0.45 //changed larger hit area (was 0.5)
+    const SUN_HIT_RADIUS = 0.6 //changed to 0.6 for larger hit area (was 0.5)
 
     const onTouchStart = (event) => {
         // Check if the touch target is a control button or content overlay
@@ -951,10 +951,12 @@
     // Define mouse event handlers
     const onMouseDown = (event) => {
         // Check if the click target is a control button or content overlay
-        if (event.target.closest('.controls') || event.target.closest('.content-overlay')) {
-            return; // Let the button or content handle the click event
-        }
-        
+        if (event.target.closest('.controls') || 
+        (event.target.closest('.content-overlay') && 
+         !event.target.closest('.content-overlay').classList.contains('portfolio-section'))) {
+        return; // Let the button or content handle the click event
+    }
+    
         // Prevent default behavior immediately to avoid text selection
         event.preventDefault();
         
@@ -1434,7 +1436,7 @@
         position: relative;
         width: 100%;
         z-index: 2;
-        pointer-events: all; /* Enable pointer events on the content */
+        pointer-events: none; /* Enable pointer events on the content */
     }
 
     .portfolio-section {
@@ -1444,7 +1446,7 @@
         align-items: center;
         justify-content: center;
         padding: 2rem;
-        pointer-events: all; /* Enable pointer events on sections */
+        pointer-events: auto; /* Enable pointer events on sections */
     }
 
     .portfolio-section.active {
