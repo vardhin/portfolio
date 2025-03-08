@@ -2027,6 +2027,39 @@
             overflow-y: auto;
         }
     }
+
+    /* Copyright watermark styles */
+    .copyright-watermark {
+        position: fixed;
+        bottom: 10px;
+        left: 0;
+        width: 100%;
+        text-align: center;
+        font-size: 0.8rem;
+        color: rgba(255, 255, 255, 0.5);
+        z-index: 1001;
+        pointer-events: none;
+        user-select: none;
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+        padding: 5px;
+    }
+
+    /* Responsive styles */
+    @media (max-width: 768px) {
+        /* ... existing responsive styles ... */
+        
+        .copyright-watermark {
+            font-size: 0.7rem;
+        }
+    }
+
+    @media (max-width: 480px) {
+        /* ... existing responsive styles ... */
+        
+        .copyright-watermark {
+            font-size: 0.6rem;
+        }
+    }
 </style>
 
 <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&display=swap" rel="stylesheet" crossorigin="anonymous">
