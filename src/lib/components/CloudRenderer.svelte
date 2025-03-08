@@ -22,7 +22,7 @@
     let sunCoordinates = { x: -0.6, y: -0.2 };  // Changed from -0.5, -0.3
   
     // Add new variables for time display
-    let currentTime = "00:00";  // Updated to match new position
+    let currentTime = "6:00 PM";  // Updated to match new position
     let skyColors = {
         nightDeep: new THREE.Color(0x0A1025),
         nightLight: new THREE.Color(0x1A2045),
@@ -37,12 +37,16 @@
   
     // Function to convert x position to time
     function getTimeFromX(x) {
-        // Map x from [-1, 1] to [0, 24]
-        const hours = ((x + 1) * 12);
-        const totalMinutes = Math.floor(hours * 60);
-        const h = Math.floor(totalMinutes / 60);
-        const m = totalMinutes % 60;
-        return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`;
+        // Convert x from [-1, 1] to [0, 24] hours
+        const hour = ((x + 1) * 12);
+        const hourInt = Math.floor(hour);
+        const minute = Math.floor((hour - hourInt) * 60);
+        
+        // Format as 12-hour time with AM/PM
+        const period = hourInt >= 12 ? "PM" : "AM";
+        const hour12 = hourInt % 12 === 0 ? 12 : hourInt % 12;
+        
+        return `${hour12}:${minute.toString().padStart(2, '0')} ${period}`;
     }
   
     // Function to get sky color based on time
@@ -938,6 +942,78 @@
     };
 
     startSequence();
+
+    // Define mouse event handlers
+    const onMouseDown = (event) => {
+        const rect = container.getBoundingClientRect();
+        normalizedMousePosition.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+        normalizedMousePosition.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+        
+        if (fogMaterial) {
+            const sunPos = fogMaterial.uniforms.sunPosition.value;
+            const distance = Math.sqrt(
+                Math.pow((normalizedMousePosition.x - sunPos.x), 2) + 
+                Math.pow((normalizedMousePosition.y - sunPos.y), 2)
+            );
+            
+            if (distance < 0.3) {
+                isDragging = true;
+            }
+        }
+    };
+    
+    const onMouseMove = (event) => {
+        if (!isDragging) return;
+        
+        const rect = container.getBoundingClientRect();
+        normalizedMousePosition.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+        normalizedMousePosition.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+        
+        if (fogMaterial) {
+            // Update sun position directly with normalized coordinates
+            const newX = THREE.MathUtils.clamp(normalizedMousePosition.x, -1, 1);
+            const newY = THREE.MathUtils.clamp(normalizedMousePosition.y, -1, 1);
+            
+            // Update sun position
+            fogMaterial.uniforms.sunPosition.value.set(newX, newY);
+            
+            // Update coordinates and time display
+            sunCoordinates = { x: newX, y: newY };
+            currentTime = getTimeFromX(newX);
+            
+            // Update sky color
+            scene.background = getSkyColor(newX);
+            
+            // Update isNightTime based on hour
+            const hour = ((newX + 1) * 12);
+            isNightTime = hour < 5 || hour > 19;
+        }
+    };
+    
+    const onMouseUp = () => {
+        isDragging = false;
+    };
+    
+    // Function to get time string from x coordinate
+    function getTimeFromX(x) {
+        // Convert x from [-1, 1] to [0, 24] hours
+        const hour = ((x + 1) * 12);
+        const hourInt = Math.floor(hour);
+        const minute = Math.floor((hour - hourInt) * 60);
+        
+        // Format as 12-hour time with AM/PM
+        const period = hourInt >= 12 ? "PM" : "AM";
+        const hour12 = hourInt % 12 === 0 ? 12 : hourInt % 12;
+        
+        return `${hour12}:${minute.toString().padStart(2, '0')} ${period}`;
+    }
+    
+    // Function to update mouse position for other effects
+    const updateMousePosition = (event) => {
+        const rect = container.getBoundingClientRect();
+        normalizedMousePosition.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+        normalizedMousePosition.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+    };
 </script>
   
   <div class="main-container">
