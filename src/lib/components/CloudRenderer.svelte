@@ -3,18 +3,13 @@
     import * as THREE from 'three';
     import { spring } from 'svelte/motion';
     import { fade, fly } from 'svelte/transition';
-    import Cloud from 'lucide-svelte/icons/cloud';
-    import CloudSun from 'lucide-svelte/icons/cloud-sun';
-    import Pause from 'lucide-svelte/icons/pause';
-    import Play from 'lucide-svelte/icons/play';
+    import { Cloud, CloudSun, Play, Pause, Mail, Phone, Linkedin, Github, Globe } from 'lucide-svelte';
     import ChevronUp from 'lucide-svelte/icons/chevron-up';
     import ChevronDown from 'lucide-svelte/icons/chevron-down';
     import Link from 'lucide-svelte/icons/link';
-    import Github from 'lucide-svelte/icons/github';
-    import { Mail, Phone, Linkedin, Globe } from 'lucide-svelte';
   
     let container;
-    let showIntro = true;
+    let showIntro = false;
   
     // Add weather state
     let weatherState = {
