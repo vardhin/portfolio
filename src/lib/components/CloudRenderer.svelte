@@ -1024,6 +1024,42 @@
         normalizedMousePosition.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
         normalizedMousePosition.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
     };
+
+    // Add these variables near the top with other state variables
+    let showDebugControls = false; // Set to true to show debug controls
+    
+    // Function to move sun in specific directions
+    function moveSun(direction) {
+        if (!fogMaterial || !fogMaterial.uniforms || !fogMaterial.uniforms.sunPosition) return;
+        
+        const step = 0.1; // Step size for movement
+        const currentX = fogMaterial.uniforms.sunPosition.value.x;
+        const currentY = fogMaterial.uniforms.sunPosition.value.y;
+        
+        let newX = currentX;
+        let newY = currentY;
+        
+        switch(direction) {
+            case 'up':
+                newY = Math.min(1, currentY + step);
+                break;
+            case 'down':
+                newY = Math.max(-1, currentY - step);
+                break;
+            case 'left':
+                newX = Math.max(-1, currentX - step);
+                break;
+            case 'right':
+                newX = Math.min(1, currentX + step);
+                break;
+            case 'reset':
+                newX = -0.6;
+                newY = -0.2;
+                break;
+        }
+        
+        updateSunPosition(newX, newY);
+    }
 </script>
   
 <div class="main-container">
@@ -1043,7 +1079,28 @@
         >
             <svelte:component this={enableCloudMovement ? Pause : Play} size={20} />
         </button>
+        <!-- Add debug toggle button -->
+        <button 
+            class="control-button" 
+            title="Toggle Debug Controls" 
+            on:click={() => showDebugControls = !showDebugControls}
+        >
+            D
+        </button>
     </div>
+
+    <!-- Add sun movement debug controls -->
+    {#if showDebugControls}
+        <div class="controls debug-controls">
+            <button class="control-button" on:click={() => moveSun('up')}>↑</button>
+            <div class="horizontal-controls">
+                <button class="control-button" on:click={() => moveSun('left')}>←</button>
+                <button class="control-button" on:click={() => moveSun('reset')}>R</button>
+                <button class="control-button" on:click={() => moveSun('right')}>→</button>
+            </div>
+            <button class="control-button" on:click={() => moveSun('down')}>↓</button>
+        </div>
+    {/if}
 
     <div bind:this={container} 
          class="canvas-container" 
@@ -2611,6 +2668,26 @@
         -webkit-user-select: none;
         -moz-user-select: none;
         -ms-user-select: none;
+    }
+
+    /* Add styles for debug controls */
+    .debug-controls {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 5px;
+        z-index: 1003;
+        background: rgba(0, 0, 0, 0.5);
+        padding: 10px;
+        border-radius: 10px;
+    }
+    
+    .horizontal-controls {
+        display: flex;
+        gap: 5px;
     }
 </style>
 
