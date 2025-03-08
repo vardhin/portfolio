@@ -246,7 +246,7 @@
     let isDragging = false;
 
     // Increase the sun hit area significantly
-    const SUN_HIT_RADIUS = 1.0;  // Much larger hit area (was 0.5)
+    const SUN_HIT_RADIUS = 0.1// Much larger hit area (was 0.5)
 
     const onTouchStart = (event) => {
         // Check if the touch target is a control button or content overlay
@@ -693,7 +693,7 @@
       let time = 0;
       let animationFrameId;
       let previousSunX = fogMaterial.uniforms.sunPosition.value.x;
-      const speedMultiplier = 1350.0;
+      const speedMultiplier = 2025.0;
       
       // Add lastTime variable at the top of onMount
       let lastTime;
