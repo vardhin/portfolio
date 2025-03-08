@@ -421,8 +421,8 @@
         -0.2 * (frustumSize / 2),
         -3.5 // Changed from -6 to -3.5 to bring it forward but behind the sun
       );
-      scene.add(sunGlowMesh);
       scene.add(sunMesh);
+      scene.add(sunGlowMesh);
   
       // Add thin fog layer
       const thinFogGeometry = new THREE.PlaneGeometry(
