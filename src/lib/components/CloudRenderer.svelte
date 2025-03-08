@@ -1391,6 +1391,7 @@
         margin: 0;
         padding: 0;
         background: #000000;
+        overflow-x: hidden;
     }
 
     .main-container {
@@ -1412,6 +1413,19 @@
         left: 20px;
     }
 
+    /* Debug controls positioning */
+    .debug-controls {
+        bottom: 20px;
+        right: 20px;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .horizontal-controls {
+        display: flex;
+        gap: 10px;
+    }
+
     .control-button {
         width: 40px;
         height: 40px;
@@ -1428,62 +1442,44 @@
         justify-content: center;
         -webkit-tap-highlight-color: transparent;
         z-index: 1002;
-        touch-action: manipulation; /* Optimize for touch */
-        user-select: none; /* Prevent text selection */
+        touch-action: manipulation;
+        user-select: none;
+    }
+
+    .control-button:hover {
+        background: rgba(255, 255, 255, 0.2);
+        transform: translateY(-2px);
     }
 
     .control-button:disabled {
         opacity: 0.5;
         cursor: not-allowed;
-        pointer-events: none; /* Prevent any interaction when disabled */
+        pointer-events: none;
     }
 
     .canvas-container {
         width: 100%;
         height: 100vh;
-        position: fixed; /* Keep canvas fixed */
+        position: fixed;
         top: 0;
         left: 0;
         opacity: 0;
         transition: opacity 1s ease-in-out;
         background: #000000;
         z-index: 1;
-        user-select: none; /* Prevent text selection */
-        -webkit-user-select: none; /* For Safari */
-        -moz-user-select: none; /* For Firefox */
-        -ms-user-select: none; /* For IE/Edge */
-        touch-action: none; /* Prevent default touch actions */
-    }
-
-    .fade-in {
-        opacity: 1;
-        visibility: visible;
-    }
-
-    /* Mobile optimizations */
-    @media (pointer: coarse) {
-        .control-button {
-            width: 48px;
-            height: 48px;
-            font-size: 20px;
-        }
-        
-        .top-left {
-            top: 24px;
-            left: 24px;
-            gap: 16px;
-        }
-
-        canvas {
-            touch-action: none;
-        }
+        user-select: none;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        touch-action: none;
     }
 
     .content-overlay {
-        position: relative;
+        position: absolute;
         width: 100%;
         z-index: 2;
-        pointer-events: none; /* Enable pointer events on the content */
+        pointer-events: none;
+        transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
     .portfolio-section {
@@ -1493,42 +1489,41 @@
         align-items: center;
         justify-content: center;
         padding: 2rem;
-        pointer-events: auto; /* Enable pointer events on sections */
+        pointer-events: auto;
     }
 
-    .portfolio-section.active {
-        opacity: 1;
-    }
-
+    /* Intro section styles */
     .intro-content {
         text-align: center;
         pointer-events: none;
+        max-width: 800px;
+        margin: 0 auto;
     }
 
     .intro-content h1 {
-        font-size: 3rem;
-        margin-bottom: 1rem;
-        font-weight: 300;  /* Made lighter */
-        letter-spacing: 0.05em;  /* Increased letter spacing */
-        text-shadow: 0 0 20px rgba(255, 255, 255, 0.3);  /* Added glow effect */
+        font-size: 3.5rem;
+        margin-bottom: 1.5rem;
+        font-weight: 300;
+        letter-spacing: 0.05em;
+        text-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
     }
 
     .intro-content h1 span {
         display: inline-block;
         opacity: 0;
-        animation: dreamyFadeIn 1.2s forwards cubic-bezier(0.4, 0, 0.2, 1);  /* Slower, smoother animation */
+        animation: dreamyFadeIn 1.2s forwards cubic-bezier(0.4, 0, 0.2, 1);
         filter: blur(0);
         transform-origin: bottom;
     }
 
     .intro-content p {
         font-size: 1.5rem;
-        font-weight: 200;  /* Made even lighter */
-        letter-spacing: 0.08em;  /* Increased letter spacing */
+        font-weight: 200;
+        letter-spacing: 0.08em;
         opacity: 0;
         animation: dreamyFadeIn 1.5s forwards cubic-bezier(0.4, 0, 0.2, 1);
-        animation-delay: 1.5s;  /* Increased delay */
-        text-shadow: 0 0 15px rgba(255, 255, 255, 0.2);  /* Added subtle glow */
+        animation-delay: 1.5s;
+        text-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
     }
 
     @keyframes dreamyFadeIn {
@@ -1548,270 +1543,250 @@
         }
     }
 
-    /* Add any missing animation styles */
-    :global(.fly-enter) {
-        opacity: 0;
-        transform: translateY(50px);
+    /* Project section styles */
+    .project-section {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
+        max-width: 1200px;
+        margin: 0 auto;
     }
 
-    :global(.fly-enter-active) {
-        opacity: 1;
-        transform: translateY(0);
-        transition: all 1000ms ease;
-    }
-
-    :global(.fade-out) {
-        opacity: 0;
-        transition: opacity 300ms ease;
-    }
-
-    /* Project card styles */
     .project-card {
-        background: rgba(255, 255, 255, 0.03);
-        border: 1px solid rgba(255, 255, 255, 0.08);
-        border-radius: 8px;
-        padding: 1rem;
+        background: rgba(20, 20, 30, 0.7);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 16px;
+        padding: 2rem;
         width: 100%;
         max-width: 800px;
-        margin: 0 auto;
-        position: relative; /* For positioning the tech stack */
-        display: flex;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+        backdrop-filter: blur(8px);
+        position: relative;
     }
 
     .project-content {
-        width: 100%;
-    }
-
-    .tech-stack {
-        position: absolute;
-        right: -120px; /* Position outside the card */
-        top: 0;
         display: flex;
         flex-direction: column;
-        gap: 0.35rem;
-        padding-left: 0.75rem;
-        border-left: 1px solid rgba(255, 255, 255, 0.06);
-        min-width: 120px;
-        height: 100%;
-    }
-
-    /* Mobile optimizations */
-    @media (max-width: 768px) {
-        .project-card {
-            max-width: calc(100% - 2rem);
-            padding: 0.75rem;
-            margin-bottom: 3rem; /* Space for tech stack below */
-        }
-
-        .tech-stack {
-            position: absolute;
-            right: 0;
-            top: 100%; /* Position below the card */
-            left: 0;
-            flex-direction: row;
-            flex-wrap: wrap;
-            padding: 0.75rem 0 0 0;
-            border-left: none;
-            border-top: 1px solid rgba(255, 255, 255, 0.06);
-            min-width: 0;
-            height: auto;
-        }
     }
 
     .project-header {
-        margin-bottom: 0.75rem;
+        margin-bottom: 1.5rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        padding-bottom: 1rem;
     }
 
-    .project-header h2 {
-        font-size: 0.8rem;
+    .project-header-text h2 {
+        font-size: 1rem;
         font-weight: 300;
         margin: 0;
-        letter-spacing: 0.02em;
+        letter-spacing: 0.05em;
         color: rgba(255, 255, 255, 0.7);
+        text-transform: uppercase;
     }
 
-    .project-header h3 {
-        font-size: 1.2rem;
-        font-weight: 400;
+    .project-header-text h3 {
+        font-size: 2rem;
+        font-weight: 500;
         margin: 0.25rem 0 0;
-        color: rgba(255, 255, 255, 0.9);
+        color: rgba(255, 255, 255, 0.95);
+    }
+
+    .project-details {
+        margin-bottom: 1.5rem;
     }
 
     .project-details h4 {
-        font-size: 0.7rem;
+        font-size: 1.1rem;
         font-weight: 500;
-        margin: 0.75rem 0 0.25rem;
-        color: rgba(255, 255, 255, 0.7);
+        margin: 1.5rem 0 0.75rem;
+        color: rgba(255, 255, 255, 0.9);
+    }
+
+    .project-details h4:first-child {
+        margin-top: 0;
     }
 
     .project-details p {
-        font-size: 0.7rem;
-        line-height: 1.4;
-        color: rgba(255, 255, 255, 0.6);
-        margin-bottom: 0.5rem;
+        font-size: 1rem;
+        line-height: 1.6;
+        color: rgba(255, 255, 255, 0.8);
+        margin-bottom: 1rem;
     }
 
     .project-details ul {
         list-style-type: none;
         padding: 0;
-        margin: 0 0 0.5rem;
+        margin: 0 0 1rem;
     }
 
     .project-details li {
         position: relative;
-        padding-left: 0.75rem;
-        margin-bottom: 0.25rem;
-        line-height: 1.3;
-        font-size: 0.7rem;
-        color: rgba(255, 255, 255, 0.6);
+        padding-left: 1.25rem;
+        margin-bottom: 0.75rem;
+        line-height: 1.5;
+        font-size: 1rem;
+        color: rgba(255, 255, 255, 0.8);
     }
 
     .project-details li::before {
         content: "•";
         position: absolute;
         left: 0;
-        color: rgba(255, 255, 255, 0.4);
+        color: rgba(255, 255, 255, 0.6);
+    }
+
+    .tech-stack {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+        margin-top: 1.5rem;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        padding-top: 1.5rem;
     }
 
     .tech-button {
-        font-size: 0.6rem;
-        padding: 0.2rem 0.4rem;
-        background: rgba(255, 255, 255, 0.04);
-        border: 1px solid rgba(255, 255, 255, 0.08);
-        border-radius: 4px;
-        color: rgba(255, 255, 255, 0.6);
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 20px;
+        padding: 0.5rem 1rem;
+        color: white;
+        font-size: 0.9rem;
         transition: all 0.2s ease;
     }
 
     .tech-button:hover {
-        background: rgba(255, 255, 255, 0.08);
-        color: rgba(255, 255, 255, 0.8);
+        background: rgba(255, 255, 255, 0.2);
+        transform: translateY(-2px);
     }
 
-    /* Mobile optimizations */
-    @media (max-width: 768px) {
-        .project-card {
-            max-width: calc(100% - 2rem);
-            padding: 0.75rem;
-        }
-
-        .project-header h2 {
-            font-size: 0.7rem;
-        }
-
-        .project-header h3 {
-            font-size: 1rem;
-        }
-
-        .project-details h4,
-        .project-details p,
-        .project-details li {
-            font-size: 0.65rem;
-        }
-
-        .tech-button {
-            font-size: 0.55rem;
-            padding: 0.15rem 0.35rem;
-        }
-    }
-
-    .github-button {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.4rem;
-        background: rgba(255, 255, 255, 0.08);
-        border: 1px solid rgba(255, 255, 255, 0.15);
-        border-radius: 8px;
-        padding: 0.35rem 0.6rem;
-        color: rgba(255, 255, 255, 0.9);
-        font-size: 0.7rem;
-        text-decoration: none;
-        transition: all 0.2s ease;
-        margin-top: 0;
-        white-space: nowrap;
-    }
-
-    .github-button:hover {
-        background: rgba(255, 255, 255, 0.12);
-        transform: translateY(-1px);
-    }
-
-    /* About section */
-    .about-details {
+    /* About section styles */
+    .about-content {
         max-width: 800px;
-        margin: 0 auto;
+        width: 100%;
+        padding: 2rem;
+        background: rgba(20, 20, 30, 0.7);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 16px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+        backdrop-filter: blur(8px);
     }
 
-    .about-content p {
+    .about-content h2 {
+        font-size: 2.5rem;
+        font-weight: 300;
+        margin-bottom: 1.5rem;
+        text-align: center;
+        letter-spacing: 0.05em;
+    }
+
+    .about-details {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+
+    .about-panel {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 12px;
+        padding: 1.5rem;
+    }
+
+    .primary-panel p {
         font-size: 1.1rem;
         line-height: 1.6;
-        margin-bottom: 2rem;
-        color: rgba(255, 255, 255, 0.9);
+        margin: 0;
     }
 
-    .skills-section, .achievements-section {
-        margin-bottom: 2rem;
-    }
-
-    .skills-section h3, .achievements-section h3 {
-        font-size: 1.5rem;
-        font-weight: 400;
+    .panel-header {
         margin-bottom: 1rem;
-        color: rgba(255, 255, 255, 0.95);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        padding-bottom: 0.5rem;
+    }
+
+    .panel-header h3 {
+        font-size: 1.3rem;
+        font-weight: 400;
+        margin: 0;
     }
 
     .skills-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-        gap: 1.5rem;
-        margin-top: 1rem;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
     }
 
-    .skill-category h4 {
-        font-size: 1.1rem;
+    .skill-panel {
+        background: rgba(255, 255, 255, 0.03);
+        border-radius: 8px;
+        padding: 1rem;
+    }
+
+    .skill-panel h4 {
+        font-size: 1rem;
         font-weight: 500;
-        margin-bottom: 0.5rem;
+        margin: 0 0 0.5rem;
         color: rgba(255, 255, 255, 0.9);
     }
 
-    .skill-category p {
-        font-size: 0.95rem;
+    .skill-panel p {
+        font-size: 0.9rem;
         line-height: 1.5;
-        color: rgba(255, 255, 255, 0.8);
+        margin: 0;
+        color: rgba(255, 255, 255, 0.7);
     }
 
-    .achievements-section ul {
-        list-style: none;
+    .achievements-panel ul {
+        list-style-type: none;
         padding: 0;
+        margin: 0;
     }
 
-    .achievements-section li {
-        font-size: 1rem;
-        line-height: 1.6;
-        margin-bottom: 0.5rem;
-        padding-left: 1.5rem;
+    .achievements-panel li {
         position: relative;
+        padding-left: 1.25rem;
+        margin-bottom: 0.75rem;
+        line-height: 1.5;
+        font-size: 1rem;
         color: rgba(255, 255, 255, 0.8);
     }
 
-    .achievements-section li::before {
+    .achievements-panel li::before {
         content: "•";
         position: absolute;
-        left: 0.5rem;
+        left: 0;
         color: rgba(255, 255, 255, 0.6);
     }
 
-    /* Contact section */
-    .contact-details {
+    .achievements-panel li:last-child {
+        margin-bottom: 0;
+    }
+
+    /* Contact section styles */
+    .contact-content {
         max-width: 600px;
-        margin: 0 auto;
+        width: 100%;
+        padding: 2rem;
+        background: rgba(20, 20, 30, 0.7);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 16px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+        backdrop-filter: blur(8px);
+    }
+
+    .contact-content h2 {
+        font-size: 2.5rem;
+        font-weight: 300;
+        margin-bottom: 1.5rem;
+        text-align: center;
+        letter-spacing: 0.05em;
     }
 
     .contact-links {
         display: flex;
         flex-direction: column;
-        gap: 1.25rem;
-        margin-top: 2rem;
+        gap: 1rem;
     }
 
     .contact-link {
@@ -1821,8 +1796,8 @@
         font-size: 1.1rem;
         color: rgba(255, 255, 255, 0.9);
         text-decoration: none;
-        padding: 0.75rem;
-        border-radius: 8px;
+        padding: 1rem;
+        border-radius: 12px;
         background: rgba(255, 255, 255, 0.05);
         border: 1px solid rgba(255, 255, 255, 0.1);
         transition: all 0.3s ease;
@@ -1833,891 +1808,98 @@
         transform: translateX(5px);
     }
 
-    /* Mobile responsiveness */
+    /* Responsive styles */
     @media (max-width: 768px) {
-        .about-content p {
-            font-size: 1rem;
-        }
-
-        .skills-section h3, .achievements-section h3 {
-            font-size: 1.25rem;
-        }
-
-        .skill-category h4 {
-            font-size: 1rem;
-        }
-
-        .skill-category p {
-            font-size: 0.9rem;
-        }
-
-        .contact-link {
-            font-size: 0.95rem;
-        }
-    }
-
-    /* Typography helper classes */
-    .text-light {
-        font-weight: 300;
-    }
-
-    .text-regular {
-        font-weight: 400;
-    }
-
-    .text-medium {
-        font-weight: 400;
-    }
-
-    .text-semibold {
-        font-weight: 500;
-    }
-
-    .text-bold {
-        font-weight: 600;
-    }
-
-    /* Text size helpers */
-    .text-sm {
-        font-size: 0.875rem;
-    }
-
-    .text-base {
-        font-size: 1rem;
-    }
-
-    .text-lg {
-        font-size: 1.125rem;
-    }
-
-    .text-xl {
-        font-size: 1.25rem;
-    }
-
-    .text-2xl {
-        font-size: 1.5rem;
-    }
-
-    .text-3xl {
-        font-size: 2rem;
-    }
-
-    /* Line height helpers */
-    .leading-tight {
-        line-height: 1.25;
-    }
-
-    .leading-normal {
-        line-height: 1.5;
-    }
-
-    .leading-relaxed {
-        line-height: 1.7;
-    }
-
-    /* Add these media queries at the end of your style section */
-
-    @media screen and (max-width: 768px) {
-        /* Intro content mobile adjustments */
         .intro-content h1 {
-            font-size: 2rem; /* Reduced from 3rem */
+            font-size: 2.5rem;
         }
 
         .intro-content p {
-            font-size: 1.125rem; /* Reduced from 1.5rem */
+            font-size: 1.2rem;
         }
 
-        /* Project content mobile adjustments */
-        .project-content h3 {
-            font-size: 1.25rem; /* Reduced from 1.5rem */
+        .project-card, .about-content, .contact-content {
+            padding: 1.5rem;
         }
 
-        .project-description {
-            font-size: 0.875rem; /* Reduced from 1rem */
-        }
-
-        .tech-tag {
-            font-size: 0.75rem; /* Reduced from 0.875rem */
-        }
-
-        .project-link {
-            font-size: 0.75rem; /* Reduced from 0.875rem */
-        }
-
-        /* About section mobile adjustments */
-        .about-content h2 {
-            font-size: 1.875rem; /* Reduced from 2.5rem */
-        }
-
-        .about-content p {
-            font-size: 1rem; /* Reduced from 1.125rem */
-        }
-
-        /* Contact section mobile adjustments */
-        .contact-content h2 {
-            font-size: 1.875rem; /* Reduced from 2.5rem */
-        }
-
-        /* Text size helper classes mobile adjustments */
-        .text-sm {
-            font-size: 0.75rem;
-        }
-
-        .text-base {
-            font-size: 0.875rem;
-        }
-
-        .text-lg {
-            font-size: 1rem;
-        }
-
-        .text-xl {
-            font-size: 1.125rem;
-        }
-
-        .text-2xl {
-            font-size: 1.25rem;
-        }
-
-        .text-3xl {
+        .project-header-text h3 {
             font-size: 1.5rem;
-        }
-    }
-
-    /* Additional adjustments for very small screens */
-    @media screen and (max-width: 480px) {
-        .intro-content h1 {
-            font-size: 1.75rem;
-        }
-
-        .intro-content p {
-            font-size: 1rem;
-        }
-
-        /* Adjust section padding for smaller screens */
-        .portfolio-section {
-            padding: 1rem;
-        }
-    }
-
-    /* Landscape orientation adjustments */
-    @media screen and (max-height: 480px) and (orientation: landscape) {
-        .intro-content h1 {
-            font-size: 1.5rem;
-            margin-bottom: 0.5rem;
-        }
-
-        .intro-content p {
-            font-size: 0.875rem;
-        }
-
-        .portfolio-section {
-            padding: 0.75rem;
-        }
-    }
-
-    /* Add to your existing style section */
-    .projects-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-        gap: 2rem;
-        width: 100%;
-        max-width: 1200px;
-        margin: 0 auto;
-        padding: 2rem;
-        pointer-events: auto;
-    }
-
-    .project-card {
-        background: rgba(255, 255, 255, 0.05);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        border-radius: 16px;
-        padding: 1.75rem;
-        width: 100%;
-        max-width: 700px;
-        margin: 0 auto;
-        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-        transition: all 0.3s ease;
-    }
-
-    .project-header {
-        margin-bottom: 1.5rem;
-        text-align: left;  /* Changed from center */
-    }
-
-    .project-header h2 {
-        font-size: 2rem;
-        font-weight: 300;
-        margin: 0;
-        letter-spacing: 0.02em;
-    }
-
-    .project-header h3 {
-        font-size: 1.25rem;
-        font-weight: 400;
-        margin: 0.25rem 0 0;
-        color: rgba(255, 255, 255, 0.8);
-    }
-
-    .tech-stack {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 0.5rem;
-        margin-bottom: 1.5rem;
-        justify-content: flex-start;  /* Changed from center */
-    }
-
-    .tech-button {
-        background: rgba(255, 255, 255, 0.08);
-        border: 1px solid rgba(255, 255, 255, 0.15);
-        border-radius: 12px;
-        padding: 0.35rem 0.75rem;
-        color: rgba(255, 255, 255, 0.9);
-        font-size: 0.85rem;
-        cursor: pointer;
-        transition: all 0.2s ease;
-    }
-
-    .project-details {
-        margin-bottom: 1.5rem;
-    }
-
-    .project-details h4 {
-        font-size: 1.1rem;
-        font-weight: 500;
-        margin: 1.25rem 0 0.75rem;
-        color: rgba(255, 255, 255, 0.9);
-    }
-
-    .project-details h4:first-child {
-        margin-top: 0;
-    }
-
-    .project-details p {
-        font-size: 0.95rem;
-        line-height: 1.6;
-        color: rgba(255, 255, 255, 0.8);
-        margin-bottom: 0.75rem;
-    }
-
-    .project-details ul {
-        list-style-type: none;
-        padding: 0;
-        margin: 0 0 0.75rem;
-    }
-
-    .project-details li {
-        position: relative;
-        padding-left: 1.25rem;
-        margin-bottom: 0.4rem;
-        line-height: 1.5;
-        font-size: 0.95rem;
-        color: rgba(255, 255, 255, 0.8);
-    }
-
-    .project-details li::before {
-        content: "•";
-        position: absolute;
-        left: 0;
-        color: rgba(255, 255, 255, 0.6);
-    }
-
-    .project-links {
-        display: flex;
-        justify-content: flex-start;  /* Changed from center */
-        margin-top: 1.5rem;
-    }
-
-    .github-button {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.4rem;
-        background: rgba(255, 255, 255, 0.08);
-        border: 1px solid rgba(255, 255, 255, 0.15);
-        border-radius: 8px;
-        padding: 0.35rem 0.6rem;
-        color: rgba(255, 255, 255, 0.9);
-        font-size: 0.7rem;
-        text-decoration: none;
-        transition: all 0.2s ease;
-        margin-top: 0;
-        white-space: nowrap;
-    }
-
-    .github-button:hover {
-        background: rgba(255, 255, 255, 0.12);
-        transform: translateY(-1px);
-    }
-
-    /* Mobile responsiveness */
-    @media (max-width: 768px) {
-        .project-card {
-            padding: 1.25rem;
-            border-radius: 14px;
-        }
-
-        .project-header h2 {
-            font-size: 1.75rem;
-        }
-
-        .project-header h3 {
-            font-size: 1.1rem;
-        }
-
-        .tech-button {
-            font-size: 0.8rem;
-            padding: 0.3rem 0.6rem;
         }
 
         .project-details h4 {
             font-size: 1rem;
         }
 
-        .project-details p,
-        .project-details li {
+        .project-details p, .project-details li {
             font-size: 0.9rem;
-        }
-    }
-
-    /* Updated and optimized styles */
-    .projects-container {
-        width: 100%;
-        max-width: 1400px;
-        margin: 0 auto;
-        padding: 2rem;
-    }
-
-    .project-section {
-        opacity: 0;
-        animation: fadeIn 0.5s ease forwards;
-    }
-
-    .project-card {
-        background: rgba(255, 255, 255, 0.05);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        border-radius: 12px;
-        padding: 1.5rem;
-        transition: all 0.3s ease;
-        height: 100%;
-    }
-
-    .project-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
-        background: rgba(255, 255, 255, 0.08);
-    }
-
-    .project-content {
-        display: flex;
-        flex-direction: column;
-        height: 100%;
-    }
-
-    .project-content h3 {
-        margin: 0 0 1rem;
-        font-size: 1.5rem;
-        font-weight: 500;
-        line-height: 1.4;
-    }
-
-    .tech-stack {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 0.5rem;
-        margin-bottom: 1rem;
-    }
-
-    .tech-tag {
-        background: rgba(255, 255, 255, 0.1);
-        padding: 0.25rem 0.75rem;
-        border-radius: 1rem;
-        font-size: 0.75rem;
-        transition: background 0.2s ease;
-    }
-
-    .tech-tag:hover {
-        background: rgba(255, 255, 255, 0.15);
-    }
-
-    .project-description {
-        flex: 1;
-        margin: 0 0 1rem;
-        line-height: 1.6;
-        font-size: 0.95rem;
-    }
-
-    .project-links {
-        margin-top: auto;
-    }
-
-    .project-link {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.5rem;
-        text-decoration: none;
-        color: white;
-        opacity: 0.8;
-        transition: opacity 0.2s ease;
-        font-size: 0.9rem;
-    }
-
-    .project-link:hover {
-        opacity: 1;
-    }
-
-    @keyframes fadeIn {
-        from { opacity: 0; transform: translateY(20px); }
-        to { opacity: 1; transform: translateY(0); }
-    }
-
-    .projects-container {
-        width: 100%;
-        max-width: 1200px;
-        margin: 0 auto;
-        padding: 2rem;
-        height: 100vh;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-
-    .project-card {
-        background: rgba(255, 255, 255, 0.05);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        border-radius: 20px;
-        padding: 2.5rem;
-        width: 100%;
-        max-width: 800px;
-        margin: 0 auto;
-        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-        transition: all 0.3s ease;
-    }
-
-    .project-header {
-        margin-bottom: 2rem;
-        text-align: center;
-    }
-
-    .project-header h2 {
-        font-size: 2.5rem;
-        font-weight: 300;
-        margin: 0;
-        letter-spacing: 0.05em;
-    }
-
-    .project-header h3 {
-        font-size: 1.5rem;
-        font-weight: 400;
-        margin: 0.5rem 0 0;
-        color: rgba(255, 255, 255, 0.8);
-    }
-
-    .tech-stack {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 0.75rem;
-        margin-bottom: 2rem;
-        justify-content: center;
-    }
-
-    .tech-button {
-        background: rgba(255, 255, 255, 0.1);
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        border-radius: 20px;
-        padding: 0.5rem 1rem;
-        color: white;
-        font-size: 0.9rem;
-        cursor: pointer;
-        transition: all 0.2s ease;
-    }
-
-    .tech-button:hover {
-        background: rgba(255, 255, 255, 0.2);
-        transform: translateY(-2px);
-    }
-
-    .project-details {
-        margin-bottom: 2rem;
-    }
-
-    .project-details h4 {
-        font-size: 1.2rem;
-        font-weight: 500;
-        margin: 1.5rem 0 1rem;
-        color: rgba(255, 255, 255, 0.9);
-    }
-
-    .project-details p {
-        font-size: 1rem;
-        line-height: 1.6;
-        color: rgba(255, 255, 255, 0.8);
-        margin-bottom: 1rem;
-    }
-
-    .project-details ul {
-        list-style-type: none;
-        padding: 0;
-        margin: 0 0 1rem;
-    }
-
-    .project-details li {
-        position: relative;
-        padding-left: 1.5rem;
-        margin-bottom: 0.5rem;
-        line-height: 1.6;
-        color: rgba(255, 255, 255, 0.8);
-    }
-
-    .project-details li::before {
-        content: "•";
-        position: absolute;
-        left: 0;
-        color: rgba(255, 255, 255, 0.6);
-    }
-
-    .project-links {
-        display: flex;
-        justify-content: center;
-        margin-top: 2rem;
-    }
-
-    .github-button {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.4rem;
-        background: rgba(255, 255, 255, 0.08);
-        border: 1px solid rgba(255, 255, 255, 0.15);
-        border-radius: 8px;
-        padding: 0.35rem 0.6rem;
-        color: rgba(255, 255, 255, 0.9);
-        font-size: 0.7rem;
-        text-decoration: none;
-        transition: all 0.2s ease;
-        margin-top: 0;
-        white-space: nowrap;
-    }
-
-    .github-button:hover {
-        background: rgba(255, 255, 255, 0.12);
-        transform: translateY(-1px);
-    }
-
-    @media (max-width: 768px) {
-        .projects-container {
-            padding: 1rem;
-        }
-
-        .project-card {
-            padding: 1.5rem;
-        }
-
-        .project-header h2 {
-            font-size: 2rem;
-        }
-
-        .project-header h3 {
-            font-size: 1.25rem;
-        }
-
-        .tech-stack {
-            gap: 0.5rem;
         }
 
         .tech-button {
             font-size: 0.8rem;
             padding: 0.4rem 0.8rem;
         }
-    }
 
-    .project-details-container {
-        display: flex;
-        gap: 1.5rem;
-        flex: 1;
-        min-height: 0; /* Important for proper scrolling */
-    }
-
-    .project-details {
-        flex: 1;
-        overflow-y: auto;
-        padding-right: 1rem;
-    }
-
-    .tech-stack {
-        width: 120px; /* Fixed width for tech stack */
-        display: flex;
-        flex-direction: column;
-        gap: 0.3rem;
-        padding-top: 0;
-        border-top: none;
-        border-left: 1px solid rgba(255, 255, 255, 0.1);
-        padding-left: 1rem;
-    }
-
-    .tech-button {
-        font-size: 0.6rem;
-        padding: 0.15rem 0.35rem;
-        text-align: center;
-        width: 100%;
-        white-space: nowrap;
-    }
-
-    /* Remove all github-button related styles */
-
-    /* Mobile responsiveness */
-    @media (max-width: 768px) {
-        .project-details-container {
-            flex-direction: column;
-        }
-
-        .tech-stack {
-            width: 100%;
-            flex-direction: row;
-            flex-wrap: wrap;
-            border-left: none;
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-            padding-left: 0;
-            padding-top: 0.5rem;
-            margin-top: 0.5rem;
-        }
-
-        .tech-button {
-            width: auto;
-        }
-    }
-
-    /* Update these styles */
-    .project-section {
-        display: flex;
-        gap: 1.5rem;
-        width: 100%;
-        max-width: 1400px;
-        margin: 0 auto;
-        pointer-events: auto;
-    }
-
-    .project-card {
-        flex: 1;
-        background: rgba(255, 255, 255, 0.05);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        border-radius: 12px;
-        padding: 1.25rem;
-    }
-
-    .tech-stack {
-        width: 120px;
-        display: flex;
-        flex-direction: column;
-        gap: 0.3rem;
-        padding: 1rem;
-        background: rgba(255, 255, 255, 0.03);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        border-radius: 12px;
-        height: fit-content;
-    }
-
-    .tech-button {
-        font-size: 0.6rem;
-        padding: 0.15rem 0.35rem;
-        text-align: center;
-        background: rgba(255, 255, 255, 0.08);
-        border: 1px solid rgba(255, 255, 255, 0.15);
-        border-radius: 6px;
-        white-space: nowrap;
-    }
-
-    /* Mobile responsiveness */
-    @media (max-width: 768px) {
-        .project-section {
-            flex-direction: column;
-            padding: 1rem;
-        }
-
-        .tech-stack {
-            width: 100%;
-            flex-direction: row;
-            flex-wrap: wrap;
-            margin-top: 0.5rem;
-        }
-
-        .tech-button {
-            width: auto;
-        }
-    }
-
-    /* Updated About section styles with panels */
-    .about-panel {
-        background: rgba(255, 255, 255, 0.03);
-        border: 1px solid rgba(255, 255, 255, 0.08);
-        border-radius: 12px;
-        padding: 1.5rem;
-        margin-bottom: 1.5rem;
-        transition: all 0.3s ease;
-    }
-
-    .about-panel:hover {
-        background: rgba(255, 255, 255, 0.05);
-        transform: translateY(-2px);
-    }
-
-    .primary-panel {
-        border-left: 3px solid rgba(255, 255, 255, 0.2);
-    }
-
-    .skills-panel {
-        border-left: 3px solid rgba(255, 255, 255, 0.15);
-    }
-
-    .achievements-panel {
-        border-left: 3px solid rgba(255, 255, 255, 0.1);
-    }
-
-    .panel-header {
-        margin-bottom: 1rem;
-    }
-
-    .panel-header h3 {
-        font-size: 1.3rem;
-        font-weight: 400;
-        margin: 0;
-        color: rgba(255, 255, 255, 0.95);
-    }
-
-    .skill-panel {
-        background: rgba(255, 255, 255, 0.02);
-        border: 1px solid rgba(255, 255, 255, 0.06);
-        border-radius: 8px;
-        padding: 1rem;
-        transition: all 0.3s ease;
-    }
-
-    .skill-panel:hover {
-        background: rgba(255, 255, 255, 0.04);
-        transform: translateX(2px);
-    }
-
-    .skills-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: 1rem;
-    }
-
-    /* Update existing about section styles */
-    .about-content {
-        max-width: 900px;
-        margin: 0 auto;
-        padding: 0 1.5rem;
-    }
-
-    .about-content h2 {
-        font-size: 2rem;
-        font-weight: 300;
-        margin-bottom: 2rem;
-        text-align: center;
-        color: rgba(255, 255, 255, 0.95);
-    }
-
-    .about-details {
-        display: flex;
-        flex-direction: column;
-        gap: 1.5rem;
-    }
-
-    /* Mobile responsiveness for panels */
-    @media (max-width: 768px) {
-        .about-panel {
-            padding: 1.25rem;
+        .about-content h2, .contact-content h2 {
+            font-size: 2rem;
         }
 
         .skills-grid {
             grid-template-columns: 1fr;
         }
 
-        .skill-panel {
-            padding: 0.875rem;
-        }
-
-        .panel-header h3 {
-            font-size: 1.2rem;
+        .contact-link {
+            font-size: 0.9rem;
+            padding: 0.75rem;
         }
     }
 
-    /* Remove these scroll-snap properties from content-overlay */
-    .content-overlay {
-        position: relative;
-        width: 100%;
-        z-index: 2;
-        pointer-events: all; /* Enable pointer events on the content */
+    @media (max-width: 480px) {
+        .portfolio-section {
+            padding: 1rem;
+        }
+
+        .intro-content h1 {
+            font-size: 2rem;
+        }
+
+        .intro-content p {
+            font-size: 1rem;
+        }
+
+        .project-card, .about-content, .contact-content {
+            padding: 1.25rem;
+        }
+
+        .project-header-text h3 {
+            font-size: 1.3rem;
+        }
+
+        .about-content h2, .contact-content h2 {
+            font-size: 1.75rem;
+        }
     }
 
-    /* Update portfolio-section to use window height without scroll-snap */
-    .portfolio-section {
-        height: 100vh;
-        width: 100%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 2rem;
-        pointer-events: all; /* Enable pointer events on sections */
-    }
+    /* Landscape orientation adjustments */
+    @media (max-height: 480px) and (orientation: landscape) {
+        .portfolio-section {
+            padding: 1rem;
+            align-items: flex-start;
+            overflow-y: auto;
+        }
 
-    /* Add smooth scrolling to the html element */
-    :global(html) {
-        scroll-behavior: smooth;
-    }
+        .intro-content h1 {
+            font-size: 1.75rem;
+            margin-bottom: 0.5rem;
+        }
 
-    /* Hide scrollbar but keep functionality */
-    :global(::-webkit-scrollbar) {
-        display: none;
-    }
+        .intro-content p {
+            font-size: 0.9rem;
+        }
 
-    :global(body) {
-        -ms-overflow-style: none;  /* IE and Edge */
-        scrollbar-width: none;  /* Firefox */
-    }
-
-    .canvas-container {
-        width: 100%;
-        height: 100vh;
-        position: fixed; /* Keep canvas fixed */
-        top: 0;
-        left: 0;
-        opacity: 0;
-        transition: opacity 1s ease-in-out;
-        background: #000000;
-        z-index: 1;
-        user-select: none; /* Prevent text selection */
-        -webkit-user-select: none; /* For Safari */
-        -moz-user-select: none; /* For Firefox */
-        -ms-user-select: none; /* For IE/Edge */
-        touch-action: none; /* Prevent default touch actions */
-    }
-
-    /* Add this to ensure text can't be selected */
-    .intro-content, .project-section, .about-content, .contact-content {
-        user-select: none;
-        -webkit-user-select: none;
-        -moz-user-select: none;
-        -ms-user-select: none;
-    }
-
-    /* Add styles for debug controls */
-    .debug-controls {
-        position: fixed;
-        bottom: 20px;
-        right: 20px;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 5px;
-        z-index: 1003;
-        background: rgba(0, 0, 0, 0.5);
-        padding: 10px;
-        border-radius: 10px;
-    }
-    
-    .horizontal-controls {
-        display: flex;
-        gap: 5px;
+        .project-card, .about-content, .contact-content {
+            max-height: 80vh;
+            overflow-y: auto;
+        }
     }
 </style>
 
