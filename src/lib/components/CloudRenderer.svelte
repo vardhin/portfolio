@@ -1580,39 +1580,47 @@
         width: 100%;
         max-width: 800px;
         margin: 0 auto;
-        display: flex;  /* Added to create side-by-side layout */
-        gap: 1rem;      /* Space between content and tech stack */
-        transition: all 0.3s ease;
+        position: relative; /* For positioning the tech stack */
+        display: flex;
     }
 
     .project-content {
-        flex: 1;        /* Takes up remaining space */
+        width: 100%;
     }
 
     .tech-stack {
+        position: absolute;
+        right: -120px; /* Position outside the card */
+        top: 0;
         display: flex;
-        flex-direction: column;  /* Stack tech buttons vertically */
+        flex-direction: column;
         gap: 0.35rem;
         padding-left: 0.75rem;
-        border-left: 1px solid rgba(255, 255, 255, 0.06);  /* Vertical divider */
-        min-width: 120px;       /* Minimum width for tech stack */
+        border-left: 1px solid rgba(255, 255, 255, 0.06);
+        min-width: 120px;
+        height: 100%;
     }
 
     /* Mobile optimizations */
     @media (max-width: 768px) {
         .project-card {
-            flex-direction: column;  /* Stack vertically on mobile */
             max-width: calc(100% - 2rem);
             padding: 0.75rem;
+            margin-bottom: 3rem; /* Space for tech stack below */
         }
 
         .tech-stack {
-            flex-direction: row;    /* Horizontal layout on mobile */
+            position: absolute;
+            right: 0;
+            top: 100%; /* Position below the card */
+            left: 0;
+            flex-direction: row;
             flex-wrap: wrap;
-            padding-left: 0;
-            padding-top: 0.75rem;
+            padding: 0.75rem 0 0 0;
             border-left: none;
             border-top: 1px solid rgba(255, 255, 255, 0.06);
+            min-width: 0;
+            height: auto;
         }
     }
 
