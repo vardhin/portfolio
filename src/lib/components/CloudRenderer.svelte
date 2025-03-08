@@ -305,55 +305,6 @@
             }
         }
     };
-
-    // Add these debug logs to verify event listeners are attached
-    onMount(() => {
-        // ... existing onMount code ...
-        
-        // Add these debug logs to verify event listeners are attached
-        console.log("Adding event listeners for sun dragging");
-        
-        // Add touch event listeners with proper options
-        container.addEventListener('mousedown', onMouseDown, { passive: false });
-        container.addEventListener('mousemove', onMouseMove, { passive: false });
-        container.addEventListener('mouseup', onMouseUp);
-        container.addEventListener('mouseleave', onMouseUp);
-        container.addEventListener('touchstart', onTouchStart, { passive: false });
-        container.addEventListener('touchmove', onTouchMove, { passive: false });
-        container.addEventListener('touchend', onTouchEnd);
-        container.addEventListener('touchcancel', onTouchEnd);
-        
-        // ... rest of onMount code ...
-        
-        // Cleanup - this return statement should be inside onMount
-        return () => {
-            // ... existing cleanup code ...
-            container.removeEventListener('mousedown', onMouseDown);
-            container.removeEventListener('mousemove', onMouseMove);
-            container.removeEventListener('mouseup', onMouseUp);
-            container.removeEventListener('mouseleave', onMouseUp);
-            container.removeEventListener('touchstart', onTouchStart);
-            container.removeEventListener('touchmove', onTouchMove);
-            container.removeEventListener('touchend', onTouchEnd);
-            container.removeEventListener('touchcancel', onTouchEnd);
-            // ... rest of cleanup code ...
-        };
-    });
-  
-    // In the cleanup function, make sure to remove all event listeners
-    return () => {
-        // ... existing cleanup code ...
-        container.removeEventListener('mousedown', onMouseDown);
-        container.removeEventListener('mousemove', onMouseMove);
-        container.removeEventListener('mouseup', onMouseUp);
-        container.removeEventListener('mouseleave', onMouseUp);
-        container.removeEventListener('touchstart', onTouchStart);
-        container.removeEventListener('touchmove', onTouchMove);
-        container.removeEventListener('touchend', onTouchEnd);
-        container.removeEventListener('touchcancel', onTouchEnd);
-        // ... rest of cleanup code ...
-    };
-
     onMount(() => {
       // Scene setup
       scene = new THREE.Scene();  // Remove 'const' to use component-scoped variable
@@ -490,6 +441,7 @@
           fogTexture: { value: fogTexture },
           resolution: { value: new THREE.Vector2(window.innerWidth, window.innerHeight) },
           sunPosition: { value: new THREE.Vector2(-0.6, -0.2) },
+
           cloudDensity: { value: weatherState.cloudDensity },
           windSpeed: { value: weatherState.windSpeed },
           stormIntensity: { value: weatherState.stormIntensity },
