@@ -12,6 +12,7 @@
     import Link from 'lucide-svelte/icons/link';
     import Github from 'lucide-svelte/icons/github';
     import { Mail, Phone, Linkedin, Globe } from 'lucide-svelte';
+    import { inView } from 'svelte-inview';
   
     let container;
     let showIntro = true;
@@ -780,16 +781,14 @@
       
       // Add keyboard event listeners
       const handleKeyDown = (event) => {
-          if (isNavigating) return; // Prevent multiple navigations
-          
           switch(event.key.toLowerCase()) {
               case 'arrowup':
               case 'w':
-                  handleNavButtonPress('up');
+                  keyState.up = true;
                   break;
               case 'arrowdown':
               case 's':
-                  handleNavButtonPress('down');
+                  keyState.down = true;
                   break;
           }
       };
@@ -799,12 +798,10 @@
               case 'arrowup':
               case 'w':
                   keyState.up = false;
-                  handleNavButtonRelease('up');
                   break;
               case 'arrowdown':
               case 's':
                   keyState.down = false;
-                  handleNavButtonRelease('down');
                   break;
           }
       };
@@ -834,14 +831,10 @@
             let deltaTime = elapsed / 1000; // Convert to seconds
 
             // Update section based on key state
-            if (keyState.up && currentSection > MIN_SECTION) {
-                currentSection--;
-                targetCameraY = currentSection * -7.5;
-                sectionSpring.set({ y: currentSection * -100 });
-            } else if (keyState.down && currentSection < MAX_SECTION) {
-                currentSection++;
-                targetCameraY = currentSection * -7.5;
-                sectionSpring.set({ y: currentSection * -100 });
+            if (keyState.up) {
+                targetCameraY += CAMERA_MOVEMENT_SPEED * deltaTime;
+            } else if (keyState.down) {
+                targetCameraY -= CAMERA_MOVEMENT_SPEED * deltaTime;
             }
 
             // Smoothly interpolate camera position
@@ -1041,13 +1034,13 @@
     // Add new state variables
     let currentSection = 0;
     let sections = [
-        { id: 'intro', title: 'Surya Vardhin Gamidi' },
-        { id: 'decloud', title: 'Decloud' },
-        { id: 'recon', title: 'Recon' },
-        { id: 'yantra', title: 'Yantra' },
-        { id: 'carbon', title: 'Code4Change' },
-        { id: 'about', title: 'About' },
-        { id: 'contact', title: 'Contact' }
+        { id: 'intro', title: 'Surya Vardhin Gamidi', visible: false },
+        { id: 'decloud', title: 'Decloud', visible: false },
+        { id: 'recon', title: 'Recon', visible: false },
+        { id: 'yantra', title: 'Yantra', visible: false },
+        { id: 'carbon', title: 'Code4Change', visible: false },
+        { id: 'about', title: 'About', visible: false },
+        { id: 'contact', title: 'Contact', visible: false }
     ];
     
     // Create spring store for section transitions
@@ -1086,47 +1079,19 @@
         </button>
     </div>
 
-    <!-- Navigation controls -->
-    <div class="controls nav-controls">
-        <button 
-            class="control-button nav-button"
-            on:mousedown={() => handleNavButtonPress('up')}
-            on:mouseup={() => handleNavButtonRelease('up')}
-            on:mouseleave={() => handleNavButtonRelease('up')}
-            on:touchstart|preventDefault={() => handleNavButtonPress('up')}
-            on:touchend|preventDefault={() => handleNavButtonRelease('up')}
-            disabled={currentSection <= MIN_SECTION}
-        >
-            <svelte:component this={ChevronUp} size={20} />
-        </button>
-        <button 
-            class="control-button nav-button"
-            on:mousedown={() => handleNavButtonPress('down')}
-            on:mouseup={() => handleNavButtonRelease('down')}
-            on:mouseleave={() => handleNavButtonRelease('down')}
-            on:touchstart|preventDefault={() => handleNavButtonPress('down')}
-            on:touchend|preventDefault={() => handleNavButtonRelease('down')}
-            disabled={currentSection >= MAX_SECTION}
-        >
-            <svelte:component this={ChevronDown} size={20} />
-        </button>
-    </div>
-
     <div bind:this={container} 
-         class="canvas-container" 
-         style="opacity: 0; 
-                transition: opacity 1s ease-in-out;
-                background: #000000;">
+         class="canvas-container">
         <!-- Canvas will be added here by Three.js -->
     </div>
 
     <!-- Modified content overlay -->
-    <div class="content-overlay" 
-         style="transform: translateY({$sectionSpring.y}vh)">
-        {#each sections as section, i}
+    <div class="content-overlay">
+        {#each sections as section}
             <section 
-                class="portfolio-section" 
-                class:active={currentSection === i}
+                class="portfolio-section"
+                use:inView={{ threshold: 0.3 }}
+                on:enter={() => section.visible = true}
+                class:visible={section.visible}
             >
                 {#if section.id === 'intro' && showIntro}
                     <div class="intro-content" 
@@ -2653,6 +2618,49 @@
         .panel-header h3 {
             font-size: 1.2rem;
         }
+    }
+
+    /* Remove scroll-snap styles */
+    .content-overlay {
+        position: relative;
+        width: 100%;
+        z-index: 2;
+        overflow-y: auto;
+        height: 100vh;
+        /* Remove scroll-snap-type */
+    }
+
+    .portfolio-section {
+        height: 100vh;
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem;
+        pointer-events: none;
+        /* Remove scroll-snap-align */
+    }
+
+    /* Add smooth scrolling to html */
+    :global(html) {
+        scroll-behavior: smooth;
+    }
+
+    /* Update the navigation controls */
+    .nav-controls {
+        display: none; /* Hide the navigation buttons since we're using free scroll */
+    }
+
+    /* Add styles for smooth content transitions */
+    .portfolio-section {
+        opacity: 0;
+        transform: translateY(20px);
+        transition: opacity 0.5s ease, transform 0.5s ease;
+    }
+
+    .portfolio-section.visible {
+        opacity: 1;
+        transform: translateY(0);
     }
 </style>
 
