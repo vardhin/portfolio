@@ -344,6 +344,52 @@
         }, 150);
     };
 
+    // Add these variables near the top with other state variables
+    let targetSunPosition = { x: -0.6, y: -0.2 }; // Initial target is the current position
+    const SUN_MOVEMENT_SPEED = 0.02; // Speed at which sun moves to target (lower = slower)
+    let isSunMoving = false;
+
+    // Add this function to handle screen clicks for sun movement
+    const handleScreenClick = (event) => {
+        // Check if the click target is a control button or content overlay
+        if (event.target.closest('.controls') || event.target.closest('.content-overlay')) {
+            return; // Let the button or content handle the click event
+        }
+        
+        // Get normalized coordinates
+        const rect = container.getBoundingClientRect();
+        const clickX = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+        const clickY = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+        
+        // Set target position for smooth movement
+        targetSunPosition = { x: clickX, y: clickY };
+        isSunMoving = true;
+        
+        console.log("New sun target:", targetSunPosition);
+    };
+
+    // Add touch version of the handler
+    const handleScreenTouch = (event) => {
+        // Check if the touch target is a control button or content overlay
+        if (event.target.closest('.controls') || event.target.closest('.content-overlay')) {
+            return; // Let the button or content handle the touch event
+        }
+        
+        // Prevent default to avoid scrolling/zooming
+        event.preventDefault();
+        
+        const touch = event.touches[0];
+        const rect = container.getBoundingClientRect();
+        const touchX = ((touch.clientX - rect.left) / rect.width) * 2 - 1;
+        const touchY = -((touch.clientY - rect.top) / rect.height) * 2 + 1;
+        
+        // Set target position for smooth movement
+        targetSunPosition = { x: touchX, y: touchY };
+        isSunMoving = true;
+        
+        console.log("New sun target (touch):", targetSunPosition);
+    };
+
     onMount(() => {
       // Scene setup
       scene = new THREE.Scene();  // Remove 'const' to use component-scoped variable
@@ -804,6 +850,30 @@
 
             fogMaterial.uniforms.hour.value = hour;
 
+            // Add smooth sun movement towards target position
+            if (isSunMoving && fogMaterial && fogMaterial.uniforms && fogMaterial.uniforms.sunPosition) {
+                const currentX = fogMaterial.uniforms.sunPosition.value.x;
+                const currentY = fogMaterial.uniforms.sunPosition.value.y;
+                
+                // Calculate distance to target
+                const distX = targetSunPosition.x - currentX;
+                const distY = targetSunPosition.y - currentY;
+                const distance = Math.sqrt(distX * distX + distY * distY);
+                
+                // Move sun towards target
+                if (distance > 0.01) {
+                    // Move a percentage of the remaining distance
+                    const newX = currentX + distX * SUN_MOVEMENT_SPEED;
+                    const newY = currentY + distY * SUN_MOVEMENT_SPEED;
+                    
+                    // Update sun position
+                    updateSunPosition(newX, newY);
+                } else {
+                    // We've reached the target (close enough)
+                    isSunMoving = false;
+                }
+            }
+
             // Render the scene
             renderer.render(scene, camera);
         }
@@ -847,6 +917,10 @@
       // Add scroll event listener
       window.addEventListener('scroll', handleScroll, { passive: true });
   
+      // Add these event listeners in the onMount function
+      container.addEventListener('click', handleScreenClick);
+      container.addEventListener('touchstart', handleScreenTouch, { passive: false });
+  
       // Cleanup
       return () => {
         cancelAnimationFrame(animationFrameId);
@@ -879,6 +953,8 @@
         clearTimeout(navigationTimeout);
         window.removeEventListener('scroll', handleScroll);
         clearTimeout(scrollTimeout);
+        container.removeEventListener('click', handleScreenClick);
+        container.removeEventListener('touchstart', handleScreenTouch);
       };
     });
   
