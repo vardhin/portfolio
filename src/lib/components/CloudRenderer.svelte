@@ -2,17 +2,11 @@
     import { onMount } from 'svelte';
     import * as THREE from 'three';
     import { spring } from 'svelte/motion';
-    import { fade, fly } from 'svelte/transition';
-    import Cloud from 'lucide-svelte/icons/cloud';
-    import CloudSun from 'lucide-svelte/icons/cloud-sun';
-    import Pause from 'lucide-svelte/icons/pause';
-    import Play from 'lucide-svelte/icons/play';
-    import ChevronUp from 'lucide-svelte/icons/chevron-up';
-    import ChevronDown from 'lucide-svelte/icons/chevron-down';
-    import Link from 'lucide-svelte/icons/link';
-    import Github from 'lucide-svelte/icons/github';
-    import { Mail, Phone, Linkedin, Globe } from 'lucide-svelte';
-  
+    import { fly, fade } from 'svelte/transition';
+    
+    // Import icons
+    import { Cloud, CloudSun, Pause, Play, Mail, Phone, Linkedin, Github, Globe } from 'lucide-svelte';
+    
     let container;
     let showIntro = false;
   
