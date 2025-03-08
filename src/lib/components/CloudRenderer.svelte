@@ -324,8 +324,22 @@
         container.addEventListener('touchcancel', onTouchEnd);
         
         // ... rest of onMount code ...
+        
+        // Cleanup - this return statement should be inside onMount
+        return () => {
+            // ... existing cleanup code ...
+            container.removeEventListener('mousedown', onMouseDown);
+            container.removeEventListener('mousemove', onMouseMove);
+            container.removeEventListener('mouseup', onMouseUp);
+            container.removeEventListener('mouseleave', onMouseUp);
+            container.removeEventListener('touchstart', onTouchStart);
+            container.removeEventListener('touchmove', onTouchMove);
+            container.removeEventListener('touchend', onTouchEnd);
+            container.removeEventListener('touchcancel', onTouchEnd);
+            // ... rest of cleanup code ...
+        };
     });
-
+  
     // In the cleanup function, make sure to remove all event listeners
     return () => {
         // ... existing cleanup code ...
