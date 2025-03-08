@@ -237,8 +237,8 @@
     let scrollTimeout;
 
     // Constants for smooth scrolling
-    const SCROLL_SPEED = 0.0015; // Very low value for gentle scrolling
-    const MAX_CAMERA_Y = -35; // Maximum camera position (lowest point)
+    const SCROLL_SPEED = 0.0010; // Very low value for gentle scrolling
+    const MAX_CAMERA_Y = -20; // Maximum camera position (lowest point)
     const MIN_CAMERA_Y = 0;   // Minimum camera position (highest point)
 
     // Add these variables near the top with other state variables
