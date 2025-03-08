@@ -3,13 +3,18 @@
     import * as THREE from 'three';
     import { spring } from 'svelte/motion';
     import { fade, fly } from 'svelte/transition';
-    import { Cloud, CloudSun, Play, Pause, Mail, Phone, Linkedin, Github, Globe } from 'lucide-svelte';
+    import Cloud from 'lucide-svelte/icons/cloud';
+    import CloudSun from 'lucide-svelte/icons/cloud-sun';
+    import Pause from 'lucide-svelte/icons/pause';
+    import Play from 'lucide-svelte/icons/play';
     import ChevronUp from 'lucide-svelte/icons/chevron-up';
     import ChevronDown from 'lucide-svelte/icons/chevron-down';
     import Link from 'lucide-svelte/icons/link';
+    import Github from 'lucide-svelte/icons/github';
+    import { Mail, Phone, Linkedin, Globe } from 'lucide-svelte';
   
     let container;
-    let showIntro = false;
+    let showIntro = true;
   
     // Add weather state
     let weatherState = {
@@ -198,6 +203,13 @@
         }
     }
   
+    // Add these variables near the top with other state variables
+    let keyState = {
+        up: false,
+        down: false
+    };
+    const MOVEMENT_SPEED = 0.2; // Reduced from 0.5
+
     // Remove scroll-related variables and keep only camera position
     let cameraPosition = { x: 0, y: 0 };
     const CAMERA_MOVEMENT_SPEED = 4.0;  // Increased from 2.0, decreased from original 8.0
@@ -797,6 +809,9 @@
           }
       };
 
+      window.addEventListener('keydown', handleKeyDown);
+      window.addEventListener('keyup', handleKeyUp);
+
       // Add FPS limiting variables
       const fps = 30;
       const fpsInterval = 1000 / fps;
@@ -1068,6 +1083,32 @@
             on:click={() => enableCloudMovement = !enableCloudMovement}
         >
             <svelte:component this={enableCloudMovement ? Pause : Play} size={20} />
+        </button>
+    </div>
+
+    <!-- Navigation controls -->
+    <div class="controls nav-controls">
+        <button 
+            class="control-button nav-button"
+            on:mousedown={() => handleNavButtonPress('up')}
+            on:mouseup={() => handleNavButtonRelease('up')}
+            on:mouseleave={() => handleNavButtonRelease('up')}
+            on:touchstart|preventDefault={() => handleNavButtonPress('up')}
+            on:touchend|preventDefault={() => handleNavButtonRelease('up')}
+            disabled={currentSection <= MIN_SECTION}
+        >
+            <svelte:component this={ChevronUp} size={20} />
+        </button>
+        <button 
+            class="control-button nav-button"
+            on:mousedown={() => handleNavButtonPress('down')}
+            on:mouseup={() => handleNavButtonRelease('down')}
+            on:mouseleave={() => handleNavButtonRelease('down')}
+            on:touchstart|preventDefault={() => handleNavButtonPress('down')}
+            on:touchend|preventDefault={() => handleNavButtonRelease('down')}
+            disabled={currentSection >= MAX_SECTION}
+        >
+            <svelte:component this={ChevronDown} size={20} />
         </button>
     </div>
 
@@ -1357,6 +1398,13 @@
         left: 20px;
     }
 
+    .nav-controls {
+        right: 20px;
+        bottom: 20px;
+        flex-direction: column;
+        touch-action: none; /* Prevent default touch actions */
+    }
+
     .control-button {
         width: 40px;
         height: 40px;
@@ -1381,6 +1429,16 @@
         opacity: 0.5;
         cursor: not-allowed;
         pointer-events: none; /* Prevent any interaction when disabled */
+    }
+
+    .nav-button {
+        background: rgba(255, 255, 255, 0.15);
+        transition: opacity 0.3s ease, background-color 0.3s ease;
+    }
+
+    .nav-button:disabled {
+        opacity: 0.3;
+        background: rgba(255, 255, 255, 0.05);
     }
 
     .canvas-container {
@@ -1411,6 +1469,12 @@
         .top-left {
             top: 24px;
             left: 24px;
+            gap: 16px;
+        }
+
+        .nav-controls {
+            right: 24px;
+            bottom: 24px;
             gap: 16px;
         }
 
