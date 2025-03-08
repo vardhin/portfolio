@@ -332,6 +332,12 @@
         // Clamp target position to bounds
         targetCameraY = Math.max(MAX_CAMERA_Y, Math.min(MIN_CAMERA_Y, targetCameraY));
         
+        // Update the section spring to match camera position
+        // Map camera Y position (0 to MAX_CAMERA_Y) to section positions (0 to -600)
+        const normalizedPosition = targetCameraY / MAX_CAMERA_Y;
+        const sectionPosition = normalizedPosition * -100 * MAX_SECTION;
+        sectionSpring.set({ y: sectionPosition });
+        
         // Set timeout to mark when scrolling stops
         scrollTimeout = setTimeout(() => {
             isScrolling = false;
@@ -851,6 +857,11 @@
                     -3.5 // Keep at -3.5 to stay behind the sun but in front of clouds
                 );
             }
+
+            // Sync the section spring with camera position
+            const normalizedPosition = cameraPosition.y / MAX_CAMERA_Y;
+            const sectionPosition = normalizedPosition * -100 * MAX_SECTION;
+            sectionSpring.set({ y: sectionPosition });
 
             // Render the scene
             renderer.render(scene, camera);
