@@ -449,11 +449,12 @@
         lastScrollY = currentScrollY;
         
         // Update target camera position based on scroll
+        // Reduce the multiplier from 0.05 to 0.01 for gentler scrolling
         if (scrollDelta > 0 && currentSection < MAX_SECTION) {
             // Scrolling down
             targetCameraY = Math.min(
                 MAX_SECTION * -5,
-                targetCameraY - (scrollDelta * 0.05)
+                targetCameraY - (scrollDelta * 0.01)
             );
             
             // Update section if we've scrolled far enough
@@ -469,7 +470,7 @@
             // Scrolling up
             targetCameraY = Math.max(
                 MIN_SECTION * -5,
-                targetCameraY - (scrollDelta * 0.05)
+                targetCameraY - (scrollDelta * 0.01)
             );
             
             // Update section if we've scrolled far enough
