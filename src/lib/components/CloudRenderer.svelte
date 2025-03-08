@@ -248,6 +248,9 @@
             return; // Let the button handle the touch event
         }
         
+        // Prevent default behavior immediately
+        event.preventDefault();
+        
         const touch = event.touches[0];
         const rect = container.getBoundingClientRect();
         
@@ -263,7 +266,6 @@
             
             if (distance < 0.3) {
                 isDragging = true;
-                event.preventDefault(); // Prevent scrolling only when dragging the sun
             }
         }
     };
@@ -275,6 +277,8 @@
         }
         
         if (!isDragging) return;
+        
+        // Prevent default behavior during drag
         event.preventDefault();
         
         const touch = event.touches[0];
@@ -945,6 +949,9 @@
 
     // Define mouse event handlers
     const onMouseDown = (event) => {
+        // Prevent default behavior immediately to avoid text selection
+        event.preventDefault();
+        
         const rect = container.getBoundingClientRect();
         normalizedMousePosition.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
         normalizedMousePosition.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
@@ -958,13 +965,15 @@
             
             if (distance < 0.3) {
                 isDragging = true;
-                event.preventDefault(); // Prevent default to avoid text selection
             }
         }
     };
     
     const onMouseMove = (event) => {
         if (!isDragging) return;
+        
+        // Prevent default behavior during drag
+        event.preventDefault();
         
         const rect = container.getBoundingClientRect();
         normalizedMousePosition.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
@@ -1338,6 +1347,11 @@
         transition: opacity 1s ease-in-out;
         background: #000000;
         z-index: 1;
+        user-select: none; /* Prevent text selection */
+        -webkit-user-select: none; /* For Safari */
+        -moz-user-select: none; /* For Firefox */
+        -ms-user-select: none; /* For IE/Edge */
+        touch-action: none; /* Prevent default touch actions */
     }
 
     .fade-in {
@@ -2572,7 +2586,24 @@
         -ms-overflow-style: none;  /* IE and Edge */
         scrollbar-width: none;  /* Firefox */
     }
-  </style>
+
+    .canvas-container {
+        width: 100%;
+        height: 100vh;
+        position: fixed; /* Keep canvas fixed */
+        top: 0;
+        left: 0;
+        opacity: 0;
+        transition: opacity 1s ease-in-out;
+        background: #000000;
+        z-index: 1;
+        user-select: none; /* Prevent text selection */
+        -webkit-user-select: none; /* For Safari */
+        -moz-user-select: none; /* For Firefox */
+        -ms-user-select: none; /* For IE/Edge */
+        touch-action: none; /* Prevent default touch actions */
+    }
+</style>
 
 <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&display=swap" rel="stylesheet" crossorigin="anonymous">
 
