@@ -338,6 +338,27 @@
         }, 150);
     };
 
+    // Add this new function to handle right-click events
+    const onContextMenu = (event) => {
+        // Check if the click target is a control button or content overlay
+        if (event.target.closest('.controls') || 
+            (event.target.closest('.content-overlay') && 
+             !event.target.closest('.content-overlay').classList.contains('portfolio-section'))) {
+            return; // Let the button or content handle the event
+        }
+        
+        // Prevent default context menu
+        event.preventDefault();
+        
+        const rect = container.getBoundingClientRect();
+        const clickX = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+        const clickY = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+        
+        // Set the target position for the sun to move to
+        targetSunPosition = { x: clickX, y: clickY };
+        console.log("New sun target (right-click):", targetSunPosition.x, targetSunPosition.y);
+    };
+
     onMount(() => {
       // Scene setup
       scene = new THREE.Scene();  // Remove 'const' to use component-scoped variable
@@ -844,6 +865,9 @@
       container.addEventListener('mousedown', onMouseDown, { passive: false });
       container.addEventListener('touchstart', onTouchStart, { passive: false });
   
+      // Add the new context menu event listener
+      container.addEventListener('contextmenu', onContextMenu, { passive: false });
+  
       // After everything is set up, add a delay before hiding loading screen
       setTimeout(() => {
           showIntro = true;
@@ -880,6 +904,7 @@
         container.removeEventListener('touchmove', onTouchMove);
         container.removeEventListener('touchend', onTouchEnd);
         container.removeEventListener('touchcancel', onTouchEnd);
+        container.removeEventListener('contextmenu', onContextMenu);
         container.removeChild(renderer.domElement);
         renderer.dispose();
         fogTexture.dispose();
