@@ -1141,16 +1141,16 @@
                         <p>Web Developer & Designer</p>
                     </div>
                 {:else if section.id === 'decloud'}
-                    <div class="project-card" in:fly="{{ y: 50, duration: 1000 }}" out:fade>
-                        <div class="project-content">
-                            <div class="project-header">
-                                <div class="project-header-text">
-                                    <h2>Decentralized Cloud Computing</h2>
-                                    <h3>Decloud</h3>
+                    <div class="project-section" in:fly="{{ y: 50, duration: 1000 }}" out:fade>
+                        <div class="project-card">
+                            <div class="project-content">
+                                <div class="project-header">
+                                    <div class="project-header-text">
+                                        <h2>Decentralized Cloud Computing</h2>
+                                        <h3>Decloud</h3>
+                                    </div>
                                 </div>
-                            </div>
-                            
-                            <div class="scrollable-content">
+                                
                                 <div class="project-details">
                                     <h4>Overview</h4>
                                     <p>A desktop application enabling secure, decentralized sharing of computing resources.</p>
@@ -1173,33 +1173,19 @@
                             {#each ['Electron', 'Svelte', 'IPFS', 'Docker', 'TypeScript'] as tech}
                                 <span class="tech-button">{tech}</span>
                             {/each}
-                            <a href="https://github.com/yourusername/decloud" 
-                               class="github-button" 
-                               target="_blank" 
-                               rel="noopener noreferrer">
-                                <Github size={12} /> <!-- Reduced from 16 -->
-                                <span>GitHub</span>
-                            </a>
                         </div>
                     </div>
                 {:else if section.id === 'recon'}
-                    <div class="project-card" in:fly="{{ y: 50, duration: 1000 }}" out:fade>
-                        <div class="project-content">
-                            <div class="project-header">
-                                <div class="project-header-text">
-                                    <h2>Decentralized Messaging</h2>
-                                    <h3>Recon</h3>
+                    <div class="project-section" in:fly="{{ y: 50, duration: 1000 }}" out:fade>
+                        <div class="project-card">
+                            <div class="project-content">
+                                <div class="project-header">
+                                    <div class="project-header-text">
+                                        <h2>Decentralized Messaging</h2>
+                                        <h3>Recon</h3>
+                                    </div>
                                 </div>
-                                <a href="https://github.com/yourusername/recon" 
-                                   class="github-button" 
-                                   target="_blank" 
-                                   rel="noopener noreferrer">
-                                    <Github size={16} />
-                                    <span>GitHub</span>
-                                </a>
-                            </div>
-                            
-                            <div class="scrollable-content">
+                                
                                 <div class="project-details">
                                     <h4>Overview</h4>
                                     <p>A decentralized mobile messaging application ensuring private and secure communication.</p>
@@ -1226,16 +1212,16 @@
                         </div>
                     </div>
                 {:else if section.id === 'yantra'}
-                    <div class="project-card" in:fly="{{ y: 50, duration: 1000 }}" out:fade>
-                        <div class="project-content">
-                            <div class="project-header">
-                                <div class="project-header-text">
-                                    <h2>Disaster Resistant Shelter</h2>
-                                    <h3>Yantra</h3>
+                    <div class="project-section" in:fly="{{ y: 50, duration: 1000 }}" out:fade>
+                        <div class="project-card">
+                            <div class="project-content">
+                                <div class="project-header">
+                                    <div class="project-header-text">
+                                        <h2>Disaster Resistant Shelter</h2>
+                                        <h3>Yantra</h3>
+                                    </div>
                                 </div>
-                            </div>
-                            
-                            <div class="scrollable-content">
+                                
                                 <div class="project-details">
                                     <h4>Overview</h4>
                                     <p>Winner of Design-a-thon by Indian Geotechnical Society. A innovative shelter design 
@@ -1259,33 +1245,19 @@
                             {#each ['Python', 'NumPy', 'Matplotlib'] as tech}
                                 <span class="tech-button">{tech}</span>
                             {/each}
-                            <a href="https://github.com/yourusername/yantra" 
-                               class="github-button" 
-                               target="_blank" 
-                               rel="noopener noreferrer">
-                                <Github size={12} />
-                                <span>GitHub</span>
-                            </a>
                         </div>
                     </div>
                 {:else if section.id === 'carbon'}
-                    <div class="project-card" in:fly="{{ y: 50, duration: 1000 }}" out:fade>
-                        <div class="project-content">
-                            <div class="project-header">
-                                <div class="project-header-text">
-                                    <h2>Carbon Credit Marketplace</h2>
-                                    <h3>Code4Change</h3>
+                    <div class="project-section" in:fly="{{ y: 50, duration: 1000 }}" out:fade>
+                        <div class="project-card">
+                            <div class="project-content">
+                                <div class="project-header">
+                                    <div class="project-header-text">
+                                        <h2>Carbon Credit Marketplace</h2>
+                                        <h3>Code4Change</h3>
+                                    </div>
                                 </div>
-                                <a href="https://github.com/yourusername/carbon-credits" 
-                                   class="github-button" 
-                                   target="_blank" 
-                                   rel="noopener noreferrer">
-                                    <Github size={16} />
-                                    <span>GitHub</span>
-                                </a>
-                            </div>
-                            
-                            <div class="scrollable-content">
+                                
                                 <div class="project-details">
                                     <h4>Overview</h4>
                                     <p>Finalist in IEEE Code4Change 2.0. A blockchain-based marketplace for carbon credits.</p>
@@ -1308,13 +1280,6 @@
                             {#each ['React Native', 'Ethereum', 'Blockchain'] as tech}
                                 <span class="tech-button">{tech}</span>
                             {/each}
-                            <a href="https://github.com/yourusername/carbon-credits" 
-                               class="github-button" 
-                               target="_blank" 
-                               rel="noopener noreferrer">
-                                <Github size={12} />
-                                <span>GitHub</span>
-                            </a>
                         </div>
                     </div>
                 {:else if section.id === 'about'}
@@ -2337,16 +2302,67 @@
             width: auto;
         }
     }
+
+    /* Update these styles */
+    .project-section {
+        display: flex;
+        gap: 1.5rem;
+        width: 100%;
+        max-width: 1400px;
+        margin: 0 auto;
+        pointer-events: auto;
+    }
+
+    .project-card {
+        flex: 1;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 12px;
+        padding: 1.25rem;
+        backdrop-filter: blur(10px);
+    }
+
+    .tech-stack {
+        width: 120px;
+        display: flex;
+        flex-direction: column;
+        gap: 0.3rem;
+        padding: 1rem;
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 12px;
+        height: fit-content;
+        backdrop-filter: blur(10px);
+    }
+
+    .tech-button {
+        font-size: 0.6rem;
+        padding: 0.15rem 0.35rem;
+        text-align: center;
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        border-radius: 6px;
+        white-space: nowrap;
+    }
+
+    /* Mobile responsiveness */
+    @media (max-width: 768px) {
+        .project-section {
+            flex-direction: column;
+            padding: 1rem;
+        }
+
+        .tech-stack {
+            width: 100%;
+            flex-direction: row;
+            flex-wrap: wrap;
+            margin-top: 0.5rem;
+        }
+
+        .tech-button {
+            width: auto;
+        }
+    }
 </style>
 
 <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&display=swap" rel="stylesheet" crossorigin="anonymous">
-
-<script context="module">
-    const ProjectLink = ({ href }) => (`
-        <div class="project-links">
-            <a href="${href}" class="project-link" target="_blank" rel="noopener noreferrer">
-                <svelte:component this={Github} size={16} /> GitHub
-            </a>
-        </div>
-    `);
-</script>
