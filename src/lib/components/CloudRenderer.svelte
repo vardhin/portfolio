@@ -1368,10 +1368,10 @@
     }
 
     :global(body) {
-        overflow: hidden; /* Hide scrollbar */
         margin: 0;
         padding: 0;
-        background: #000000;  /* Pure black background */
+        background: #000000;
+        /* Remove overflow: hidden to enable scrolling */
     }
 
     :global(::-webkit-scrollbar) {
@@ -1380,13 +1380,9 @@
 
     .main-container {
         width: 100%;
-        height: 100vh;
+        /* Remove height: 100vh and position: fixed to enable scrolling */
         margin: 0;
         padding: 0;
-        overflow: hidden;
-        position: fixed;
-        top: 0;
-        left: 0;
         z-index: 1;
     }
 
@@ -1447,8 +1443,8 @@
 
     .canvas-container {
         width: 100%;
-        height: 100%;
-        position: absolute;
+        height: 100vh;
+        position: fixed; /* Keep canvas fixed */
         top: 0;
         left: 0;
         opacity: 0;
@@ -1488,14 +1484,10 @@
     }
 
     .content-overlay {
-        position: fixed;
-        top: 0;
-        left: 0;
+        position: relative; /* Change from fixed to relative */
         width: 100%;
-        height: 100vh;
         z-index: 2;
-        transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
-        pointer-events: none;
+        /* Remove transform property - we'll handle section positioning differently */
     }
 
     .portfolio-section {
@@ -1504,10 +1496,18 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        opacity: 0;
-        transition: opacity 0.5s ease;
         padding: 2rem;
         pointer-events: none;
+        /* Add scroll-snap properties */
+        scroll-snap-align: start;
+        scroll-snap-stop: always;
+    }
+
+    /* Add scroll-snap container */
+    .content-overlay {
+        scroll-snap-type: y mandatory;
+        overflow-y: auto;
+        height: 100vh;
     }
 
     .portfolio-section.active {
