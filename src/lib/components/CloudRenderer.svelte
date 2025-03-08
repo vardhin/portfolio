@@ -231,6 +231,11 @@
     let isNavigating = false;
     let navigationTimeout;
 
+    // Add these variables near the top with other state variables
+    let lastScrollY = 0;
+    let isScrolling = false;
+    let scrollTimeout;
+
     // Update the handleNavButtonPress function
     const handleNavButtonPress = (direction) => {
         if (isNavigating) return;
@@ -432,6 +437,60 @@
 
     const onTouchEnd = () => {
         isDragging = false;
+    };
+
+    // Add this function near other event handlers
+    const handleScroll = (event) => {
+        if (isNavigating) return;
+        
+        // Get the scroll direction and amount
+        const currentScrollY = window.scrollY;
+        const scrollDelta = currentScrollY - lastScrollY;
+        lastScrollY = currentScrollY;
+        
+        // Update target camera position based on scroll
+        if (scrollDelta > 0 && currentSection < MAX_SECTION) {
+            // Scrolling down
+            targetCameraY = Math.min(
+                MAX_SECTION * -5,
+                targetCameraY - (scrollDelta * 0.05)
+            );
+            
+            // Update section if we've scrolled far enough
+            const nextSection = Math.min(
+                MAX_SECTION,
+                Math.floor(Math.abs(targetCameraY) / 5)
+            );
+            if (nextSection !== currentSection) {
+                currentSection = nextSection;
+                sectionSpring.set({ y: currentSection * -100 });
+            }
+        } else if (scrollDelta < 0 && currentSection > MIN_SECTION) {
+            // Scrolling up
+            targetCameraY = Math.max(
+                MIN_SECTION * -5,
+                targetCameraY - (scrollDelta * 0.05)
+            );
+            
+            // Update section if we've scrolled far enough
+            const nextSection = Math.max(
+                MIN_SECTION,
+                Math.floor(Math.abs(targetCameraY) / 5)
+            );
+            if (nextSection !== currentSection) {
+                currentSection = nextSection;
+                sectionSpring.set({ y: currentSection * -100 });
+            }
+        }
+        
+        // Set scrolling flag and clear previous timeout
+        isScrolling = true;
+        clearTimeout(scrollTimeout);
+        
+        // Reset scrolling flag after a delay
+        scrollTimeout = setTimeout(() => {
+            isScrolling = false;
+        }, 150);
     };
 
     onMount(() => {
@@ -989,9 +1048,8 @@
         window.removeEventListener('keyup', handleKeyUp);
         container.removeEventListener('mousemove', updateMousePosition);
         clearTimeout(navigationTimeout);
-        // Remove these lines:
-        // window.removeEventListener('scroll', handleScroll);
-        // clearTimeout(scrollTimeout);
+        window.removeEventListener('scroll', handleScroll);
+        clearTimeout(scrollTimeout);
       };
     });
   
@@ -1487,16 +1545,20 @@
         justify-content: center;
         padding: 2rem;
         pointer-events: none;
-        /* Add scroll-snap properties */
-        scroll-snap-align: start;
-        scroll-snap-stop: always;
-    }
+        /* Add smooth scrolling to the html element */
+        :global(html) {
+            scroll-behavior: smooth;
+        }
 
-    /* Add scroll-snap container */
-    .content-overlay {
-        scroll-snap-type: y mandatory;
-        overflow-y: auto;
-        height: 100vh;
+        /* Hide scrollbar but keep functionality */
+        :global(::-webkit-scrollbar) {
+            display: none;
+        }
+
+        :global(body) {
+            -ms-overflow-style: none;  /* IE and Edge */
+            scrollbar-width: none;  /* Firefox */
+        }
     }
 
     .portfolio-section.active {
@@ -2649,11 +2711,6 @@
         position: relative;
         width: 100%;
         z-index: 2;
-        /* Remove these properties:
-        scroll-snap-type: y mandatory;
-        overflow-y: auto;
-        height: 100vh;
-        */
     }
 
     /* Update portfolio-section to use window height without scroll-snap */
@@ -2665,10 +2722,6 @@
         justify-content: center;
         padding: 2rem;
         pointer-events: none;
-        /* Remove:
-        scroll-snap-align: start;
-        scroll-snap-stop: always;
-        */
     }
 
     /* Add smooth scrolling to the html element */
