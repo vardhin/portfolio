@@ -315,6 +315,35 @@
         }
     };
 
+    // Add the missing handleScroll function
+    const handleScroll = () => {
+        // Mark that we're scrolling
+        isScrolling = true;
+        
+        // Clear any existing timeout
+        if (scrollTimeout) {
+            clearTimeout(scrollTimeout);
+        }
+        
+        // Get current scroll position
+        const currentScrollY = window.scrollY;
+        
+        // Calculate scroll direction and amount
+        const scrollDelta = currentScrollY - lastScrollY;
+        lastScrollY = currentScrollY;
+        
+        // Update target camera position based on scroll
+        targetCameraY -= scrollDelta * SCROLL_SPEED;
+        
+        // Clamp target position to bounds
+        targetCameraY = Math.max(MAX_CAMERA_Y, Math.min(MIN_CAMERA_Y, targetCameraY));
+        
+        // Set timeout to mark when scrolling stops
+        scrollTimeout = setTimeout(() => {
+            isScrolling = false;
+        }, 150);
+    };
+
     onMount(() => {
       // Scene setup
       scene = new THREE.Scene();  // Remove 'const' to use component-scoped variable
@@ -362,7 +391,7 @@
           varying vec2 vUv;
 
           float noise(vec2 p) {
-            return fract(sin(dot(p, vec2(12.9898, 78.233)) * 43758.5453);
+            return fract(sin(dot(p, vec2(12.9898, 78.233))) * 43758.5453);
           }
 
           void main() {
