@@ -355,8 +355,8 @@
       const frustumSize = 10;  // Back to default zoom
       const aspect = window.innerWidth / window.innerHeight;
   
-      // Add sun mesh with increased size
-      const sunGeometry = new THREE.CircleGeometry(0.5, 32); // Increased from 0.3 to 0.5
+      // Add sun mesh with reduced size
+      const sunGeometry = new THREE.CircleGeometry(0.38, 32); // Reduced from 0.5 to 0.38
       const sunMaterial = new THREE.MeshBasicMaterial({ 
         color: 0xFFF7E6,
         transparent: true,
@@ -366,7 +366,7 @@
       sunMesh.position.set(
         -0.6 * (frustumSize * aspect / 2),
         -0.2 * (frustumSize / 2),
-        -3 // Changed from -6 to -3 to bring it forward
+        -3 // Keep at -3 to stay in front
       );
   
       // Add sun glow effect with increased size
@@ -961,6 +961,7 @@
         event.preventDefault();
         
         const rect = container.getBoundingClientRect();
+        // Calculate normalized position in WebGL space
         normalizedMousePosition.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
         normalizedMousePosition.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
         
@@ -971,10 +972,10 @@
                 Math.pow((normalizedMousePosition.y - sunPos.y), 2)
             );
             
-            // Use much larger hit area
             if (distance < SUN_HIT_RADIUS) {
                 isDragging = true;
-                console.log("Sun grabbed via mouse!");  // Debug log
+                console.log("Sun grabbed via mouse! Position:", sunPos.x, sunPos.y);
+                console.log("Mouse position:", normalizedMousePosition.x, normalizedMousePosition.y);
             }
         }
     };
