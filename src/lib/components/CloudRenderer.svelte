@@ -967,6 +967,8 @@
         
         if (fogMaterial && fogMaterial.uniforms && fogMaterial.uniforms.sunPosition) {
             const sunPos = fogMaterial.uniforms.sunPosition.value;
+            
+            // Calculate distance without considering camera offset
             const distance = Math.sqrt(
                 Math.pow((normalizedMousePosition.x - sunPos.x), 2) + 
                 Math.pow((normalizedMousePosition.y - sunPos.y), 2)
@@ -974,8 +976,7 @@
             
             if (distance < SUN_HIT_RADIUS) {
                 isDragging = true;
-                console.log("Sun grabbed via mouse! Position:", sunPos.x, sunPos.y);
-                console.log("Mouse position:", normalizedMousePosition.x, normalizedMousePosition.y);
+                console.log("Sun grabbed via mouse!");
             }
         }
     };
