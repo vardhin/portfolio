@@ -1419,7 +1419,6 @@
         color: white;
         cursor: pointer;
         font-size: 16px;
-        backdrop-filter: blur(8px);
         transition: all 0.2s ease;
         display: flex;
         align-items: center;
@@ -2048,7 +2047,6 @@
         border: 1px solid rgba(255, 255, 255, 0.1);
         border-radius: 16px;
         padding: 1.75rem;
-        backdrop-filter: blur(10px);
         width: 100%;
         max-width: 700px;
         margin: 0 auto;
@@ -2213,7 +2211,6 @@
         border: 1px solid rgba(255, 255, 255, 0.1);
         border-radius: 12px;
         padding: 1.5rem;
-        backdrop-filter: blur(8px);
         transition: all 0.3s ease;
         height: 100%;
     }
@@ -2303,7 +2300,6 @@
         border: 1px solid rgba(255, 255, 255, 0.1);
         border-radius: 20px;
         padding: 2.5rem;
-        backdrop-filter: blur(10px);
         width: 100%;
         max-width: 800px;
         margin: 0 auto;
@@ -2519,7 +2515,6 @@
         border: 1px solid rgba(255, 255, 255, 0.1);
         border-radius: 12px;
         padding: 1.25rem;
-        backdrop-filter: blur(10px);
     }
 
     .tech-stack {
@@ -2532,7 +2527,6 @@
         border: 1px solid rgba(255, 255, 255, 0.1);
         border-radius: 12px;
         height: fit-content;
-        backdrop-filter: blur(10px);
     }
 
     .tech-button {
@@ -2571,7 +2565,6 @@
         border-radius: 12px;
         padding: 1.5rem;
         margin-bottom: 1.5rem;
-        backdrop-filter: blur(8px);
         transition: all 0.3s ease;
     }
 
