@@ -1168,12 +1168,11 @@
                                     and Docker for containerization. TypeScript ensures type safety and better development experience.</p>
                                 </div>
                             </div>
-                        </div>
-                        
-                        <div class="tech-stack">
-                            {#each ['Electron', 'Svelte', 'IPFS', 'Docker', 'TypeScript'] as tech}
-                                <span class="tech-button">{tech}</span>
-                            {/each}
+                            <div class="tech-stack">
+                                {#each ['Electron', 'Svelte', 'IPFS', 'Docker', 'TypeScript'] as tech}
+                                    <span class="tech-button">{tech}</span>
+                                {/each}
+                            </div>
                         </div>
                     </div>
                 {:else if section.id === 'recon'}
@@ -1204,12 +1203,11 @@
                                     and better code organization.</p>
                                 </div>
                             </div>
-                        </div>
-                        
-                        <div class="tech-stack">
-                            {#each ['Svelte', 'Capacitor', 'GunJs', 'TypeScript'] as tech}
-                                <span class="tech-button">{tech}</span>
-                            {/each}
+                            <div class="tech-stack">
+                                {#each ['Svelte', 'Capacitor', 'GunJs', 'TypeScript'] as tech}
+                                    <span class="tech-button">{tech}</span>
+                                {/each}
+                            </div>
                         </div>
                     </div>
                 {:else if section.id === 'yantra'}
@@ -1240,12 +1238,11 @@
                                     visualization of stress distributions and fluid dynamics.</p>
                                 </div>
                             </div>
-                        </div>
-                        
-                        <div class="tech-stack">
-                            {#each ['Python', 'NumPy', 'Matplotlib'] as tech}
-                                <span class="tech-button">{tech}</span>
-                            {/each}
+                            <div class="tech-stack">
+                                {#each ['Python', 'NumPy', 'Matplotlib'] as tech}
+                                    <span class="tech-button">{tech}</span>
+                                {/each}
+                            </div>
                         </div>
                     </div>
                 {:else if section.id === 'carbon'}
@@ -1275,12 +1272,11 @@
                                     for secure and transparent transactions.</p>
                                 </div>
                             </div>
-                        </div>
-                        
-                        <div class="tech-stack">
-                            {#each ['React Native', 'Ethereum', 'Blockchain'] as tech}
-                                <span class="tech-button">{tech}</span>
-                            {/each}
+                            <div class="tech-stack">
+                                {#each ['React Native', 'Ethereum', 'Blockchain'] as tech}
+                                    <span class="tech-button">{tech}</span>
+                                {/each}
+                            </div>
                         </div>
                     </div>
                 {:else if section.id === 'about'}
@@ -1577,35 +1573,66 @@
 
     /* Project card styles */
     .project-card {
-        background: rgba(255, 255, 255, 0.03);  /* Reduced opacity */
-        border: 1px solid rgba(255, 255, 255, 0.08);  /* More subtle border */
-        border-radius: 8px;  /* Reduced border radius */
-        padding: 1rem;  /* Reduced padding */
-        backdrop-filter: blur(8px);
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 8px;
+        padding: 1rem;
         width: 100%;
-        max-width: 800px;  /* Reduced from 1400px */
+        max-width: 800px;
         margin: 0 auto;
-        box-shadow: none;  /* Removed shadow */
+        display: flex;  /* Added to create side-by-side layout */
+        gap: 1rem;      /* Space between content and tech stack */
         transition: all 0.3s ease;
     }
 
+    .project-content {
+        flex: 1;        /* Takes up remaining space */
+    }
+
+    .tech-stack {
+        display: flex;
+        flex-direction: column;  /* Stack tech buttons vertically */
+        gap: 0.35rem;
+        padding-left: 0.75rem;
+        border-left: 1px solid rgba(255, 255, 255, 0.06);  /* Vertical divider */
+        min-width: 120px;       /* Minimum width for tech stack */
+    }
+
+    /* Mobile optimizations */
+    @media (max-width: 768px) {
+        .project-card {
+            flex-direction: column;  /* Stack vertically on mobile */
+            max-width: calc(100% - 2rem);
+            padding: 0.75rem;
+        }
+
+        .tech-stack {
+            flex-direction: row;    /* Horizontal layout on mobile */
+            flex-wrap: wrap;
+            padding-left: 0;
+            padding-top: 0.75rem;
+            border-left: none;
+            border-top: 1px solid rgba(255, 255, 255, 0.06);
+        }
+    }
+
     .project-header {
-        margin-bottom: 0.75rem;  /* Reduced margin */
+        margin-bottom: 0.75rem;
     }
 
     .project-header h2 {
-        font-size: 0.8rem;  /* Smaller size */
+        font-size: 0.8rem;
         font-weight: 300;
         margin: 0;
         letter-spacing: 0.02em;
-        color: rgba(255, 255, 255, 0.7);  /* Reduced opacity */
+        color: rgba(255, 255, 255, 0.7);
     }
 
     .project-header h3 {
-        font-size: 1.2rem;  /* Made larger than h2 for emphasis */
+        font-size: 1.2rem;
         font-weight: 400;
         margin: 0.25rem 0 0;
-        color: rgba(255, 255, 255, 0.9);  /* Increased opacity */
+        color: rgba(255, 255, 255, 0.9);
     }
 
     .project-details h4 {
@@ -1644,20 +1671,12 @@
         color: rgba(255, 255, 255, 0.4);
     }
 
-    .tech-stack {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 0.35rem;  /* Reduced gap */
-        padding-top: 0.75rem;
-        border-top: 1px solid rgba(255, 255, 255, 0.06);  /* More subtle border */
-    }
-
     .tech-button {
         font-size: 0.6rem;
         padding: 0.2rem 0.4rem;
-        background: rgba(255, 255, 255, 0.04);  /* More subtle background */
+        background: rgba(255, 255, 255, 0.04);
         border: 1px solid rgba(255, 255, 255, 0.08);
-        border-radius: 4px;  /* Reduced border radius */
+        border-radius: 4px;
         color: rgba(255, 255, 255, 0.6);
         transition: all 0.2s ease;
     }
@@ -1671,7 +1690,7 @@
     @media (max-width: 768px) {
         .project-card {
             max-width: calc(100% - 2rem);
-            padding: 0.75rem;  /* Further reduced padding on mobile */
+            padding: 0.75rem;
         }
 
         .project-header h2 {
@@ -1845,15 +1864,15 @@
     }
 
     .text-medium {
-        font-weight: 400;  /* Changed from 500 */
+        font-weight: 400;
     }
 
     .text-semibold {
-        font-weight: 500;  /* Changed from 600 */
+        font-weight: 500;
     }
 
     .text-bold {
-        font-weight: 600;  /* Changed from 700 */
+        font-weight: 600;
     }
 
     /* Text size helpers */
@@ -2530,3 +2549,4 @@
 </style>
 
 <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&display=swap" rel="stylesheet" crossorigin="anonymous">
+
