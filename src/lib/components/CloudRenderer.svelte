@@ -236,26 +236,34 @@
     let isScrolling = false;
     let scrollTimeout;
 
-    // Update the handleNavButtonPress function
+    // Constants for smooth scrolling
+    const SCROLL_SPEED = 0.0015; // Very low value for gentle scrolling
+    const MAX_CAMERA_Y = -35; // Maximum camera position (lowest point)
+    const MIN_CAMERA_Y = 0;   // Minimum camera position (highest point)
+
+    // Update handleNavButtonPress to use continuous movement
     const handleNavButtonPress = (direction) => {
         if (isNavigating) return;
         
-        if (direction === 'up' && currentSection > MIN_SECTION) {
-            currentSection = Math.max(currentSection - 1, MIN_SECTION);
-            targetCameraY = currentSection * -5;
-            sectionSpring.set({ y: currentSection * -100 });
-        } else if (direction === 'down' && currentSection < MAX_SECTION) {
-            currentSection = Math.min(currentSection + 1, MAX_SECTION);
-            targetCameraY = currentSection * -5;
-            sectionSpring.set({ y: currentSection * -100 });
+        // Move camera gently in the requested direction
+        if (direction === 'up') {
+            targetCameraY = Math.max(MIN_CAMERA_Y, targetCameraY + 1);
+        } else if (direction === 'down') {
+            targetCameraY = Math.min(MAX_CAMERA_Y, targetCameraY - 1);
         }
         
-        // Prevent further navigation for a short time
+        // Calculate approximate section for content display
+        currentSection = Math.round(Math.abs(targetCameraY) / 5);
+        
+        // Update section spring for content positioning
+        sectionSpring.set({ y: currentSection * -100 });
+        
+        // Set navigating flag briefly to prevent rapid movement
         isNavigating = true;
         clearTimeout(navigationTimeout);
         navigationTimeout = setTimeout(() => {
             isNavigating = false;
-        }, 800);
+        }, 100); // Short timeout for responsive controls
     };
 
     const handleNavButtonRelease = (direction) => {
@@ -438,54 +446,30 @@
         const scrollDelta = currentScrollY - lastScrollY;
         lastScrollY = currentScrollY;
         
-        // Make scrolling even slower by reducing multiplier to 0.005
-        // and add threshold to prevent tiny movements
-        if (Math.abs(scrollDelta) < 5) return; // Ignore very small scroll movements
-        
-        if (scrollDelta > 0 && currentSection < MAX_SECTION) {
-            // Scrolling down - move one section at a time for consistency
-            const nextSection = Math.min(currentSection + 1, MAX_SECTION);
+        // Apply very gentle scroll multiplier
+        // Only update if the scroll delta is significant enough
+        if (Math.abs(scrollDelta) > 1) {
+            // Calculate new target position with very gentle movement
+            const newTargetY = targetCameraY - (scrollDelta * SCROLL_SPEED);
             
-            // Only update if we're changing sections
-            if (nextSection !== currentSection) {
-                currentSection = nextSection;
-                targetCameraY = currentSection * -5;
-                sectionSpring.set({ y: currentSection * -100 });
-                
-                // Prevent further scrolling for a short time
-                isNavigating = true;
-                clearTimeout(navigationTimeout);
-                navigationTimeout = setTimeout(() => {
-                    isNavigating = false;
-                }, 800); // Longer timeout to prevent rapid scrolling
-            }
-        } else if (scrollDelta < 0 && currentSection > MIN_SECTION) {
-            // Scrolling up - move one section at a time for consistency
-            const nextSection = Math.max(currentSection - 1, MIN_SECTION);
+            // Clamp the target position to prevent scrolling beyond content
+            targetCameraY = Math.max(MAX_CAMERA_Y, Math.min(MIN_CAMERA_Y, newTargetY));
             
-            // Only update if we're changing sections
-            if (nextSection !== currentSection) {
-                currentSection = nextSection;
-                targetCameraY = currentSection * -5;
-                sectionSpring.set({ y: currentSection * -100 });
-                
-                // Prevent further scrolling for a short time
-                isNavigating = true;
-                clearTimeout(navigationTimeout);
-                navigationTimeout = setTimeout(() => {
-                    isNavigating = false;
-                }, 800); // Longer timeout to prevent rapid scrolling
-            }
+            // Calculate approximate section for content display
+            currentSection = Math.round(Math.abs(targetCameraY) / 5);
+            
+            // Update section spring for content positioning
+            sectionSpring.set({ y: currentSection * -100 });
+            
+            // Set scrolling flag and clear previous timeout
+            isScrolling = true;
+            clearTimeout(scrollTimeout);
+            
+            // Reset scrolling flag after a delay
+            scrollTimeout = setTimeout(() => {
+                isScrolling = false;
+            }, 150);
         }
-        
-        // Set scrolling flag and clear previous timeout
-        isScrolling = true;
-        clearTimeout(scrollTimeout);
-        
-        // Reset scrolling flag after a delay
-        scrollTimeout = setTimeout(() => {
-            isScrolling = false;
-        }, 150);
     };
 
     onMount(() => {
