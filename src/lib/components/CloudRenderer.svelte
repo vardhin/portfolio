@@ -1577,98 +1577,121 @@
 
     /* Project card styles */
     .project-card {
-        background: rgba(255, 255, 255, 0.05);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        border-radius: 12px;
-        padding: 1.25rem;
-        backdrop-filter: blur(10px);
+        background: rgba(255, 255, 255, 0.03);  /* Reduced opacity */
+        border: 1px solid rgba(255, 255, 255, 0.08);  /* More subtle border */
+        border-radius: 8px;  /* Reduced border radius */
+        padding: 1rem;  /* Reduced padding */
+        backdrop-filter: blur(8px);
         width: 100%;
-        max-width: 1400px; /* Increased from 1200px */
-        height: 450px;
+        max-width: 800px;  /* Reduced from 1400px */
         margin: 0 auto;
-        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        box-shadow: none;  /* Removed shadow */
         transition: all 0.3s ease;
-        display: flex;
-        flex-direction: column; /* Added to ensure proper layout */
-        gap: 0.75rem;
-    }
-
-    .project-content {
-        flex: 1; /* Take up remaining space */
-        overflow: hidden; /* Prevent content overflow */
     }
 
     .project-header {
-        display: flex;
-        flex-direction: column; /* Changed to stack vertically */
-        margin-bottom: 0.5rem; /* Reduced from 0.75rem */
+        margin-bottom: 0.75rem;  /* Reduced margin */
     }
 
     .project-header h2 {
-        font-size: 0.9rem; /* Reduced from 1rem */
+        font-size: 0.8rem;  /* Smaller size */
         font-weight: 300;
         margin: 0;
         letter-spacing: 0.02em;
+        color: rgba(255, 255, 255, 0.7);  /* Reduced opacity */
     }
 
     .project-header h3 {
-        font-size: 0.75rem; /* Reduced from 0.8rem */
+        font-size: 1.2rem;  /* Made larger than h2 for emphasis */
         font-weight: 400;
-        margin: 0.05rem 0 0; /* Reduced from 0.1rem */
-        color: rgba(255, 255, 255, 0.7);
-    }
-
-    .project-details {
-        height: 100%;
+        margin: 0.25rem 0 0;
+        color: rgba(255, 255, 255, 0.9);  /* Increased opacity */
     }
 
     .project-details h4 {
-        font-size: 0.75rem; /* Reduced from 0.8rem */
+        font-size: 0.7rem;
         font-weight: 500;
-        margin: 0.4rem 0 0.2rem; /* Reduced from 0.5rem 0 0.3rem */
-        color: rgba(255, 255, 255, 0.9);
-    }
-
-    .project-details h4:first-child {
-        margin-top: 0;
+        margin: 0.75rem 0 0.25rem;
+        color: rgba(255, 255, 255, 0.7);
     }
 
     .project-details p {
-        font-size: 0.7rem; /* Reduced from 0.75rem */
-        line-height: 1.25; /* Reduced from 1.3 */
-        color: rgba(255, 255, 255, 0.8);
-        margin-bottom: 0.25rem; /* Reduced from 0.3rem */
-        word-spacing: -0.06em; /* Increased negative word spacing */
+        font-size: 0.7rem;
+        line-height: 1.4;
+        color: rgba(255, 255, 255, 0.6);
+        margin-bottom: 0.5rem;
     }
 
     .project-details ul {
         list-style-type: none;
         padding: 0;
-        margin: 0 0 0.25rem; /* Reduced from 0.3rem */
+        margin: 0 0 0.5rem;
     }
 
     .project-details li {
         position: relative;
-        padding-left: 0.7rem; /* Reduced from 0.8rem */
-        margin-bottom: 0.15rem; /* Reduced from 0.2rem */
-        line-height: 1.15; /* Reduced from 1.2 */
-        font-size: 0.7rem; /* Reduced from 0.75rem */
-        color: rgba(255, 255, 255, 0.8);
-        word-spacing: -0.06em; /* Increased negative word spacing */
+        padding-left: 0.75rem;
+        margin-bottom: 0.25rem;
+        line-height: 1.3;
+        font-size: 0.7rem;
+        color: rgba(255, 255, 255, 0.6);
+    }
+
+    .project-details li::before {
+        content: "•";
+        position: absolute;
+        left: 0;
+        color: rgba(255, 255, 255, 0.4);
     }
 
     .tech-stack {
         display: flex;
         flex-wrap: wrap;
-        gap: 0.3rem;
-        padding-top: 0.5rem;
-        border-top: 1px solid rgba(255, 255, 255, 0.1);
-        align-items: center;
+        gap: 0.35rem;  /* Reduced gap */
+        padding-top: 0.75rem;
+        border-top: 1px solid rgba(255, 255, 255, 0.06);  /* More subtle border */
     }
 
     .tech-button {
-        font-size: 0.6rem; /* Reduced from 0.65rem */
-        padding: 0.15rem 0.35rem; /* Reduced from 0.2rem 0.4rem */
+        font-size: 0.6rem;
+        padding: 0.2rem 0.4rem;
+        background: rgba(255, 255, 255, 0.04);  /* More subtle background */
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 4px;  /* Reduced border radius */
+        color: rgba(255, 255, 255, 0.6);
+        transition: all 0.2s ease;
+    }
+
+    .tech-button:hover {
+        background: rgba(255, 255, 255, 0.08);
+        color: rgba(255, 255, 255, 0.8);
+    }
+
+    /* Mobile optimizations */
+    @media (max-width: 768px) {
+        .project-card {
+            max-width: calc(100% - 2rem);
+            padding: 0.75rem;  /* Further reduced padding on mobile */
+        }
+
+        .project-header h2 {
+            font-size: 0.7rem;
+        }
+
+        .project-header h3 {
+            font-size: 1rem;
+        }
+
+        .project-details h4,
+        .project-details p,
+        .project-details li {
+            font-size: 0.65rem;
+        }
+
+        .tech-button {
+            font-size: 0.55rem;
+            padding: 0.15rem 0.35rem;
+        }
     }
 
     .github-button {
@@ -1690,15 +1713,6 @@
     .github-button:hover {
         background: rgba(255, 255, 255, 0.12);
         transform: translateY(-1px);
-    }
-
-    /* Mobile optimizations */
-    @media (max-width: 768px) {
-        .project-card {
-            max-width: calc(100% - 2rem);
-            height: auto;
-            padding: 1rem;
-        }
     }
 
     /* About section */
