@@ -235,11 +235,16 @@
     let lastScrollY = 0;
     let isScrolling = false;
     let scrollTimeout;
+    let scrollVelocity = 0;
+    let lastScrollTime = 0;
 
     // Constants for smooth scrolling
-    const SCROLL_SPEED = 0.0010; // Very low value for gentle scrolling
+    const SCROLL_SPEED = 0.0008; // Reduced from 0.0010 for gentler scrolling
     const MAX_CAMERA_Y = -10; // Maximum camera position (lowest point)
     const MIN_CAMERA_Y = 0;   // Minimum camera position (highest point)
+    const SCROLL_FRICTION = 0.92; // Controls how quickly scrolling slows down
+    const SCROLL_INERTIA = 0.15; // Controls how much inertia affects movement
+    const MIN_VELOCITY_THRESHOLD = 0.001; // Velocity below this is considered stopped
 
     // Add these variables near the top with other state variables
     let normalizedMousePosition = { x: 0, y: 0 };
@@ -314,16 +319,24 @@
         // Mark that we're scrolling
         isScrolling = true;
         
-        // Clear any existing timeout
-        if (scrollTimeout) {
-            clearTimeout(scrollTimeout);
-        }
+        // Calculate current time for velocity calculation
+        const now = performance.now();
+        const timeDelta = now - lastScrollTime;
+        lastScrollTime = now;
         
         // Get current scroll position
         const currentScrollY = window.scrollY;
         
         // Calculate scroll direction and amount
         const scrollDelta = currentScrollY - lastScrollY;
+        
+        // Calculate velocity (with time normalization)
+        if (timeDelta > 0) {
+            // Smooth out the velocity calculation
+            const newVelocity = scrollDelta / timeDelta;
+            scrollVelocity = scrollVelocity * 0.7 + newVelocity * 0.3;
+        }
+        
         lastScrollY = currentScrollY;
         
         // Update target camera position based on scroll
@@ -336,12 +349,49 @@
         // Map camera Y position (0 to MAX_CAMERA_Y) to section positions (0 to -600)
         const normalizedPosition = targetCameraY / MAX_CAMERA_Y;
         const sectionPosition = normalizedPosition * -100 * MAX_SECTION;
-        sectionSpring.set({ y: sectionPosition });
+        
+        // Use a more responsive spring for active scrolling
+        sectionSpring.set({ 
+            y: sectionPosition 
+        }, { 
+            hard: false,
+            soft: 0.3 // More responsive during active scrolling
+        });
         
         // Set timeout to mark when scrolling stops
+        clearTimeout(scrollTimeout);
         scrollTimeout = setTimeout(() => {
             isScrolling = false;
         }, 150);
+    };
+
+    // Add a new function to apply scroll inertia
+    const applyScrollInertia = (deltaTime) => {
+        if (!isScrolling && Math.abs(scrollVelocity) > MIN_VELOCITY_THRESHOLD) {
+            // Apply inertia when user has stopped actively scrolling but there's still momentum
+            targetCameraY -= scrollVelocity * 16 * SCROLL_INERTIA * deltaTime;
+            
+            // Apply friction to gradually reduce velocity
+            scrollVelocity *= SCROLL_FRICTION;
+            
+            // Clamp target position to bounds
+            targetCameraY = Math.max(MAX_CAMERA_Y, Math.min(MIN_CAMERA_Y, targetCameraY));
+            
+            // Update the section spring with inertia
+            const normalizedPosition = targetCameraY / MAX_CAMERA_Y;
+            const sectionPosition = normalizedPosition * -100 * MAX_SECTION;
+            
+            // Use a softer spring for inertia scrolling
+            sectionSpring.set({ 
+                y: sectionPosition 
+            }, { 
+                hard: false,
+                soft: 0.15 // Softer for inertia scrolling
+            });
+        } else if (Math.abs(scrollVelocity) <= MIN_VELOCITY_THRESHOLD) {
+            // Reset velocity when it's below threshold
+            scrollVelocity = 0;
+        }
     };
 
     // Add this new function to handle right-click events
@@ -740,11 +790,20 @@
             // Calculate delta time
             let deltaTime = elapsed / 1000; // Convert to seconds
 
-            // Smoothly interpolate camera position
+            // Apply scroll inertia
+            applyScrollInertia(deltaTime);
+
+            // Smoothly interpolate camera position with variable smoothing
+            const smoothingFactor = isScrolling ? 
+                CAMERA_SMOOTHING * 1.5 : // Faster response during active scrolling
+                Math.abs(scrollVelocity) > MIN_VELOCITY_THRESHOLD ? 
+                    CAMERA_SMOOTHING * 1.2 : // Slightly faster during inertia
+                    CAMERA_SMOOTHING * 0.8;  // Slower for final settling
+
             cameraPosition.y = THREE.MathUtils.lerp(
                 cameraPosition.y, 
                 targetCameraY, 
-                isScrolling ? CAMERA_SMOOTHING * 2 : CAMERA_SMOOTHING
+                smoothingFactor
             );
             
             // Update positions with smoothed camera position
@@ -903,6 +962,9 @@
       // Add scroll event listener
       window.addEventListener('scroll', handleScroll, { passive: true });
   
+      // Initialize lastScrollTime
+      lastScrollTime = performance.now();
+  
       // Cleanup
       return () => {
         cancelAnimationFrame(animationFrameId);
@@ -991,9 +1053,9 @@
     
     // Create spring store for section transitions
     const sectionSpring = spring({ y: 0 }, {
-        stiffness: 0.15,
-        damping: 0.65,
-        precision: 0.001  // Added precision for smoother small movements
+        stiffness: 0.12, // Reduced from 0.15 for smoother motion
+        damping: 0.75,   // Increased from 0.65 for less oscillation
+        precision: 0.0005 // Increased precision for smoother small movements
     });
 
     // Create a sequence of transitions
