@@ -19,7 +19,7 @@
     };
   
     // Add new variable to store coordinates
-    let sunCoordinates = { x: -0.6, y: 0.012 };  // Changed from -0.6, 0.008 to -0.6, 0.012 (slightly higher)
+    let sunCoordinates = { x: -0.6, y: 0.018 };  // Changed from -0.6, 0.012 to -0.6, 0.018 (slightly higher)
   
     // Add new variables for time display
     let currentTime = "6:00 PM";  // Updated to match new position
@@ -254,7 +254,7 @@
     const SUN_HIT_RADIUS = 1.0 //changed to 1.0 for much larger hit area (was 0.6)
 
     // Add these variables near the top with other state variables
-    let targetSunPosition = { x: -0.6, y: 0.012 }; // Changed from -0.6, 0.008 to -0.6, 0.012 (slightly higher)
+    let targetSunPosition = { x: -0.6, y: 0.018 }; // Changed from -0.6, 0.012 to -0.6, 0.018 (slightly higher)
     const SUN_MOVEMENT_SPEED = 0.03; // Controls how quickly the sun moves to target position
 
     const onTouchStart = (event) => {
@@ -434,7 +434,7 @@
       const sunMesh = new THREE.Mesh(sunGeometry, sunMaterial);
       sunMesh.position.set(
         -0.5 * (frustumSize * aspect / 2),
-        0.012 * (frustumSize / 2), // Changed from 0.008 to 0.012 (slightly higher)
+        0.018 * (frustumSize / 2), // Changed from 0.012 to 0.018 (slightly higher)
         -3 // Keep at -3 to stay in front
       );
   
@@ -493,7 +493,7 @@
       const sunGlowMesh = new THREE.Mesh(sunGlowGeometry, sunGlowMaterial);
       sunGlowMesh.position.set(
         -0.6 * (frustumSize * aspect / 2),
-        0.012 * (frustumSize / 2), // Changed from 0.008 to 0.012 (slightly higher)
+        0.018 * (frustumSize / 2), // Changed from 0.012 to 0.018 (slightly higher)
         -3.5 // Changed from -6 to -3.5 to bring it forward but behind the sun
       );
       scene.add(sunMesh);
@@ -548,7 +548,7 @@
           seed: { value: Math.random() * 100.0 },
           fogTexture: { value: fogTexture },
           resolution: { value: new THREE.Vector2(window.innerWidth, window.innerHeight) },
-          sunPosition: { value: new THREE.Vector2(-0.6, 0.012) }, // Changed from -0.6, 0.008 to -0.6, 0.012 (slightly higher)
+          sunPosition: { value: new THREE.Vector2(-0.6, 0.018) }, // Changed from -0.6, 0.012 to -0.6, 0.018 (slightly higher)
 
           cloudDensity: { value: weatherState.cloudDensity },
           windSpeed: { value: weatherState.windSpeed },
@@ -1143,7 +1143,7 @@
                 break;
             case 'reset':
                 newX = -0.6;
-                newY = 0.012; // Changed from 0.008 to 0.012 (slightly higher)
+                newY = 0.018; // Changed from 0.012 to 0.018 (slightly higher)
                 break;
         }
         
