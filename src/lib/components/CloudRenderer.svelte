@@ -86,6 +86,7 @@
     // Add new state variables
     let showClouds = true;
     let enableCloudMovement = true;
+    let scene; // Add this declaration for the scene variable
   
     // Add new variable to track if it's night time
     let isNightTime = true;
