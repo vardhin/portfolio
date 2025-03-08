@@ -14,12 +14,12 @@
     import { Mail, Phone, Linkedin, Globe } from 'lucide-svelte';
   
     let container;
-    let showIntro = true;
+    let showIntro = false;
   
     // Add weather state
     let weatherState = {
-        cloudDensity: 0.3,
-        windSpeed: 0.08,
+        cloudDensity: 0.7,
+        windSpeed: 0.5,
         stormIntensity: 0.0,
         rainIntensity: 0.0
     };
@@ -28,17 +28,17 @@
     let sunCoordinates = { x: -0.6, y: -0.2 };  // Changed from -0.5, -0.3
   
     // Add new variables for time display
-    let currentTime = "02:30 AM";  // Updated to match new position
+    let currentTime = "00:00";  // Updated to match new position
     let skyColors = {
-        nightDeep: new THREE.Color(0x000000),    // Pure black (midnight)
-        nightLight: new THREE.Color(0x0A0A2A),    // Very dark blue-black
-        preDawn: new THREE.Color(0x12122E),       // Slightly lighter than night, still deep blue
-        dawn: new THREE.Color(0x1A1A3A),          // Deep blue
-        morningGold: new THREE.Color(0x1A1A3A),   // Deep blue
-        day: new THREE.Color(0x87CEEB),           // Natural sky blue (unchanged)
-        afternoonWarm: new THREE.Color(0x6CA9C2), // Slightly darker, cooler sky blue
-        dusk: new THREE.Color(0x12122E),          // Changed to match pre-dawn
-        twilight: new THREE.Color(0x0A0A2A)       // Changed to match nightLight
+        nightDeep: new THREE.Color(0x0A1025),
+        nightLight: new THREE.Color(0x1A2045),
+        preDawn: new THREE.Color(0x2A3060),
+        dawn: new THREE.Color(0x5A4080),
+        morningGold: new THREE.Color(0xD08060),
+        day: new THREE.Color(0x87CEEB),
+        afternoonWarm: new THREE.Color(0x90C0E0),
+        dusk: new THREE.Color(0xA06080),
+        twilight: new THREE.Color(0x404080)
     };
   
     // Function to convert x position to time
