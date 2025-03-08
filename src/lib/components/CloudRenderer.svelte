@@ -1490,6 +1490,13 @@
         justify-content: center;
         padding: 2rem;
         pointer-events: auto;
+        /* Add proper spacing between sections */
+        margin-bottom: 20vh; /* Creates space between sections */
+    }
+
+    /* Ensure the last section doesn't have extra margin */
+    .portfolio-section:last-child {
+        margin-bottom: 0;
     }
 
     /* Intro section styles */
@@ -1498,6 +1505,7 @@
         pointer-events: none;
         max-width: 800px;
         margin: 0 auto;
+        padding: 2rem;
     }
 
     .intro-content h1 {
@@ -1551,6 +1559,8 @@
         width: 100%;
         max-width: 1200px;
         margin: 0 auto;
+        /* Add vertical padding to create more space */
+        padding: 5vh 2rem;
     }
 
     .project-card {
@@ -1670,6 +1680,8 @@
         border-radius: 16px;
         box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
         backdrop-filter: blur(8px);
+        /* Add margin to prevent overlapping */
+        margin: 10vh auto;
     }
 
     .about-content h2 {
@@ -1773,6 +1785,8 @@
         border-radius: 16px;
         box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
         backdrop-filter: blur(8px);
+        /* Add margin to prevent overlapping */
+        margin: 10vh auto;
     }
 
     .contact-content h2 {
@@ -1851,6 +1865,14 @@
             font-size: 0.9rem;
             padding: 0.75rem;
         }
+
+        .portfolio-section {
+            margin-bottom: 15vh; /* Slightly less space on smaller screens */
+        }
+        
+        .about-content, .contact-content {
+            margin: 8vh auto;
+        }
     }
 
     @media (max-width: 480px) {
@@ -1876,6 +1898,14 @@
 
         .about-content h2, .contact-content h2 {
             font-size: 1.75rem;
+        }
+
+        .portfolio-section {
+            margin-bottom: 10vh; /* Even less space on mobile */
+        }
+        
+        .about-content, .contact-content {
+            margin: 5vh auto;
         }
     }
 
