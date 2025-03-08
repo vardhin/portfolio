@@ -994,20 +994,6 @@
         isDragging = false;
     };
     
-    // Function to get time string from x coordinate
-    function getTimeFromX(x) {
-        // Convert x from [-1, 1] to [0, 24] hours
-        const hour = ((x + 1) * 12);
-        const hourInt = Math.floor(hour);
-        const minute = Math.floor((hour - hourInt) * 60);
-        
-        // Format as 12-hour time with AM/PM
-        const period = hourInt >= 12 ? "PM" : "AM";
-        const hour12 = hourInt % 12 === 0 ? 12 : hourInt % 12;
-        
-        return `${hour12}:${minute.toString().padStart(2, '0')} ${period}`;
-    }
-    
     // Function to update mouse position for other effects
     const updateMousePosition = (event) => {
         const rect = container.getBoundingClientRect();
