@@ -665,6 +665,15 @@
       // Position camera closer
       camera.position.z = 5;
   
+      // Reset camera and target positions to ensure visibility
+      cameraPosition.y = 0;
+      targetCameraY = 0;
+      currentSection = 0;
+  
+      // Make sure clouds are visible
+      showClouds = true;
+      enableCloudMovement = true;
+  
       // Update resize handler
       const handleResize = () => {
         const aspect = window.innerWidth / window.innerHeight;
@@ -735,6 +744,7 @@
             
             fogMaterial.uniforms.time.value = time;
             
+            // Ensure fog plane is visible
             if (fogPlane) {
                 fogPlane.visible = showClouds;
             }
