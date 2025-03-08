@@ -11,10 +11,6 @@
     import ChevronDown from 'lucide-svelte/icons/chevron-down';
     import Link from 'lucide-svelte/icons/link';
     import Github from 'lucide-svelte/icons/github';
-    import Mail from 'lucide-svelte/icons/mail';
-    import Phone from 'lucide-svelte/icons/phone';
-    import Linkedin from 'lucide-svelte/icons/linkedin';
-    import Globe from 'lucide-svelte/icons/globe';
   
     let container;
     let showIntro = true;
@@ -1291,66 +1287,14 @@
                          in:fly="{{ y: 50, duration: 1000 }}"
                          out:fade>
                         <h2>About Me</h2>
-                        <div class="about-details">
-                            <p>I'm a Computer Science student at Vellore Institute of Technology, specializing in Data Science. My passion lies in developing decentralized applications and exploring innovative solutions in cloud computing and blockchain technology.</p>
-                            
-                            <div class="skills-section">
-                                <h3>Technical Expertise</h3>
-                                <div class="skills-grid">
-                                    <div class="skill-category">
-                                        <h4>Languages</h4>
-                                        <p>Python, Svelte, React Native, Solidity, SQL, TypeScript</p>
-                                    </div>
-                                    <div class="skill-category">
-                                        <h4>Developer Tools</h4>
-                                        <p>VMWare, Cursor, Azure, Android Studio, Docker</p>
-                                    </div>
-                                    <div class="skill-category">
-                                        <h4>Technologies</h4>
-                                        <p>Arch Linux, GunJs, Cloudflare, TensorFlow, IPFS, Ethereum/Hardhat</p>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="achievements-section">
-                                <h3>Current Endeavors</h3>
-                                <ul>
-                                    <li>Researching NAT Traversal improvements for P2P connections</li>
-                                    <li>Developing a patent-pending IoT solution for accessibility</li>
-                                    <li>Editorial Head at VIT's English Literary Association</li>
-                                </ul>
-                            </div>
-                        </div>
+                        <p>Your bio here...</p>
                     </div>
                 {:else if section.id === 'contact'}
                     <div class="contact-content"
                          in:fly="{{ y: 50, duration: 1000 }}"
                          out:fade>
                         <h2>Get in Touch</h2>
-                        <div class="contact-details">
-                            <div class="contact-links">
-                                <a href="mailto:suryavardhin@gmail.com" class="contact-link">
-                                    <svelte:component this={Mail} size={24} />
-                                    suryavardhin@gmail.com
-                                </a>
-                                <a href="tel:+919398026360" class="contact-link">
-                                    <svelte:component this={Phone} size={24} />
-                                    +91 939 802 6360
-                                </a>
-                                <a href="https://linkedin.com/in/vardhin/" target="_blank" rel="noopener noreferrer" class="contact-link">
-                                    <svelte:component this={Linkedin} size={24} />
-                                    linkedin.com/in/vardhin
-                                </a>
-                                <a href="https://github.com/vardhin" target="_blank" rel="noopener noreferrer" class="contact-link">
-                                    <svelte:component this={Github} size={24} />
-                                    github.com/vardhin
-                                </a>
-                                <a href="https://vardhin.tech/" target="_blank" rel="noopener noreferrer" class="contact-link">
-                                    <svelte:component this={Globe} size={24} />
-                                    vardhin.tech
-                                </a>
-                            </div>
-                        </div>
+                        <!-- Add contact information or form -->
                     </div>
                 {/if}
             </section>
@@ -1580,22 +1524,20 @@
 
     /* Project card styles */
     .project-card {
-        display: flex;
-        flex-direction: column;
         background: rgba(255, 255, 255, 0.05);
         border: 1px solid rgba(255, 255, 255, 0.1);
-        border-radius: 8px;
+        border-radius: 12px;
         padding: 1.25rem;
         backdrop-filter: blur(10px);
         width: 100%;
-        max-width: 700px;
+        max-width: 1400px; /* Increased from 1200px */
+        height: 450px;
         margin: 0 auto;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
         transition: all 0.3s ease;
-    }
-
-    .project-card:hover {
-        background: rgba(255, 255, 255, 0.1);
-        transform: translateX(5px);
+        display: flex;
+        flex-direction: column; /* Added to ensure proper layout */
+        gap: 0.75rem;
     }
 
     .project-content {
@@ -1665,23 +1607,15 @@
     .tech-stack {
         display: flex;
         flex-wrap: wrap;
-        gap: 0.75rem;
-        padding-top: 0.75rem;
+        gap: 0.3rem;
+        padding-top: 0.5rem;
         border-top: 1px solid rgba(255, 255, 255, 0.1);
+        align-items: center;
     }
 
     .tech-button {
-        background: rgba(255, 255, 255, 0.05);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        border-radius: 8px;
-        padding: 0.5rem 0.75rem;
-        font-size: 0.85rem;
-        transition: all 0.3s ease;
-    }
-
-    .tech-button:hover {
-        background: rgba(255, 255, 255, 0.1);
-        transform: translateX(5px);
+        font-size: 0.6rem; /* Reduced from 0.65rem */
+        padding: 0.15rem 0.35rem; /* Reduced from 0.2rem 0.4rem */
     }
 
     .github-button {
@@ -1707,18 +1641,10 @@
 
     /* Mobile optimizations */
     @media (max-width: 768px) {
-        .project-card,
-        .skill-category,
-        .achievements-section li,
-        .tech-button {
-            transform: none;
-        }
-
-        .project-card:hover,
-        .skill-category:hover,
-        .achievements-section li:hover,
-        .tech-button:hover {
-            transform: translateX(3px);
+        .project-card {
+            max-width: calc(100% - 2rem);
+            height: auto;
+            padding: 1rem;
         }
     }
 
@@ -1918,22 +1844,16 @@
     }
 
     .project-card {
-        display: flex;
-        flex-direction: column;
         background: rgba(255, 255, 255, 0.05);
         border: 1px solid rgba(255, 255, 255, 0.1);
-        border-radius: 8px;
-        padding: 1.25rem;
+        border-radius: 16px;
+        padding: 1.75rem;
         backdrop-filter: blur(10px);
         width: 100%;
         max-width: 700px;
         margin: 0 auto;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
         transition: all 0.3s ease;
-    }
-
-    .project-card:hover {
-        background: rgba(255, 255, 255, 0.1);
-        transform: translateX(5px);
     }
 
     .project-header {
@@ -1958,23 +1878,20 @@
     .tech-stack {
         display: flex;
         flex-wrap: wrap;
-        gap: 0.75rem;
+        gap: 0.5rem;
         margin-bottom: 1.5rem;
         justify-content: flex-start;  /* Changed from center */
     }
 
     .tech-button {
-        background: rgba(255, 255, 255, 0.05);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        border-radius: 8px;
-        padding: 0.5rem 0.75rem;
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        border-radius: 12px;
+        padding: 0.35rem 0.75rem;
+        color: rgba(255, 255, 255, 0.9);
         font-size: 0.85rem;
-        transition: all 0.3s ease;
-    }
-
-    .tech-button:hover {
-        background: rgba(255, 255, 255, 0.1);
-        transform: translateX(5px);
+        cursor: pointer;
+        transition: all 0.2s ease;
     }
 
     .project-details {
@@ -2444,176 +2361,6 @@
 
         .tech-button {
             width: auto;
-        }
-    }
-
-    /* Add these styles to your existing style section */
-
-    .about-details {
-        max-width: 800px;
-        margin: 0 auto;
-    }
-
-    .about-content p {
-        font-size: 1.1rem;
-        line-height: 1.6;
-        margin-bottom: 2rem;
-        color: rgba(255, 255, 255, 0.9);
-    }
-
-    .skills-section, .achievements-section {
-        margin-bottom: 2rem;
-    }
-
-    .skills-section h3, .achievements-section h3 {
-        font-size: 1.5rem;
-        font-weight: 400;
-        margin-bottom: 1rem;
-        color: rgba(255, 255, 255, 0.95);
-    }
-
-    .skills-grid {
-        display: flex;
-        flex-direction: column;
-        gap: 1.25rem;
-        margin-top: 1rem;
-    }
-
-    .skill-category {
-        display: flex;
-        flex-direction: column;
-        background: rgba(255, 255, 255, 0.05);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        border-radius: 8px;
-        padding: 0.75rem;
-        transition: all 0.3s ease;
-    }
-
-    .skill-category:hover {
-        background: rgba(255, 255, 255, 0.1);
-        transform: translateX(5px);
-    }
-
-    .skill-category h4 {
-        font-size: 1.1rem;
-        font-weight: 500;
-        margin-bottom: 0.5rem;
-        color: rgba(255, 255, 255, 0.9);
-    }
-
-    .skill-category p {
-        font-size: 0.95rem;
-        line-height: 1.5;
-        color: rgba(255, 255, 255, 0.8);
-        margin: 0;
-    }
-
-    .achievements-section ul {
-        list-style: none;
-        padding: 0;
-        margin: 0;
-    }
-
-    .achievements-section li {
-        display: flex;
-        background: rgba(255, 255, 255, 0.05);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        border-radius: 8px;
-        padding: 0.75rem;
-        margin-bottom: 1.25rem;
-        transition: all 0.3s ease;
-        font-size: 0.95rem;
-        line-height: 1.5;
-        color: rgba(255, 255, 255, 0.8);
-    }
-
-    .achievements-section li:hover {
-        background: rgba(255, 255, 255, 0.1);
-        transform: translateX(5px);
-    }
-
-    /* Mobile responsiveness */
-    @media (max-width: 768px) {
-        .project-card,
-        .skill-category,
-        .achievements-section li {
-            transform: none;
-        }
-
-        .project-card:hover,
-        .skill-category:hover,
-        .achievements-section li:hover {
-            transform: translateX(3px);
-        }
-
-        .about-content p {
-            font-size: 1rem;
-        }
-
-        .skills-section h3, .achievements-section h3 {
-            font-size: 1.25rem;
-        }
-
-        .skill-category h4 {
-            font-size: 1rem;
-        }
-
-        .skill-category p {
-            font-size: 0.9rem;
-        }
-    }
-
-    .contact-details {
-        max-width: 600px;
-        margin: 0 auto;
-    }
-
-    .contact-links {
-        display: flex;
-        flex-direction: column;
-        gap: 1.25rem;
-        margin-top: 2rem;
-    }
-
-    .contact-link {
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-        font-size: 1.1rem;
-        color: rgba(255, 255, 255, 0.9);
-        text-decoration: none;
-        padding: 0.75rem;
-        border-radius: 8px;
-        background: rgba(255, 255, 255, 0.05);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        transition: all 0.3s ease;
-    }
-
-    .contact-link:hover {
-        background: rgba(255, 255, 255, 0.1);
-        transform: translateX(5px);
-    }
-
-    /* Mobile responsiveness */
-    @media (max-width: 768px) {
-        .about-content p {
-            font-size: 1rem;
-        }
-
-        .skills-section h3, .achievements-section h3 {
-            font-size: 1.25rem;
-        }
-
-        .skill-category h4 {
-            font-size: 1rem;
-        }
-
-        .skill-category p {
-            font-size: 0.9rem;
-        }
-
-        .contact-link {
-            font-size: 0.95rem;
         }
     }
 </style>
