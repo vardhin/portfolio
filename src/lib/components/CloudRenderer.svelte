@@ -340,15 +340,15 @@
 
     // Add this new function to handle right-click events
     const onContextMenu = (event) => {
-        // Check if the click target is a control button or content overlay
-        if (event.target.closest('.controls') || 
-            (event.target.closest('.content-overlay') && 
-             !event.target.closest('.content-overlay').classList.contains('portfolio-section'))) {
-            return; // Let the button or content handle the event
-        }
-        
-        // Prevent default context menu
+        // Always prevent default context menu first
         event.preventDefault();
+        
+        // Check if the click target is a control button or content overlay with links
+        if (event.target.closest('.controls') || 
+            (event.target.closest('a') || 
+             event.target.closest('button'))) {
+            return; // Let the button or link handle the event normally
+        }
         
         const rect = container.getBoundingClientRect();
         const clickX = ((event.clientX - rect.left) / rect.width) * 2 - 1;
