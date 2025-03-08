@@ -2626,6 +2626,7 @@
         position: relative;
         width: 100%;
         z-index: 2;
+        pointer-events: all; /* Enable pointer events on the content */
     }
 
     /* Update portfolio-section to use window height without scroll-snap */
@@ -2636,7 +2637,7 @@
         align-items: center;
         justify-content: center;
         padding: 2rem;
-        pointer-events: none;
+        pointer-events: all; /* Enable pointer events on sections */
     }
 
     /* Add smooth scrolling to the html element */
@@ -2669,6 +2670,14 @@
         -moz-user-select: none; /* For Firefox */
         -ms-user-select: none; /* For IE/Edge */
         touch-action: none; /* Prevent default touch actions */
+    }
+
+    /* Add this to ensure text can't be selected */
+    .intro-content, .project-section, .about-content, .contact-content {
+        user-select: none;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
     }
 </style>
 
