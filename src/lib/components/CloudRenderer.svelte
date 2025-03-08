@@ -241,6 +241,10 @@
     const MAX_CAMERA_Y = -35; // Maximum camera position (lowest point)
     const MIN_CAMERA_Y = 0;   // Minimum camera position (highest point)
 
+    // Add these variables near the top with other state variables
+    let normalizedMousePosition = { x: 0, y: 0 };
+    let isDragging = false;
+
     // Add these touch event handlers near the other mouse handlers
     const onTouchStart = (event) => {
         // Check if the touch target is a control button or content overlay
