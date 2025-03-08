@@ -1066,189 +1066,138 @@
 </script>
   
   <div class="main-container">
-    <!-- Cloud and movement controls -->
-    <div class="controls top-left">
-        <button 
-            class="control-button" 
-            title={showClouds ? 'Hide Clouds' : 'Show Clouds'} 
-            on:click={() => showClouds = !showClouds}
-        >
-            <svelte:component this={showClouds ? Cloud : CloudSun} size={20} />
-        </button>
-        <button 
-            class="control-button" 
-            title={enableCloudMovement ? 'Stop Movement' : 'Start Movement'} 
-            on:click={() => enableCloudMovement = !enableCloudMovement}
-        >
-            <svelte:component this={enableCloudMovement ? Pause : Play} size={20} />
-        </button>
-    </div>
+    <!-- About Section -->
+    <section class="about-section">
+        <h1>{about.name}</h1>
+        <h2 class="about-title">{about.title}</h2>
+        <p>{about.description}</p>
+        <div class="social-links">
+            <a href={about.links.github} class="social-link" target="_blank" rel="noopener">
+                <i class="fab fa-github"></i> GitHub
+            </a>
+            <a href={about.links.linkedin} class="social-link" target="_blank" rel="noopener">
+                <i class="fab fa-linkedin"></i> LinkedIn
+            </a>
+            <a href={about.links.website} class="social-link" target="_blank" rel="noopener">
+                <i class="fas fa-globe"></i> Website
+            </a>
+            <a href={`mailto:${about.links.email}`} class="social-link">
+                <i class="fas fa-envelope"></i> Email
+            </a>
+        </div>
+    </section>
 
-    <!-- Navigation controls -->
-    <div class="controls nav-controls">
-        <button 
-            class="control-button nav-button"
-            on:mousedown={() => handleNavButtonPress('up')}
-            on:mouseup={() => handleNavButtonRelease('up')}
-            on:mouseleave={() => handleNavButtonRelease('up')}
-            on:touchstart|preventDefault={() => handleNavButtonPress('up')}
-            on:touchend|preventDefault={() => handleNavButtonRelease('up')}
-            disabled={currentSection <= MIN_SECTION}
-        >
-            <svelte:component this={ChevronUp} size={20} />
-        </button>
-        <button 
-            class="control-button nav-button"
-            on:mousedown={() => handleNavButtonPress('down')}
-            on:mouseup={() => handleNavButtonRelease('down')}
-            on:mouseleave={() => handleNavButtonRelease('down')}
-            on:touchstart|preventDefault={() => handleNavButtonPress('down')}
-            on:touchend|preventDefault={() => handleNavButtonRelease('down')}
-            disabled={currentSection >= MAX_SECTION}
-        >
-            <svelte:component this={ChevronDown} size={20} />
-        </button>
-    </div>
+    <!-- Education Section -->
+    <section>
+        <h2 class="section-title">Education</h2>
+        <div class="education-card">
+            <h3>{education.institution}</h3>
+            <p>{education.degree}</p>
+            <p>Specialization in {education.specialization}</p>
+            <p>{education.period}</p>
+            <p>{education.location}</p>
+        </div>
+    </section>
 
-    <div bind:this={container} 
-         class="canvas-container" 
-         style="opacity: 0; 
-                transition: opacity 1s ease-in-out;
-                background: #000000;">
-        <!-- Canvas will be added here by Three.js -->
-    </div>
+    <!-- Skills Section -->
+    <section>
+        <h2 class="section-title">Technical Skills</h2>
+        <div class="skills-grid">
+            <div class="skill-category">
+                <h3 class="skill-category-title">Languages</h3>
+                <ul>
+                    {#each skills.languages as skill}
+                        <li>{skill}</li>
+                    {/each}
+                </ul>
+            </div>
+            <div class="skill-category">
+                <h3 class="skill-category-title">Developer Tools</h3>
+                <ul>
+                    {#each skills.tools as tool}
+                        <li>{tool}</li>
+                    {/each}
+                </ul>
+            </div>
+            <div class="skill-category">
+                <h3 class="skill-category-title">Technologies</h3>
+                <ul>
+                    {#each skills.technologies as tech}
+                        <li>{tech}</li>
+                    {/each}
+                </ul>
+            </div>
+        </div>
+    </section>
 
-    <!-- Modified content overlay -->
-    <div class="content-overlay" 
-         style="transform: translateY({$sectionSpring.y}vh)">
-        {#each sections as section, i}
-            <section 
-                class="portfolio-section" 
-                class:active={currentSection === i}
-            >
-                {#if section.id === 'intro' && showIntro}
-                    <div class="intro-content" 
-                         in:fly="{{ y: 50, duration: 1000, delay: 500 }}"
-                         out:fade>
-                        <h1>
-                            {#each 'Surya Vardhin Gamidi' as char, i}
-                                <span style="animation-delay: {i * 0.08}s">
-                                    {char === ' ' ? '\u00A0' : char}
-                                </span>
-                            {/each}
-                        </h1>
-                        <p>Web Developer & Designer</p>
+    <!-- Projects Section -->
+    <section>
+        <h2 class="section-title">Projects</h2>
+        <div class="projects-container">
+            {#each projects as project}
+                <div class="project-card">
+                    <div class="project-header">
+                        <h2>{project.title}</h2>
+                        <h3>{project.subtitle}</h3>
                     </div>
-                {:else if section.id === 'decloud'}
-                    <div class="project-card" in:fly="{{ y: 50, duration: 1000 }}" out:fade>
-                        <div class="project-content">
-                            <div class="project-header">
-                                <div class="project-header-text">
-                                    <h2>Decentralized Cloud Computing</h2>
-                                    <h3>Decloud</h3>
-                                </div>
-                            </div>
-                            
-                            <div class="scrollable-content">
-                                <div class="project-details">
-                                    <p>Desktop app for secure, decentralized computing resource sharing using IPFS PubSub and Docker containers.</p>
-                                </div>
-                            </div>
-                        </div>
-                        
+                    <div class="project-details">
+                        <p>{project.description}</p>
                         <div class="tech-stack">
-                            {#each ['Electron', 'Svelte', 'IPFS', 'Docker', 'TypeScript'] as tech}
+                            {#each project.techStack as tech}
                                 <span class="tech-button">{tech}</span>
                             {/each}
                         </div>
                     </div>
-                {:else if section.id === 'recon'}
-                    <div class="project-card" in:fly="{{ y: 50, duration: 1000 }}" out:fade>
-                        <div class="project-content">
-                            <div class="project-header">
-                                <div class="project-header-text">
-                                    <h2>Decentralized Messaging</h2>
-                                    <h3>Recon</h3>
-                                </div>
-                            </div>
-                            
-                            <div class="scrollable-content">
-                                <div class="project-details">
-                                    <p>P2P mobile messaging app using GunJs for serverless data sync and Capacitor for cross-platform deployment.</p>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="tech-stack">
-                            {#each ['Svelte', 'Capacitor', 'GunJs', 'TypeScript'] as tech}
-                                <span class="tech-button">{tech}</span>
-                            {/each}
-                        </div>
+                    <div class="project-links">
+                        <a href={project.github} class="github-button" target="_blank" rel="noopener">
+                            <Github size={16} />
+                            View on GitHub
+                        </a>
                     </div>
-                {:else if section.id === 'yantra'}
-                    <div class="project-card" in:fly="{{ y: 50, duration: 1000 }}" out:fade>
-                        <div class="project-content">
-                            <div class="project-header">
-                                <div class="project-header-text">
-                                    <h2>Disaster Resistant Shelter</h2>
-                                    <h3>Yantra</h3>
-                                </div>
-                            </div>
-                            
-                            <div class="scrollable-content">
-                                <div class="project-details">
-                                    <p>Design-a-thon winning shelter design with advanced safety features and computational stress analysis.</p>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="tech-stack">
-                            {#each ['Python', 'NumPy', 'Matplotlib'] as tech}
-                                <span class="tech-button">{tech}</span>
-                            {/each}
-                        </div>
-                    </div>
-                {:else if section.id === 'carbon'}
-                    <div class="project-card" in:fly="{{ y: 50, duration: 1000 }}" out:fade>
-                        <div class="project-content">
-                            <div class="project-header">
-                                <div class="project-header-text">
-                                    <h2>Carbon Credit Marketplace</h2>
-                                    <h3>Code4Change</h3>
-                                </div>
-                            </div>
-                            
-                            <div class="scrollable-content">
-                                <div class="project-details">
-                                    <p>IEEE Code4Change finalist. Blockchain-based marketplace for transparent carbon credit trading.</p>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="tech-stack">
-                            {#each ['React Native', 'Ethereum', 'Blockchain'] as tech}
-                                <span class="tech-button">{tech}</span>
-                            {/each}
-                        </div>
-                    </div>
-                {:else if section.id === 'about'}
-                    <div class="about-content"
-                         in:fly="{{ y: 50, duration: 1000 }}"
-                         out:fade>
-                        <h2>About Me</h2>
-                        <p>Your bio here...</p>
-                    </div>
-                {:else if section.id === 'contact'}
-                    <div class="contact-content"
-                         in:fly="{{ y: 50, duration: 1000 }}"
-                         out:fade>
-                        <h2>Get in Touch</h2>
-                        <!-- Add contact information or form -->
-                    </div>
-                {/if}
-            </section>
+                </div>
+            {/each}
+        </div>
+    </section>
+
+    <!-- Achievements Section -->
+    <section>
+        <h2 class="section-title">Achievements</h2>
+        {#each achievements as achievement}
+            <div class="achievement-card">
+                <h3>{achievement.title}</h3>
+                <h4>{achievement.organization}</h4>
+                <p class="date">{achievement.date}</p>
+                <p>{achievement.description}</p>
+            </div>
         {/each}
-    </div>
+    </section>
+
+    <!-- Research Section -->
+    <section>
+        <h2 class="section-title">Research & Patents</h2>
+        {#each research as item}
+            <div class="research-item">
+                <h3>{item.title}</h3>
+                <p class="research-type">{item.type} - {item.status}</p>
+                <p>{item.description}</p>
+            </div>
+        {/each}
+    </section>
+
+    <!-- Leadership Section -->
+    <section>
+        <h2 class="section-title">Leadership</h2>
+        <div class="leadership-card">
+            <h3>{leadership.title}</h3>
+            <h4>{leadership.organization}</h4>
+            <p>{leadership.period}</p>
+            <ul>
+                {#each leadership.highlights as highlight}
+                    <li>{highlight}</li>
+                {/each}
+            </ul>
+        </div>
+    </section>
   </div>
   
   <style>
