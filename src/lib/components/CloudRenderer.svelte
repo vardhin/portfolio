@@ -2707,7 +2707,49 @@
             font-size: 1.2rem;
         }
     }
-</style>
+
+    /* Remove these scroll-snap properties from content-overlay */
+    .content-overlay {
+        position: relative;
+        width: 100%;
+        z-index: 2;
+        /* Remove these properties:
+        scroll-snap-type: y mandatory;
+        overflow-y: auto;
+        height: 100vh;
+        */
+    }
+
+    /* Update portfolio-section to use window height without scroll-snap */
+    .portfolio-section {
+        height: 100vh;
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem;
+        pointer-events: none;
+        /* Remove:
+        scroll-snap-align: start;
+        scroll-snap-stop: always;
+        */
+    }
+
+    /* Add smooth scrolling to the html element */
+    :global(html) {
+        scroll-behavior: smooth;
+    }
+
+    /* Hide scrollbar but keep functionality */
+    :global(::-webkit-scrollbar) {
+        display: none;
+    }
+
+    :global(body) {
+        -ms-overflow-style: none;  /* IE and Edge */
+        scrollbar-width: none;  /* Firefox */
+    }
+  </style>
 
 <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&display=swap" rel="stylesheet" crossorigin="anonymous">
 
