@@ -1572,6 +1572,11 @@
                      0 0 20px rgba(180, 180, 220, 0.3),
                      0 0 30px rgba(160, 160, 200, 0.2);
         color: #f0f0f8; /* Slightly silver-tinted white */
+        /* Add word wrapping for the title */
+        overflow-wrap: break-word;
+        word-wrap: break-word;
+        hyphens: auto;
+        max-width: 100%;
     }
 
     .intro-content h1 span {
@@ -1937,6 +1942,10 @@
     @media (max-width: 768px) {
         .intro-content h1 {
             font-size: 2.5rem;
+            /* Improve word wrapping for title */
+            word-break: break-word;
+            max-width: 100%;
+            padding: 0 0.5rem;
         }
 
         .intro-content p {
@@ -1944,9 +1953,10 @@
         }
 
         .project-card, .about-content, .contact-content {
-            padding: 1.5rem;
-            max-height: 80vh;
+            padding: 1.25rem;
+            max-height: 85vh; /* Increased from 80vh */
             overflow-y: auto;
+            width: 92%; /* Increased from default to occupy more space */
         }
 
         .project-header-text h3 {
@@ -1992,23 +2002,30 @@
 
     @media (max-width: 480px) {
         .portfolio-section {
-            padding: 1rem;
+            padding: 0.75rem; /* Reduced from 1rem */
             height: auto;
             min-height: 100vh;
         }
 
         .intro-content h1 {
             font-size: 2rem;
+            /* Further improve word wrapping for small screens */
+            line-height: 1.2;
+            letter-spacing: 0.03em;
+            padding: 0 0.25rem;
         }
 
         .intro-content p {
             font-size: 1rem;
+            padding: 0 0.5rem;
         }
 
         .project-card, .about-content, .contact-content {
-            padding: 1.25rem;
+            padding: 1rem; /* Reduced from 1.25rem */
             max-height: none;
             overflow-y: visible;
+            width: 95%; /* Increased to occupy more space on mobile */
+            margin: 0 auto; /* Center the panels */
         }
 
         .project-header-text h3 {
@@ -2058,7 +2075,7 @@
     /* Landscape orientation adjustments - improved for better usability */
     @media (max-height: 480px) and (orientation: landscape) {
         .portfolio-section {
-            padding: 1rem;
+            padding: 0.75rem; /* Reduced from 1rem */
             align-items: flex-start;
             overflow-y: auto;
             height: auto;
@@ -2068,6 +2085,9 @@
         .intro-content h1 {
             font-size: 1.75rem;
             margin-bottom: 0.5rem;
+            /* Improve word wrapping for landscape */
+            line-height: 1.2;
+            max-width: 100%;
         }
 
         .intro-content p {
@@ -2075,9 +2095,11 @@
         }
 
         .project-card, .about-content, .contact-content {
-            max-height: 70vh;
+            max-height: 75vh; /* Increased from 70vh */
             overflow-y: auto;
-            padding: 1rem;
+            padding: 0.85rem; /* Reduced from 1rem */
+            width: 90%; /* Increased width to use more space */
+            margin: 0 auto; /* Center the panels */
         }
 
         .project-header-text h2 {
@@ -2135,7 +2157,8 @@
         }
 
         .project-card, .about-content, .contact-content {
-            max-height: 60vh;
+            max-height: 65vh; /* Increased from 60vh */
+            width: 92%; /* Increased width */
         }
     }
 
