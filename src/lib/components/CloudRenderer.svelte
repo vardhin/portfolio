@@ -1149,6 +1149,11 @@
         
         updateSunPosition(newX, newY);
     }
+
+    // Modify the intro section to properly wrap the name
+    let firstName = "Surya";
+    let middleName = "Vardhin";
+    let lastName = "Gamidi";
 </script>
   
 <div class="main-container">
@@ -1199,11 +1204,28 @@
                          in:fly="{{ y: 50, duration: 1000, delay: 100 }}"
                          out:fade>
                         <h1>
-                            {#each 'Surya Vardhin Gamidi' as char, i}
-                                <span class="animated" style="animation-delay: {i * 0.08}s, {1.2 + i * 0.08}s">
-                                    {char === ' ' ? '\u00A0' : char}
-                                </span>
-                            {/each}
+                            <!-- Modified to handle each name part separately -->
+                            <span class="name-part">
+                                {#each firstName as char, i}
+                                    <span class="animated" style="animation-delay: {i * 0.08}s, {1.2 + i * 0.08}s">
+                                        {char === ' ' ? '\u00A0' : char}
+                                    </span>
+                                {/each}
+                            </span>
+                            <span class="name-part">
+                                {#each middleName as char, i}
+                                    <span class="animated" style="animation-delay: {(firstName.length + i) * 0.08}s, {1.2 + (firstName.length + i) * 0.08}s">
+                                        {char === ' ' ? '\u00A0' : char}
+                                    </span>
+                                {/each}
+                            </span>
+                            <span class="name-part">
+                                {#each lastName as char, i}
+                                    <span class="animated" style="animation-delay: {(firstName.length + middleName.length + 1 + i) * 0.08}s, {1.2 + (firstName.length + middleName.length + 1 + i) * 0.08}s">
+                                        {char === ' ' ? '\u00A0' : char}
+                                    </span>
+                                {/each}
+                            </span>
                         </h1>
                         <p>Computer Science Engineer specializing in Data Science</p>
                     </div>
@@ -1577,6 +1599,18 @@
         word-wrap: break-word;
         hyphens: auto;
         max-width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    /* Add styling for name parts */
+    .name-part {
+        display: block;
+        width: 100%;
+        text-align: center;
+        margin-bottom: 0.1em;
     }
 
     .intro-content h1 span {
@@ -1641,7 +1675,7 @@
         animation-delay: 0s, 1.2s; /* Start pulsing after the fade-in completes */
     }
 
-    /* Project section styles */
+    /* Project section styles - improved for better spacing */
     .project-section {
         display: flex;
         justify-content: center;
@@ -1651,6 +1685,7 @@
         margin: 0 auto;
         /* Add vertical padding to create more space */
         padding: 5vh 2rem;
+        min-height: 80vh; /* Ensure minimum height */
     }
 
     .project-card {
@@ -1666,6 +1701,10 @@
         overflow-wrap: break-word;
         word-wrap: break-word;
         hyphens: auto;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        min-height: 60vh; /* Ensure minimum height */
     }
 
     .project-content {
@@ -1947,9 +1986,14 @@
             max-width: 100%;
             padding: 0 0.5rem;
         }
+        
+        .name-part {
+            margin-bottom: 0.2em;
+        }
 
-        .intro-content p {
-            font-size: 1.2rem;
+        .project-section {
+            padding: 2vh 1rem;
+            min-height: 70vh;
         }
 
         .project-card, .about-content, .contact-content {
@@ -1957,6 +2001,7 @@
             max-height: 85vh; /* Increased from 80vh */
             overflow-y: auto;
             width: 92%; /* Increased from default to occupy more space */
+            min-height: 65vh;
         }
 
         .project-header-text h3 {
@@ -2014,10 +2059,14 @@
             letter-spacing: 0.03em;
             padding: 0 0.25rem;
         }
+        
+        .name-part {
+            margin-bottom: 0.15em;
+        }
 
-        .intro-content p {
-            font-size: 1rem;
-            padding: 0 0.5rem;
+        .project-section {
+            padding: 1vh 0.5rem;
+            min-height: 80vh;
         }
 
         .project-card, .about-content, .contact-content {
@@ -2026,6 +2075,7 @@
             overflow-y: visible;
             width: 95%; /* Increased to occupy more space on mobile */
             margin: 0 auto; /* Center the panels */
+            min-height: 70vh;
         }
 
         .project-header-text h3 {
@@ -2088,10 +2138,21 @@
             /* Improve word wrapping for landscape */
             line-height: 1.2;
             max-width: 100%;
+            flex-direction: row;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+        
+        .name-part {
+            display: inline-block;
+            width: auto;
+            margin-right: 0.5rem;
         }
 
-        .intro-content p {
-            font-size: 0.9rem;
+        .project-section {
+            padding: 1vh 0.5rem;
+            min-height: 90vh;
         }
 
         .project-card, .about-content, .contact-content {
@@ -2100,6 +2161,7 @@
             padding: 0.85rem; /* Reduced from 1rem */
             width: 90%; /* Increased width to use more space */
             margin: 0 auto; /* Center the panels */
+            min-height: 65vh;
         }
 
         .project-header-text h2 {
@@ -2159,6 +2221,7 @@
         .project-card, .about-content, .contact-content {
             max-height: 65vh; /* Increased from 60vh */
             width: 92%; /* Increased width */
+            min-height: 60vh;
         }
     }
 
