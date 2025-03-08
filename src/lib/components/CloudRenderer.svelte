@@ -2749,6 +2749,41 @@
         -ms-overflow-style: none;  /* IE and Edge */
         scrollbar-width: none;  /* Firefox */
     }
+
+    /* Remove these scroll-related styles */
+    :global(::-webkit-scrollbar) {
+        width: 8px;  /* Width of the scrollbar */
+    }
+
+    :global(::-webkit-scrollbar-track) {
+        background: rgba(255, 255, 255, 0.05);  /* Track color */
+        border-radius: 4px;
+    }
+
+    :global(::-webkit-scrollbar-thumb) {
+        background: rgba(255, 255, 255, 0.15);  /* Thumb color */
+        border-radius: 4px;
+        transition: background 0.2s ease;
+    }
+
+    :global(::-webkit-scrollbar-thumb:hover) {
+        background: rgba(255, 255, 255, 0.25);  /* Thumb hover color */
+    }
+
+    /* Remove these properties that were hiding the scrollbar */
+    :global(body) {
+        -ms-overflow-style: auto;  /* Show scrollbar in IE and Edge */
+        scrollbar-width: auto;  /* Show scrollbar in Firefox */
+    }
+
+    /* Remove the manual scroll implementation */
+    // Remove handleScroll function and its event listener
+    // Remove scrollTimeout and isScrolling variables
+    // Remove lastScrollY variable
+
+    // In the onMount cleanup, remove:
+    window.removeEventListener('scroll', handleScroll);
+    clearTimeout(scrollTimeout);
   </style>
 
 <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&display=swap" rel="stylesheet" crossorigin="anonymous">
