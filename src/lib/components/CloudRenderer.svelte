@@ -1658,6 +1658,9 @@
         box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
         backdrop-filter: blur(8px);
         position: relative;
+        overflow-wrap: break-word;
+        word-wrap: break-word;
+        hyphens: auto;
     }
 
     .project-content {
@@ -1705,8 +1708,11 @@
     .project-details p {
         font-size: 1rem;
         line-height: 1.6;
-        color: rgba(255, 255, 255, 0.8); /* Increased from 0.08 to 0.8 */
+        color: rgba(255, 255, 255, 0.8);
         margin-bottom: 1rem;
+        overflow-wrap: break-word;
+        word-wrap: break-word;
+        hyphens: auto;
     }
 
     .project-details ul {
@@ -1721,7 +1727,10 @@
         margin-bottom: 0.75rem;
         line-height: 1.5;
         font-size: 1rem;
-        color: rgba(255, 255, 255, 0.8); /* Increased from 0.08 to 0.8 */
+        color: rgba(255, 255, 255, 0.8);
+        overflow-wrap: break-word;
+        word-wrap: break-word;
+        hyphens: auto;
     }
 
     .project-details li::before {
@@ -1766,6 +1775,9 @@
         box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
         backdrop-filter: blur(8px);
         margin: 10vh auto;
+        overflow-wrap: break-word;
+        word-wrap: break-word;
+        hyphens: auto;
     }
 
     .about-content h2 {
@@ -1793,6 +1805,9 @@
         font-size: 1.1rem;
         line-height: 1.6;
         margin: 0;
+        overflow-wrap: break-word;
+        word-wrap: break-word;
+        hyphens: auto;
     }
 
     .panel-header {
@@ -1831,6 +1846,9 @@
         line-height: 1.5;
         margin: 0;
         color: rgba(255, 255, 255, 0.7);
+        overflow-wrap: break-word;
+        word-wrap: break-word;
+        hyphens: auto;
     }
 
     .achievements-panel ul {
@@ -1845,7 +1863,10 @@
         margin-bottom: 0.75rem;
         line-height: 1.5;
         font-size: 1rem;
-        color: rgba(255, 255, 255, 0.8); /* Increased from 0.08 to 0.8 */
+        color: rgba(255, 255, 255, 0.8);
+        overflow-wrap: break-word;
+        word-wrap: break-word;
+        hyphens: auto;
     }
 
     .achievements-panel li::before {
@@ -1870,6 +1891,9 @@
         box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
         backdrop-filter: blur(8px);
         margin: 10vh auto;
+        overflow-wrap: break-word;
+        word-wrap: break-word;
+        hyphens: auto;
     }
 
     .contact-content h2 {
@@ -1898,6 +1922,10 @@
         background: rgba(255, 255, 255, 0.1);
         border: 1px solid rgba(255, 255, 255, 0.08);
         transition: all 0.3s ease;
+        overflow-wrap: break-word;
+        word-wrap: break-word;
+        word-break: break-all;
+        hyphens: auto;
     }
 
     .contact-link:hover {
@@ -1905,7 +1933,7 @@
         transform: translateX(5px);
     }
 
-    /* Responsive styles */
+    /* Responsive styles - Enhanced for better mobile experience */
     @media (max-width: 768px) {
         .intro-content h1 {
             font-size: 2.5rem;
@@ -1917,6 +1945,8 @@
 
         .project-card, .about-content, .contact-content {
             padding: 1.5rem;
+            max-height: 80vh;
+            overflow-y: auto;
         }
 
         .project-header-text h3 {
@@ -1947,10 +1977,12 @@
         .contact-link {
             font-size: 0.9rem;
             padding: 0.75rem;
+            flex-wrap: wrap;
         }
 
         .portfolio-section {
             margin-bottom: 15vh; /* Slightly less space on smaller screens */
+            padding: 1.5rem;
         }
         
         .about-content, .contact-content {
@@ -1961,6 +1993,8 @@
     @media (max-width: 480px) {
         .portfolio-section {
             padding: 1rem;
+            height: auto;
+            min-height: 100vh;
         }
 
         .intro-content h1 {
@@ -1973,6 +2007,8 @@
 
         .project-card, .about-content, .contact-content {
             padding: 1.25rem;
+            max-height: none;
+            overflow-y: visible;
         }
 
         .project-header-text h3 {
@@ -1990,14 +2026,43 @@
         .about-content, .contact-content {
             margin: 5vh auto;
         }
+
+        .contact-link {
+            padding: 0.75rem;
+            font-size: 0.85rem;
+            word-break: break-all;
+        }
+
+        .tech-stack {
+            gap: 0.5rem;
+        }
+
+        .tech-button {
+            font-size: 0.75rem;
+            padding: 0.35rem 0.7rem;
+        }
+
+        .skill-panel {
+            padding: 0.75rem;
+        }
+
+        .skill-panel h4 {
+            font-size: 0.9rem;
+        }
+
+        .skill-panel p {
+            font-size: 0.8rem;
+        }
     }
 
-    /* Landscape orientation adjustments */
+    /* Landscape orientation adjustments - improved for better usability */
     @media (max-height: 480px) and (orientation: landscape) {
         .portfolio-section {
             padding: 1rem;
             align-items: flex-start;
             overflow-y: auto;
+            height: auto;
+            min-height: 100vh;
         }
 
         .intro-content h1 {
@@ -2010,8 +2075,67 @@
         }
 
         .project-card, .about-content, .contact-content {
-            max-height: 80vh;
+            max-height: 70vh;
             overflow-y: auto;
+            padding: 1rem;
+        }
+
+        .project-header-text h2 {
+            font-size: 0.9rem;
+        }
+
+        .project-header-text h3 {
+            font-size: 1.2rem;
+        }
+
+        .project-details h4 {
+            font-size: 0.9rem;
+            margin: 1rem 0 0.5rem;
+        }
+
+        .project-details p, .project-details li {
+            font-size: 0.85rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .about-content h2, .contact-content h2 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .about-panel {
+            padding: 1rem;
+        }
+
+        .skills-grid {
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.5rem;
+        }
+
+        .contact-links {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.5rem;
+        }
+
+        .contact-link {
+            font-size: 0.8rem;
+            padding: 0.5rem;
+        }
+    }
+
+    /* Small landscape devices */
+    @media (max-height: 400px) and (orientation: landscape) {
+        .skills-grid {
+            grid-template-columns: repeat(3, 1fr);
+        }
+
+        .portfolio-section {
+            margin-bottom: 5vh;
+        }
+
+        .project-card, .about-content, .contact-content {
+            max-height: 60vh;
         }
     }
 
