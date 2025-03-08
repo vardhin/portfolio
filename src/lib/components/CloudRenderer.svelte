@@ -411,6 +411,13 @@
     };
 
     onMount(() => {
+      // Check if device is mobile
+      isMobile = window.innerWidth < 768;
+      
+      // Set defaults based on device type
+      showClouds = !isMobile; // Hide clouds on mobile by default
+      enableCloudMovement = !isMobile; // Disable cloud movement on mobile by default
+      
       // Scene setup
       scene = new THREE.Scene();  // Remove 'const' to use component-scoped variable
       
@@ -429,7 +436,7 @@
       const sunMaterial = new THREE.MeshBasicMaterial({ 
         color: 0xFFF7E6,
         transparent: true,
-        opacity: 1.0
+        opacity: isMobile ? 0.0 : 1.0 // Hide sun on mobile by setting opacity to 0
       });
       const sunMesh = new THREE.Mesh(sunGeometry, sunMaterial);
       sunMesh.position.set(
@@ -1157,7 +1164,8 @@
 </script>
   
 <div class="main-container">
-    <!-- Cloud and movement controls -->
+    <!-- Cloud and movement controls - only show on non-mobile -->
+    {#if !isMobile}
     <div class="controls top-left">
         <button 
             class="control-button" 
@@ -1173,8 +1181,8 @@
         >
             <svelte:component this={enableCloudMovement ? Pause : Play} size={20} />
         </button>
-        <!-- Debug button completely removed -->
     </div>
+    {/if}
 
     <!-- Debug controls section completely removed -->
 
