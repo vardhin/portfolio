@@ -11,6 +11,10 @@
     import ChevronDown from 'lucide-svelte/icons/chevron-down';
     import Link from 'lucide-svelte/icons/link';
     import Github from 'lucide-svelte/icons/github';
+    import Mail from 'lucide-svelte/icons/mail';
+    import Phone from 'lucide-svelte/icons/phone';
+    import Linkedin from 'lucide-svelte/icons/linkedin';
+    import Globe from 'lucide-svelte/icons/globe';
   
     let container;
     let showIntro = true;
@@ -1287,14 +1291,66 @@
                          in:fly="{{ y: 50, duration: 1000 }}"
                          out:fade>
                         <h2>About Me</h2>
-                        <p>Your bio here...</p>
+                        <div class="about-details">
+                            <p>I'm a Computer Science student at Vellore Institute of Technology, specializing in Data Science. My passion lies in developing decentralized applications and exploring innovative solutions in cloud computing and blockchain technology.</p>
+                            
+                            <div class="skills-section">
+                                <h3>Technical Expertise</h3>
+                                <div class="skills-grid">
+                                    <div class="skill-category">
+                                        <h4>Languages</h4>
+                                        <p>Python, Svelte, React Native, Solidity, SQL, TypeScript</p>
+                                    </div>
+                                    <div class="skill-category">
+                                        <h4>Developer Tools</h4>
+                                        <p>VMWare, Cursor, Azure, Android Studio, Docker</p>
+                                    </div>
+                                    <div class="skill-category">
+                                        <h4>Technologies</h4>
+                                        <p>Arch Linux, GunJs, Cloudflare, TensorFlow, IPFS, Ethereum/Hardhat</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="achievements-section">
+                                <h3>Current Endeavors</h3>
+                                <ul>
+                                    <li>Researching NAT Traversal improvements for P2P connections</li>
+                                    <li>Developing a patent-pending IoT solution for accessibility</li>
+                                    <li>Editorial Head at VIT's English Literary Association</li>
+                                </ul>
+                            </div>
+                        </div>
                     </div>
                 {:else if section.id === 'contact'}
                     <div class="contact-content"
                          in:fly="{{ y: 50, duration: 1000 }}"
                          out:fade>
                         <h2>Get in Touch</h2>
-                        <!-- Add contact information or form -->
+                        <div class="contact-details">
+                            <div class="contact-links">
+                                <a href="mailto:suryavardhin@gmail.com" class="contact-link">
+                                    <svelte:component this={Mail} size={24} />
+                                    suryavardhin@gmail.com
+                                </a>
+                                <a href="tel:+919398026360" class="contact-link">
+                                    <svelte:component this={Phone} size={24} />
+                                    +91 939 802 6360
+                                </a>
+                                <a href="https://linkedin.com/in/vardhin/" target="_blank" rel="noopener noreferrer" class="contact-link">
+                                    <svelte:component this={Linkedin} size={24} />
+                                    linkedin.com/in/vardhin
+                                </a>
+                                <a href="https://github.com/vardhin" target="_blank" rel="noopener noreferrer" class="contact-link">
+                                    <svelte:component this={Github} size={24} />
+                                    github.com/vardhin
+                                </a>
+                                <a href="https://vardhin.tech/" target="_blank" rel="noopener noreferrer" class="contact-link">
+                                    <svelte:component this={Globe} size={24} />
+                                    vardhin.tech
+                                </a>
+                            </div>
+                        </div>
                     </div>
                 {/if}
             </section>
@@ -2361,6 +2417,126 @@
 
         .tech-button {
             width: auto;
+        }
+    }
+
+    /* Add these styles to your existing style section */
+
+    .about-details {
+        max-width: 800px;
+        margin: 0 auto;
+    }
+
+    .about-content p {
+        font-size: 1.1rem;
+        line-height: 1.6;
+        margin-bottom: 2rem;
+        color: rgba(255, 255, 255, 0.9);
+    }
+
+    .skills-section, .achievements-section {
+        margin-bottom: 2rem;
+    }
+
+    .skills-section h3, .achievements-section h3 {
+        font-size: 1.5rem;
+        font-weight: 400;
+        margin-bottom: 1rem;
+        color: rgba(255, 255, 255, 0.95);
+    }
+
+    .skills-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5rem;
+        margin-top: 1rem;
+    }
+
+    .skill-category h4 {
+        font-size: 1.1rem;
+        font-weight: 500;
+        margin-bottom: 0.5rem;
+        color: rgba(255, 255, 255, 0.9);
+    }
+
+    .skill-category p {
+        font-size: 0.95rem;
+        line-height: 1.5;
+        color: rgba(255, 255, 255, 0.8);
+    }
+
+    .achievements-section ul {
+        list-style: none;
+        padding: 0;
+    }
+
+    .achievements-section li {
+        font-size: 1rem;
+        line-height: 1.6;
+        margin-bottom: 0.5rem;
+        padding-left: 1.5rem;
+        position: relative;
+        color: rgba(255, 255, 255, 0.8);
+    }
+
+    .achievements-section li::before {
+        content: "•";
+        position: absolute;
+        left: 0.5rem;
+        color: rgba(255, 255, 255, 0.6);
+    }
+
+    .contact-details {
+        max-width: 600px;
+        margin: 0 auto;
+    }
+
+    .contact-links {
+        display: flex;
+        flex-direction: column;
+        gap: 1.25rem;
+        margin-top: 2rem;
+    }
+
+    .contact-link {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        font-size: 1.1rem;
+        color: rgba(255, 255, 255, 0.9);
+        text-decoration: none;
+        padding: 0.75rem;
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        transition: all 0.3s ease;
+    }
+
+    .contact-link:hover {
+        background: rgba(255, 255, 255, 0.1);
+        transform: translateX(5px);
+    }
+
+    /* Mobile responsiveness */
+    @media (max-width: 768px) {
+        .about-content p {
+            font-size: 1rem;
+        }
+
+        .skills-section h3, .achievements-section h3 {
+            font-size: 1.25rem;
+        }
+
+        .skill-category h4 {
+            font-size: 1rem;
+        }
+
+        .skill-category p {
+            font-size: 0.9rem;
+        }
+
+        .contact-link {
+            font-size: 0.95rem;
         }
     }
 </style>
