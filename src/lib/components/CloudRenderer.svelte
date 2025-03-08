@@ -2042,6 +2042,7 @@
         margin: 0 auto;
         box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
         transition: all 0.3s ease;
+        animation: fadeIn 0.5s ease-out;
     }
 
     .project-header {
@@ -2179,11 +2180,162 @@
             padding: 0.4rem 0.8rem;
         }
     }
+
+    .about-section {
+        text-align: center;
+        margin-bottom: 3rem;
+    }
+
+    .about-title {
+        font-size: 1.2rem;
+        color: rgba(255, 255, 255, 0.7);
+        margin-bottom: 1rem;
+    }
+
+    .social-links {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        margin-top: 1.5rem;
+    }
+
+    .social-link {
+        color: rgba(255, 255, 255, 0.8);
+        transition: color 0.2s ease;
+    }
+
+    .social-link:hover {
+        color: white;
+    }
+
+    .section-title {
+        font-size: 1.8rem;
+        margin-bottom: 2rem;
+        text-align: center;
+        color: rgba(255, 255, 255, 0.9);
+    }
+
+    .skills-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 2rem;
+        margin-bottom: 3rem;
+    }
+
+    .skill-category {
+        background: rgba(255, 255, 255, 0.05);
+        padding: 1.5rem;
+        border-radius: 12px;
+    }
+
+    .skill-category-title {
+        font-size: 1.1rem;
+        margin-bottom: 1rem;
+        color: rgba(255, 255, 255, 0.9);
+    }
+
+    .achievement-card {
+        background: rgba(255, 255, 255, 0.05);
+        padding: 1.5rem;
+        border-radius: 12px;
+        margin-bottom: 1rem;
+    }
+
+    .research-item {
+        border-left: 2px solid rgba(255, 255, 255, 0.2);
+        padding-left: 1rem;
+        margin-bottom: 2rem;
+    }
 </style>
 
 <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&display=swap" rel="stylesheet" crossorigin="anonymous">
 
 <script context="module">
+    const about = {
+        name: "Surya Vardhin Gamidi",
+        title: "Computer Science Student & Full-Stack Developer",
+        description: "I'm a Computer Science student at VIT specializing in Data Science, with a focus on decentralized applications and blockchain technology. I combine technical expertise in Svelte, TypeScript, and blockchain development with research interests in P2P networking and accessibility solutions.",
+        links: {
+            github: "https://github.com/vardhin",
+            linkedin: "https://linkedin.com/in/vardhin",
+            website: "https://vardhin.tech",
+            email: "suryavardhin@gmail.com"
+        }
+    };
+
+    const skills = {
+        languages: ["Python", "Svelte", "React Native", "Solidity", "SQL", "TypeScript"],
+        tools: ["VMWare", "Cursor", "Azure", "Android Studio", "Docker"],
+        technologies: ["Arch Linux", "GunJs", "Cloudflare", "TensorFlow", "IPFS", "Ethereum/Hardhat"]
+    };
+
+    const achievements = [
+        {
+            title: "Design-a-thon Winner",
+            organization: "Yantra - Indian Geotechnical Society",
+            date: "March 2024",
+            description: "Designed and constructed a disaster resistant safe shelter utilizing mechanical contraptions and performed stress analysis using Python."
+        },
+        {
+            title: "Code4Change 2.0 Finalist",
+            organization: "IEEE Social Implications of Technology",
+            date: "February 2025",
+            description: "Developed a tamper-proof carbon credit marketplace using React Native and Ethereum blockchain."
+        }
+    ];
+
+    const research = [
+        {
+            title: "Improving the Reliability of NAT Traversal for Pure P2P Connections",
+            type: "Journal Publication",
+            status: "In Progress",
+            description: "A new method to improve the reliability of hole-punching procedures using an ML model for port prediction under various types of NAT."
+        },
+        {
+            title: "Discreet Accessibility Real-Time Command System",
+            type: "Patent Application",
+            status: "In Progress",
+            description: "An embedded IoT based module designed to alert and facilitate easy accessibility of computing devices for senior citizens and people with sensory impairments."
+        }
+    ];
+
+    const projects = [
+        {
+            title: "Decentralized Messaging App",
+            subtitle: "Recon",
+            description: "A decentralized mobile app using Svelte and GunJs to ensure private and secure communication without centralized servers. Created a custom event-driven protocol in TypeScript for seamless integration and rapid development.",
+            techStack: ["Svelte", "Capacitor", "GunJs", "TypeScript"],
+            github: "https://github.com/vardhin/recon"
+        },
+        {
+            title: "Decentralized Cloud Computing App",
+            subtitle: "Decloud",
+            description: "A desktop application using Electron and Svelte to enable secure, decentralized sharing of computing resources. Implemented a two-way communication protocol as a layer over IPFS PubSub for tamper proof records.",
+            techStack: ["Electron", "Svelte", "IPFS", "Docker", "TypeScript"],
+            github: "https://github.com/vardhin/decloud"
+        }
+    ];
+
+    const leadership = {
+        title: "Editorial Head",
+        organization: "English Literary Association",
+        period: "Autumn 2023 - Present",
+        highlights: [
+            "Semi Finalist in STEW - IITM Saarang",
+            "Led association of 300+ members",
+            "Organized 4 events for annual cultural fest Riviera",
+            "Developed web platform for literary skill development"
+        ]
+    };
+
+    const education = {
+        institution: "Vellore Institute of Technology",
+        degree: "Bachelor of Science in Computer Science",
+        specialization: "Data Science",
+        period: "Sep. 2022 - May 2026",
+        location: "Vellore, Tamil Nadu"
+    };
+
     const ProjectLink = ({ href }) => (`
         <div class="project-links">
             <a href="${href}" class="project-link" target="_blank" rel="noopener noreferrer">
