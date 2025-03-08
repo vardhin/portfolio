@@ -243,9 +243,9 @@
 
     // Add these touch event handlers near the other mouse handlers
     const onTouchStart = (event) => {
-        // Check if the touch target is a control button
-        if (event.target.closest('.controls')) {
-            return; // Let the button handle the touch event
+        // Check if the touch target is a control button or content overlay
+        if (event.target.closest('.controls') || event.target.closest('.content-overlay')) {
+            return; // Let the button or content handle the touch event
         }
         
         // Prevent default behavior immediately
@@ -271,8 +271,8 @@
     };
 
     const onTouchMove = (event) => {
-        // Don't prevent default if touching controls
-        if (event.target.closest('.controls')) {
+        // Don't prevent default if touching controls or content
+        if (event.target.closest('.controls') || event.target.closest('.content-overlay')) {
             return;
         }
         
@@ -394,7 +394,7 @@
           varying vec2 vUv;
 
           float noise(vec2 p) {
-            return fract(sin(dot(p, vec2(12.9898, 78.233))) * 43758.5453);
+            return fract(sin(dot(p, vec2(12.9898, 78.233)) * 43758.5453);
           }
 
           void main() {
@@ -949,6 +949,11 @@
 
     // Define mouse event handlers
     const onMouseDown = (event) => {
+        // Check if the click target is a control button or content overlay
+        if (event.target.closest('.controls') || event.target.closest('.content-overlay')) {
+            return; // Let the button or content handle the click event
+        }
+        
         // Prevent default behavior immediately to avoid text selection
         event.preventDefault();
         
@@ -970,6 +975,11 @@
     };
     
     const onMouseMove = (event) => {
+        // Don't prevent default if interacting with controls or content
+        if (event.target.closest('.controls') || event.target.closest('.content-overlay')) {
+            return;
+        }
+        
         if (!isDragging) return;
         
         // Prevent default behavior during drag
@@ -1010,9 +1020,80 @@
         normalizedMousePosition.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
         normalizedMousePosition.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
     };
+
+    // Add these touch event handlers near the other mouse handlers
+    const onTouchStart = (event) => {
+        // Check if the touch target is a control button or content overlay
+        if (event.target.closest('.controls') || event.target.closest('.content-overlay')) {
+            return; // Let the button or content handle the touch event
+        }
+        
+        // Prevent default behavior immediately
+        event.preventDefault();
+        
+        const touch = event.touches[0];
+        const rect = container.getBoundingClientRect();
+        
+        normalizedMousePosition.x = ((touch.clientX - rect.left) / rect.width) * 2 - 1;
+        normalizedMousePosition.y = -((touch.clientY - rect.top) / rect.height) * 2 + 1;
+        
+        if (fogMaterial) {
+            const sunPos = fogMaterial.uniforms.sunPosition.value;
+            const distance = Math.sqrt(
+                Math.pow((normalizedMousePosition.x - sunPos.x), 2) + 
+                Math.pow((normalizedMousePosition.y - sunPos.y), 2)
+            );
+            
+            if (distance < 0.3) {
+                isDragging = true;
+            }
+        }
+    };
+
+    const onTouchMove = (event) => {
+        // Don't prevent default if touching controls or content
+        if (event.target.closest('.controls') || event.target.closest('.content-overlay')) {
+            return;
+        }
+        
+        if (!isDragging) return;
+        
+        // Prevent default behavior during drag
+        event.preventDefault();
+        
+        const touch = event.touches[0];
+        const rect = container.getBoundingClientRect();
+        
+        normalizedMousePosition.x = ((touch.clientX - rect.left) / rect.width) * 2 - 1;
+        normalizedMousePosition.y = -((touch.clientY - rect.top) / rect.height) * 2 + 1;
+        
+        if (fogMaterial) {
+            // Update sun position directly with normalized coordinates
+            const newX = THREE.MathUtils.clamp(normalizedMousePosition.x, -1, 1);
+            const newY = THREE.MathUtils.clamp(normalizedMousePosition.y, -1, 1);
+            
+            // Update sun position
+            fogMaterial.uniforms.sunPosition.value.set(newX, newY);
+            
+            // Update coordinates and time display
+            sunCoordinates = { x: newX, y: newY };
+            currentTime = getTimeFromX(newX);
+            
+            // Update sky color
+            scene.background = getSkyColor(newX);
+            
+            // Update isNightTime based on hour
+            const hour = ((newX + 1) * 12);
+            isNightTime = hour < 5 || hour > 19;
+        }
+    };
+
+    const onTouchEnd = () => {
+        isDragging = false;
+    };
 </script>
   
-  <div class="main-container">
+<div class="main-container">
     <!-- Cloud and movement controls -->
     <div class="controls top-left">
         <button 
@@ -1039,9 +1120,9 @@
         <!-- Canvas will be added here by Three.js -->
     </div>
 
-    <!-- Modified content overlay -->
+    <!-- Modified content overlay with pointer-events: all -->
     <div class="content-overlay" 
-         style="transform: translateY({$sectionSpring.y}vh)">
+         style="transform: translateY({$sectionSpring.y}vh); pointer-events: all;">
         {#each sections as section, i}
             <section 
                 class="portfolio-section" 
@@ -1277,9 +1358,9 @@
             </section>
         {/each}
     </div>
-  </div>
+</div>
   
-  <style>
+<style>
     :global(*) {
         font-family: 'Quicksand', sans-serif;
         color: white;
@@ -1379,10 +1460,10 @@
     }
 
     .content-overlay {
-        position: relative; /* Change from fixed to relative */
+        position: relative;
         width: 100%;
         z-index: 2;
-        /* Remove transform property - we'll handle section positioning differently */
+        pointer-events: all; /* Enable pointer events on the content */
     }
 
     .portfolio-section {
@@ -1392,21 +1473,7 @@
         align-items: center;
         justify-content: center;
         padding: 2rem;
-        pointer-events: none;
-        /* Add smooth scrolling to the html element */
-        :global(html) {
-            scroll-behavior: smooth;
-        }
-
-        /* Hide scrollbar but keep functionality */
-        :global(::-webkit-scrollbar) {
-            display: none;
-        }
-
-        :global(body) {
-            -ms-overflow-style: none;  /* IE and Edge */
-            scrollbar-width: none;  /* Firefox */
-        }
+        pointer-events: all; /* Enable pointer events on sections */
     }
 
     .portfolio-section.active {
