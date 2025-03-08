@@ -1431,7 +1431,7 @@
         height: 40px;
         padding: 0;
         border-radius: 50%;
-        background: rgba(255, 255, 255, 0.15);
+        background: rgba(255, 255, 255, 0.08);
         border: 1px solid rgba(255, 255, 255, 0.25);
         color: white;
         cursor: pointer;
@@ -1564,7 +1564,7 @@
     }
 
     .project-card {
-        background: rgba(255, 255, 255, 0.15);
+        background: rgba(255, 255, 255, 0.08);
         border: 1px solid rgba(255, 255, 255, 0.2);
         border-radius: 16px;
         padding: 2rem;
@@ -1620,7 +1620,7 @@
     .project-details p {
         font-size: 1rem;
         line-height: 1.6;
-        color: rgba(255, 255, 255, 0.8);
+        color: rgba(255, 255, 255, 0.08);
         margin-bottom: 1rem;
     }
 
@@ -1636,7 +1636,7 @@
         margin-bottom: 0.75rem;
         line-height: 1.5;
         font-size: 1rem;
-        color: rgba(255, 255, 255, 0.8);
+        color: rgba(255, 255, 255, 0.08);
     }
 
     .project-details li::before {
@@ -1656,7 +1656,7 @@
     }
 
     .tech-button {
-        background: rgba(255, 255, 255, 0.15);
+        background: rgba(255, 255, 255, 0.08);
         border: 1px solid rgba(255, 255, 255, 0.25);
         border-radius: 20px;
         padding: 0.5rem 1rem;
@@ -1675,7 +1675,7 @@
         max-width: 800px;
         width: 100%;
         padding: 2rem;
-        background: rgba(255, 255, 255, 0.15);
+        background: rgba(255, 255, 255, 0.08);
         border: 1px solid rgba(255, 255, 255, 0.2);
         border-radius: 16px;
         box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
@@ -1699,7 +1699,7 @@
 
     .about-panel {
         background: rgba(255, 255, 255, 0.1);
-        border: 1px solid rgba(255, 255, 255, 0.15);
+        border: 1px solid rgba(255, 255, 255, 0.08);
         border-radius: 12px;
         padding: 1.5rem;
     }
@@ -1760,7 +1760,7 @@
         margin-bottom: 0.75rem;
         line-height: 1.5;
         font-size: 1rem;
-        color: rgba(255, 255, 255, 0.8);
+        color: rgba(255, 255, 255, 0.08);
     }
 
     .achievements-panel li::before {
@@ -1779,7 +1779,7 @@
         max-width: 600px;
         width: 100%;
         padding: 2rem;
-        background: rgba(255, 255, 255, 0.15);
+        background: rgba(255, 255, 255, 0.08);
         border: 1px solid rgba(255, 255, 255, 0.2);
         border-radius: 16px;
         box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
@@ -1811,7 +1811,7 @@
         padding: 1rem;
         border-radius: 12px;
         background: rgba(255, 255, 255, 0.1);
-        border: 1px solid rgba(255, 255, 255, 0.15);
+        border: 1px solid rgba(255, 255, 255, 0.08);
         transition: all 0.3s ease;
     }
 
