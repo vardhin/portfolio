@@ -2281,6 +2281,62 @@
             padding: 0.4rem 0.8rem;
         }
     }
+
+    .project-details-container {
+        display: flex;
+        gap: 1.5rem;
+        flex: 1;
+        min-height: 0; /* Important for proper scrolling */
+    }
+
+    .project-details {
+        flex: 1;
+        overflow-y: auto;
+        padding-right: 1rem;
+    }
+
+    .tech-stack {
+        width: 120px; /* Fixed width for tech stack */
+        display: flex;
+        flex-direction: column;
+        gap: 0.3rem;
+        padding-top: 0;
+        border-top: none;
+        border-left: 1px solid rgba(255, 255, 255, 0.1);
+        padding-left: 1rem;
+    }
+
+    .tech-button {
+        font-size: 0.6rem;
+        padding: 0.15rem 0.35rem;
+        text-align: center;
+        width: 100%;
+        white-space: nowrap;
+    }
+
+    /* Remove all github-button related styles */
+
+    /* Mobile responsiveness */
+    @media (max-width: 768px) {
+        .project-details-container {
+            flex-direction: column;
+        }
+
+        .tech-stack {
+            width: 100%;
+            flex-direction: row;
+            flex-wrap: wrap;
+            border-left: none;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding-left: 0;
+            padding-top: 0.5rem;
+            margin-top: 0.5rem;
+        }
+
+        .tech-button {
+            width: auto;
+        }
+    }
 </style>
 
 <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&display=swap" rel="stylesheet" crossorigin="anonymous">
