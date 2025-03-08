@@ -240,32 +240,22 @@
     const handleNavButtonPress = (direction) => {
         if (isNavigating) return;
         
-        switch(direction) {
-            case 'up':
-                if (currentSection > MIN_SECTION) {
-                    isNavigating = true;
-                    currentSection--;
-                    targetCameraY = currentSection * -5;
-                    sectionSpring.set({ y: currentSection * -100 });
-                    
-                    navigationTimeout = setTimeout(() => {
-                        isNavigating = false;
-                    }, 500);
-                }
-                break;
-            case 'down':
-                if (currentSection < MAX_SECTION) {
-                    isNavigating = true;
-                    currentSection++;
-                    targetCameraY = currentSection * -5;
-                    sectionSpring.set({ y: currentSection * -100 });
-                    
-                    navigationTimeout = setTimeout(() => {
-                        isNavigating = false;
-                    }, 500);
-                }
-                break;
+        if (direction === 'up' && currentSection > MIN_SECTION) {
+            currentSection = Math.max(currentSection - 1, MIN_SECTION);
+            targetCameraY = currentSection * -5;
+            sectionSpring.set({ y: currentSection * -100 });
+        } else if (direction === 'down' && currentSection < MAX_SECTION) {
+            currentSection = Math.min(currentSection + 1, MAX_SECTION);
+            targetCameraY = currentSection * -5;
+            sectionSpring.set({ y: currentSection * -100 });
         }
+        
+        // Prevent further navigation for a short time
+        isNavigating = true;
+        clearTimeout(navigationTimeout);
+        navigationTimeout = setTimeout(() => {
+            isNavigating = false;
+        }, 800);
     };
 
     const handleNavButtonRelease = (direction) => {
@@ -448,39 +438,43 @@
         const scrollDelta = currentScrollY - lastScrollY;
         lastScrollY = currentScrollY;
         
-        // Update target camera position based on scroll
-        // Reduce the multiplier from 0.05 to 0.01 for gentler scrolling
+        // Make scrolling even slower by reducing multiplier to 0.005
+        // and add threshold to prevent tiny movements
+        if (Math.abs(scrollDelta) < 5) return; // Ignore very small scroll movements
+        
         if (scrollDelta > 0 && currentSection < MAX_SECTION) {
-            // Scrolling down
-            targetCameraY = Math.min(
-                MAX_SECTION * -5,
-                targetCameraY - (scrollDelta * 0.01)
-            );
+            // Scrolling down - move one section at a time for consistency
+            const nextSection = Math.min(currentSection + 1, MAX_SECTION);
             
-            // Update section if we've scrolled far enough
-            const nextSection = Math.min(
-                MAX_SECTION,
-                Math.floor(Math.abs(targetCameraY) / 5)
-            );
+            // Only update if we're changing sections
             if (nextSection !== currentSection) {
                 currentSection = nextSection;
+                targetCameraY = currentSection * -5;
                 sectionSpring.set({ y: currentSection * -100 });
+                
+                // Prevent further scrolling for a short time
+                isNavigating = true;
+                clearTimeout(navigationTimeout);
+                navigationTimeout = setTimeout(() => {
+                    isNavigating = false;
+                }, 800); // Longer timeout to prevent rapid scrolling
             }
         } else if (scrollDelta < 0 && currentSection > MIN_SECTION) {
-            // Scrolling up
-            targetCameraY = Math.max(
-                MIN_SECTION * -5,
-                targetCameraY - (scrollDelta * 0.01)
-            );
+            // Scrolling up - move one section at a time for consistency
+            const nextSection = Math.max(currentSection - 1, MIN_SECTION);
             
-            // Update section if we've scrolled far enough
-            const nextSection = Math.max(
-                MIN_SECTION,
-                Math.floor(Math.abs(targetCameraY) / 5)
-            );
+            // Only update if we're changing sections
             if (nextSection !== currentSection) {
                 currentSection = nextSection;
+                targetCameraY = currentSection * -5;
                 sectionSpring.set({ y: currentSection * -100 });
+                
+                // Prevent further scrolling for a short time
+                isNavigating = true;
+                clearTimeout(navigationTimeout);
+                navigationTimeout = setTimeout(() => {
+                    isNavigating = false;
+                }, 800); // Longer timeout to prevent rapid scrolling
             }
         }
         
