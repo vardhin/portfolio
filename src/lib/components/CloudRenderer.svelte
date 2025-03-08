@@ -11,7 +11,7 @@
     import ChevronDown from 'lucide-svelte/icons/chevron-down';
     import Link from 'lucide-svelte/icons/link';
     import Github from 'lucide-svelte/icons/github';
-    import { Mail, Phone, Linkedin, Github, Globe } from 'lucide-svelte';
+    import { Mail, Phone, Linkedin, Globe } from 'lucide-svelte';
   
     let container;
     let showIntro = true;
