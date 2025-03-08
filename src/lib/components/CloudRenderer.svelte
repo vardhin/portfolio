@@ -1431,8 +1431,8 @@
         height: 40px;
         padding: 0;
         border-radius: 50%;
-        background: rgba(255, 255, 255, 0.1);
-        border: 1px solid rgba(255, 255, 255, 0.2);
+        background: rgba(255, 255, 255, 0.15);
+        border: 1px solid rgba(255, 255, 255, 0.25);
         color: white;
         cursor: pointer;
         font-size: 16px;
@@ -1447,7 +1447,7 @@
     }
 
     .control-button:hover {
-        background: rgba(255, 255, 255, 0.2);
+        background: rgba(255, 255, 255, 0.25);
         transform: translateY(-2px);
     }
 
@@ -1564,13 +1564,13 @@
     }
 
     .project-card {
-        background: rgba(20, 20, 30, 0.7);
-        border: 1px solid rgba(255, 255, 255, 0.1);
+        background: rgba(255, 255, 255, 0.15);
+        border: 1px solid rgba(255, 255, 255, 0.2);
         border-radius: 16px;
         padding: 2rem;
         width: 100%;
         max-width: 800px;
-        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
         backdrop-filter: blur(8px);
         position: relative;
     }
@@ -1656,8 +1656,8 @@
     }
 
     .tech-button {
-        background: rgba(255, 255, 255, 0.1);
-        border: 1px solid rgba(255, 255, 255, 0.2);
+        background: rgba(255, 255, 255, 0.15);
+        border: 1px solid rgba(255, 255, 255, 0.25);
         border-radius: 20px;
         padding: 0.5rem 1rem;
         color: white;
@@ -1666,7 +1666,7 @@
     }
 
     .tech-button:hover {
-        background: rgba(255, 255, 255, 0.2);
+        background: rgba(255, 255, 255, 0.25);
         transform: translateY(-2px);
     }
 
@@ -1675,12 +1675,11 @@
         max-width: 800px;
         width: 100%;
         padding: 2rem;
-        background: rgba(20, 20, 30, 0.7);
-        border: 1px solid rgba(255, 255, 255, 0.1);
+        background: rgba(255, 255, 255, 0.15);
+        border: 1px solid rgba(255, 255, 255, 0.2);
         border-radius: 16px;
-        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
         backdrop-filter: blur(8px);
-        /* Add margin to prevent overlapping */
         margin: 10vh auto;
     }
 
@@ -1699,8 +1698,8 @@
     }
 
     .about-panel {
-        background: rgba(255, 255, 255, 0.05);
-        border: 1px solid rgba(255, 255, 255, 0.1);
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.15);
         border-radius: 12px;
         padding: 1.5rem;
     }
@@ -1730,7 +1729,7 @@
     }
 
     .skill-panel {
-        background: rgba(255, 255, 255, 0.03);
+        background: rgba(255, 255, 255, 0.08);
         border-radius: 8px;
         padding: 1rem;
     }
@@ -1780,12 +1779,11 @@
         max-width: 600px;
         width: 100%;
         padding: 2rem;
-        background: rgba(20, 20, 30, 0.7);
-        border: 1px solid rgba(255, 255, 255, 0.1);
+        background: rgba(255, 255, 255, 0.15);
+        border: 1px solid rgba(255, 255, 255, 0.2);
         border-radius: 16px;
-        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
         backdrop-filter: blur(8px);
-        /* Add margin to prevent overlapping */
         margin: 10vh auto;
     }
 
@@ -1812,13 +1810,13 @@
         text-decoration: none;
         padding: 1rem;
         border-radius: 12px;
-        background: rgba(255, 255, 255, 0.05);
-        border: 1px solid rgba(255, 255, 255, 0.1);
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.15);
         transition: all 0.3s ease;
     }
 
     .contact-link:hover {
-        background: rgba(255, 255, 255, 0.1);
+        background: rgba(255, 255, 255, 0.2);
         transform: translateX(5px);
     }
 
