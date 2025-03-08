@@ -245,7 +245,9 @@
     let normalizedMousePosition = { x: 0, y: 0 };
     let isDragging = false;
 
-    // Add these touch event handlers near the other mouse handlers
+    // Increase the sun hit area significantly
+    const SUN_HIT_RADIUS = 1.0;  // Much larger hit area (was 0.5)
+
     const onTouchStart = (event) => {
         // Check if the touch target is a control button or content overlay
         if (event.target.closest('.controls') || event.target.closest('.content-overlay')) {
@@ -261,18 +263,66 @@
         normalizedMousePosition.x = ((touch.clientX - rect.left) / rect.width) * 2 - 1;
         normalizedMousePosition.y = -((touch.clientY - rect.top) / rect.height) * 2 + 1;
         
-        if (fogMaterial) {
+        if (fogMaterial && fogMaterial.uniforms && fogMaterial.uniforms.sunPosition) {
             const sunPos = fogMaterial.uniforms.sunPosition.value;
             const distance = Math.sqrt(
                 Math.pow((normalizedMousePosition.x - sunPos.x), 2) + 
                 Math.pow((normalizedMousePosition.y - sunPos.y), 2)
             );
             
-            // Increase the hit area for the sun to make it easier to grab
-            if (distance < 0.5) {  // Changed from 0.3 to 0.5
+            // Use much larger hit area
+            if (distance < SUN_HIT_RADIUS) {
                 isDragging = true;
+                console.log("Sun grabbed via touch!");  // Debug log
             }
         }
+    };
+
+    const onMouseDown = (event) => {
+        // Check if the click target is a control button or content overlay
+        if (event.target.closest('.controls') || event.target.closest('.content-overlay')) {
+            return; // Let the button or content handle the click event
+        }
+        
+        // Prevent default behavior immediately to avoid text selection
+        event.preventDefault();
+        
+        const rect = container.getBoundingClientRect();
+        normalizedMousePosition.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+        normalizedMousePosition.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+        
+        if (fogMaterial && fogMaterial.uniforms && fogMaterial.uniforms.sunPosition) {
+            const sunPos = fogMaterial.uniforms.sunPosition.value;
+            const distance = Math.sqrt(
+                Math.pow((normalizedMousePosition.x - sunPos.x), 2) + 
+                Math.pow((normalizedMousePosition.y - sunPos.y), 2)
+            );
+            
+            // Use much larger hit area
+            if (distance < SUN_HIT_RADIUS) {
+                isDragging = true;
+                console.log("Sun grabbed via mouse!");  // Debug log
+            }
+        }
+    };
+
+    // Make sure the move handlers are properly checking isDragging
+    const onMouseMove = (event) => {
+        // Don't prevent default if interacting with controls or content
+        if (event.target.closest('.controls') || event.target.closest('.content-overlay')) {
+            return;
+        }
+        
+        if (!isDragging) return;
+        
+        // Prevent default behavior during drag
+        event.preventDefault();
+        
+        const rect = container.getBoundingClientRect();
+        normalizedMousePosition.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+        normalizedMousePosition.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+        
+        updateSunPosition(normalizedMousePosition.x, normalizedMousePosition.y);
     };
 
     const onTouchMove = (event) => {
@@ -292,10 +342,15 @@
         normalizedMousePosition.x = ((touch.clientX - rect.left) / rect.width) * 2 - 1;
         normalizedMousePosition.y = -((touch.clientY - rect.top) / rect.height) * 2 + 1;
         
-        if (fogMaterial) {
+        updateSunPosition(normalizedMousePosition.x, normalizedMousePosition.y);
+    };
+
+    // Add a helper function to update sun position
+    function updateSunPosition(x, y) {
+        if (fogMaterial && fogMaterial.uniforms && fogMaterial.uniforms.sunPosition) {
             // Update sun position directly with normalized coordinates
-            const newX = THREE.MathUtils.clamp(normalizedMousePosition.x, -1, 1);
-            const newY = THREE.MathUtils.clamp(normalizedMousePosition.y, -1, 1);
+            const newX = THREE.MathUtils.clamp(x, -1, 1);
+            const newY = THREE.MathUtils.clamp(y, -1, 1);
             
             // Update sun position
             fogMaterial.uniforms.sunPosition.value.set(newX, newY);
@@ -305,13 +360,17 @@
             currentTime = getTimeFromX(newX);
             
             // Update sky color
-            scene.background = getSkyColor(newX);
+            if (scene) {
+                scene.background = getSkyColor(newX);
+            }
             
             // Update isNightTime based on hour
             const hour = ((newX + 1) * 12);
             isNightTime = hour < 5 || hour > 19;
+            
+            console.log("Sun position updated:", newX, newY);  // Debug log
         }
-    };
+    }
 
     const onTouchEnd = () => {
         isDragging = false;
@@ -817,9 +876,12 @@
       };
       animate();
   
-      // Add touch event listeners
-      container.addEventListener('mousedown', onMouseDown);
-      container.addEventListener('mousemove', onMouseMove);
+      // Add these debug logs to verify event listeners are attached
+      console.log("Adding event listeners for sun dragging");
+      
+      // Add touch event listeners with proper options
+      container.addEventListener('mousedown', onMouseDown, { passive: false });
+      container.addEventListener('mousemove', onMouseMove, { passive: false });
       container.addEventListener('mouseup', onMouseUp);
       container.addEventListener('mouseleave', onMouseUp);
       container.addEventListener('touchstart', onTouchStart, { passive: false });
@@ -966,16 +1028,17 @@
         normalizedMousePosition.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
         normalizedMousePosition.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
         
-        if (fogMaterial) {
+        if (fogMaterial && fogMaterial.uniforms && fogMaterial.uniforms.sunPosition) {
             const sunPos = fogMaterial.uniforms.sunPosition.value;
             const distance = Math.sqrt(
                 Math.pow((normalizedMousePosition.x - sunPos.x), 2) + 
                 Math.pow((normalizedMousePosition.y - sunPos.y), 2)
             );
             
-            // Increase the hit area for the sun to make it easier to grab
-            if (distance < 0.5) {  // Changed from 0.3 to 0.5
+            // Use much larger hit area
+            if (distance < SUN_HIT_RADIUS) {
                 isDragging = true;
+                console.log("Sun grabbed via mouse!");  // Debug log
             }
         }
     };
@@ -995,25 +1058,7 @@
         normalizedMousePosition.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
         normalizedMousePosition.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
         
-        if (fogMaterial) {
-            // Update sun position directly with normalized coordinates
-            const newX = THREE.MathUtils.clamp(normalizedMousePosition.x, -1, 1);
-            const newY = THREE.MathUtils.clamp(normalizedMousePosition.y, -1, 1);
-            
-            // Update sun position
-            fogMaterial.uniforms.sunPosition.value.set(newX, newY);
-            
-            // Update coordinates and time display
-            sunCoordinates = { x: newX, y: newY };
-            currentTime = getTimeFromX(newX);
-            
-            // Update sky color
-            scene.background = getSkyColor(newX);
-            
-            // Update isNightTime based on hour
-            const hour = ((newX + 1) * 12);
-            isNightTime = hour < 5 || hour > 19;
-        }
+        updateSunPosition(normalizedMousePosition.x, normalizedMousePosition.y);
     };
     
     const onMouseUp = () => {
