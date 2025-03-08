@@ -246,7 +246,7 @@
     let isDragging = false;
 
     // Increase the sun hit area significantly
-    const SUN_HIT_RADIUS = 0.1// Much larger hit area (was 0.5)
+    const SUN_HIT_RADIUS = 0.45 //changed larger hit area (was 0.5)
 
     const onTouchStart = (event) => {
         // Check if the touch target is a control button or content overlay
