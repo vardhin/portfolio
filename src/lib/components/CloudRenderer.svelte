@@ -1580,6 +1580,8 @@
 
     /* Project card styles */
     .project-card {
+        display: flex;
+        flex-direction: column;
         background: rgba(255, 255, 255, 0.05);
         border: 1px solid rgba(255, 255, 255, 0.1);
         border-radius: 8px;
@@ -1916,6 +1918,8 @@
     }
 
     .project-card {
+        display: flex;
+        flex-direction: column;
         background: rgba(255, 255, 255, 0.05);
         border: 1px solid rgba(255, 255, 255, 0.1);
         border-radius: 8px;
@@ -2476,6 +2480,8 @@
     }
 
     .skill-category {
+        display: flex;
+        flex-direction: column;
         background: rgba(255, 255, 255, 0.05);
         border: 1px solid rgba(255, 255, 255, 0.1);
         border-radius: 8px;
@@ -2499,21 +2505,26 @@
         font-size: 0.95rem;
         line-height: 1.5;
         color: rgba(255, 255, 255, 0.8);
+        margin: 0;
     }
 
     .achievements-section ul {
         list-style: none;
         padding: 0;
+        margin: 0;
     }
 
     .achievements-section li {
+        display: flex;
         background: rgba(255, 255, 255, 0.05);
         border: 1px solid rgba(255, 255, 255, 0.1);
         border-radius: 8px;
         padding: 0.75rem;
         margin-bottom: 1.25rem;
         transition: all 0.3s ease;
-        list-style: none;
+        font-size: 0.95rem;
+        line-height: 1.5;
+        color: rgba(255, 255, 255, 0.8);
     }
 
     .achievements-section li:hover {
@@ -2521,8 +2532,35 @@
         transform: translateX(5px);
     }
 
-    .achievements-section li::before {
-        content: none;
+    /* Mobile responsiveness */
+    @media (max-width: 768px) {
+        .project-card,
+        .skill-category,
+        .achievements-section li {
+            transform: none;
+        }
+
+        .project-card:hover,
+        .skill-category:hover,
+        .achievements-section li:hover {
+            transform: translateX(3px);
+        }
+
+        .about-content p {
+            font-size: 1rem;
+        }
+
+        .skills-section h3, .achievements-section h3 {
+            font-size: 1.25rem;
+        }
+
+        .skill-category h4 {
+            font-size: 1rem;
+        }
+
+        .skill-category p {
+            font-size: 0.9rem;
+        }
     }
 
     .contact-details {
