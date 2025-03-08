@@ -278,90 +278,66 @@
         }
     };
 
-    const onTouchMove = (event) => {
-        // Don't prevent default if touching controls or content
+    const onMouseDown = (event) => {
+        // Check if the click target is a control button or content overlay
         if (event.target.closest('.controls') || event.target.closest('.content-overlay')) {
-            return;
+            return; // Let the button or content handle the click event
         }
         
-        if (!isDragging) return;
-        
-        // Prevent default behavior during drag
+        // Prevent default behavior immediately to avoid text selection
         event.preventDefault();
         
-        const touch = event.touches[0];
         const rect = container.getBoundingClientRect();
+        normalizedMousePosition.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+        normalizedMousePosition.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
         
-        normalizedMousePosition.x = ((touch.clientX - rect.left) / rect.width) * 2 - 1;
-        normalizedMousePosition.y = -((touch.clientY - rect.top) / rect.height) * 2 + 1;
-        
-        updateSunPosition(normalizedMousePosition.x, normalizedMousePosition.y);
-    };
-
-    // Add a helper function to update sun position
-    function updateSunPosition(x, y) {
         if (fogMaterial && fogMaterial.uniforms && fogMaterial.uniforms.sunPosition) {
-            // Update sun position directly with normalized coordinates
-            const newX = THREE.MathUtils.clamp(x, -1, 1);
-            const newY = THREE.MathUtils.clamp(y, -1, 1);
+            const sunPos = fogMaterial.uniforms.sunPosition.value;
+            const distance = Math.sqrt(
+                Math.pow((normalizedMousePosition.x - sunPos.x), 2) + 
+                Math.pow((normalizedMousePosition.y - sunPos.y), 2)
+            );
             
-            // Update sun position
-            fogMaterial.uniforms.sunPosition.value.set(newX, newY);
-            
-            // Update coordinates and time display
-            sunCoordinates = { x: newX, y: newY };
-            currentTime = getTimeFromX(newX);
-            
-            // Update sky color
-            if (scene) {
-                scene.background = getSkyColor(newX);
+            // Use much larger hit area
+            if (distance < SUN_HIT_RADIUS) {
+                isDragging = true;
+                console.log("Sun grabbed via mouse!");  // Debug log
             }
-            
-            // Update isNightTime based on hour
-            const hour = ((newX + 1) * 12);
-            isNightTime = hour < 5 || hour > 19;
-            
-            console.log("Sun position updated:", newX, newY);  // Debug log
         }
-    }
-
-    const onTouchEnd = () => {
-        isDragging = false;
     };
 
-    // Add this function near other event handlers
-    const handleScroll = (event) => {
-        if (isNavigating) return;
+    // Add these debug logs to verify event listeners are attached
+    onMount(() => {
+        // ... existing onMount code ...
         
-        // Get the scroll direction and amount
-        const currentScrollY = window.scrollY;
-        const scrollDelta = currentScrollY - lastScrollY;
-        lastScrollY = currentScrollY;
+        // Add these debug logs to verify event listeners are attached
+        console.log("Adding event listeners for sun dragging");
         
-        // Apply very gentle scroll multiplier
-        // Only update if the scroll delta is significant enough
-        if (Math.abs(scrollDelta) > 1) {
-            // Calculate new target position with very gentle movement
-            const newTargetY = targetCameraY - (scrollDelta * SCROLL_SPEED);
-            
-            // Clamp the target position to prevent scrolling beyond content
-            targetCameraY = Math.max(MAX_CAMERA_Y, Math.min(MIN_CAMERA_Y, newTargetY));
-            
-            // Calculate approximate section for content display
-            currentSection = Math.round(Math.abs(targetCameraY) / 5);
-            
-            // Update section spring for content positioning
-            sectionSpring.set({ y: currentSection * -100 });
-            
-            // Set scrolling flag and clear previous timeout
-            isScrolling = true;
-            clearTimeout(scrollTimeout);
-            
-            // Reset scrolling flag after a delay
-            scrollTimeout = setTimeout(() => {
-                isScrolling = false;
-            }, 150);
-        }
+        // Add touch event listeners with proper options
+        container.addEventListener('mousedown', onMouseDown, { passive: false });
+        container.addEventListener('mousemove', onMouseMove, { passive: false });
+        container.addEventListener('mouseup', onMouseUp);
+        container.addEventListener('mouseleave', onMouseUp);
+        container.addEventListener('touchstart', onTouchStart, { passive: false });
+        container.addEventListener('touchmove', onTouchMove, { passive: false });
+        container.addEventListener('touchend', onTouchEnd);
+        container.addEventListener('touchcancel', onTouchEnd);
+        
+        // ... rest of onMount code ...
+    });
+
+    // In the cleanup function, make sure to remove all event listeners
+    return () => {
+        // ... existing cleanup code ...
+        container.removeEventListener('mousedown', onMouseDown);
+        container.removeEventListener('mousemove', onMouseMove);
+        container.removeEventListener('mouseup', onMouseUp);
+        container.removeEventListener('mouseleave', onMouseUp);
+        container.removeEventListener('touchstart', onTouchStart);
+        container.removeEventListener('touchmove', onTouchMove);
+        container.removeEventListener('touchend', onTouchEnd);
+        container.removeEventListener('touchcancel', onTouchEnd);
+        // ... rest of cleanup code ...
     };
 
     onMount(() => {
