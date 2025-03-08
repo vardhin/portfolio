@@ -840,15 +840,9 @@
       // Add these debug logs to verify event listeners are attached
       console.log("Adding event listeners for sun dragging");
       
-      // Add touch event listeners with proper options
+      // Add event listeners with proper options
       container.addEventListener('mousedown', onMouseDown, { passive: false });
-      container.addEventListener('mousemove', onMouseMove, { passive: false });
-      container.addEventListener('mouseup', onMouseUp);
-      container.addEventListener('mouseleave', onMouseUp);
       container.addEventListener('touchstart', onTouchStart, { passive: false });
-      container.addEventListener('touchmove', onTouchMove, { passive: false });
-      container.addEventListener('touchend', onTouchEnd);
-      container.addEventListener('touchcancel', onTouchEnd);
   
       // After everything is set up, add a delay before hiding loading screen
       setTimeout(() => {
@@ -984,28 +978,16 @@
         return; // Let the button or content handle the click event
     }
     
-        // Prevent default behavior immediately to avoid text selection
+        // Prevent default behavior immediately
         event.preventDefault();
         
         const rect = container.getBoundingClientRect();
-        // Calculate normalized position in WebGL space
-        normalizedMousePosition.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
-        normalizedMousePosition.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+        const clickX = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+        const clickY = -((event.clientY - rect.top) / rect.height) * 2 + 1;
         
-        if (fogMaterial && fogMaterial.uniforms && fogMaterial.uniforms.sunPosition) {
-            const sunPos = fogMaterial.uniforms.sunPosition.value;
-            
-            // Calculate distance without considering camera offset
-            const distance = Math.sqrt(
-                Math.pow((normalizedMousePosition.x - sunPos.x), 2) + 
-                Math.pow((normalizedMousePosition.y - sunPos.y), 2)
-            );
-            
-            if (distance < SUN_HIT_RADIUS) {
-                isDragging = true;
-                console.log("Sun grabbed via mouse!");
-            }
-        }
+        // Set the target position for the sun to move to
+        targetSunPosition = { x: clickX, y: clickY };
+        console.log("New sun target:", targetSunPosition.x, targetSunPosition.y);
     };
     
     const onMouseMove = (event) => {
