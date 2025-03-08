@@ -1582,18 +1582,18 @@
     .project-card {
         background: rgba(255, 255, 255, 0.05);
         border: 1px solid rgba(255, 255, 255, 0.1);
-        border-radius: 12px;
+        border-radius: 8px;
         padding: 1.25rem;
         backdrop-filter: blur(10px);
         width: 100%;
-        max-width: 1400px; /* Increased from 1200px */
-        height: 450px;
+        max-width: 700px;
         margin: 0 auto;
-        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
         transition: all 0.3s ease;
-        display: flex;
-        flex-direction: column; /* Added to ensure proper layout */
-        gap: 0.75rem;
+    }
+
+    .project-card:hover {
+        background: rgba(255, 255, 255, 0.1);
+        transform: translateX(5px);
     }
 
     .project-content {
@@ -1663,15 +1663,23 @@
     .tech-stack {
         display: flex;
         flex-wrap: wrap;
-        gap: 0.3rem;
-        padding-top: 0.5rem;
+        gap: 0.75rem;
+        padding-top: 0.75rem;
         border-top: 1px solid rgba(255, 255, 255, 0.1);
-        align-items: center;
     }
 
     .tech-button {
-        font-size: 0.6rem; /* Reduced from 0.65rem */
-        padding: 0.15rem 0.35rem; /* Reduced from 0.2rem 0.4rem */
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 8px;
+        padding: 0.5rem 0.75rem;
+        font-size: 0.85rem;
+        transition: all 0.3s ease;
+    }
+
+    .tech-button:hover {
+        background: rgba(255, 255, 255, 0.1);
+        transform: translateX(5px);
     }
 
     .github-button {
@@ -1697,10 +1705,18 @@
 
     /* Mobile optimizations */
     @media (max-width: 768px) {
-        .project-card {
-            max-width: calc(100% - 2rem);
-            height: auto;
-            padding: 1rem;
+        .project-card,
+        .skill-category,
+        .achievements-section li,
+        .tech-button {
+            transform: none;
+        }
+
+        .project-card:hover,
+        .skill-category:hover,
+        .achievements-section li:hover,
+        .tech-button:hover {
+            transform: translateX(3px);
         }
     }
 
@@ -1902,14 +1918,18 @@
     .project-card {
         background: rgba(255, 255, 255, 0.05);
         border: 1px solid rgba(255, 255, 255, 0.1);
-        border-radius: 16px;
-        padding: 1.75rem;
+        border-radius: 8px;
+        padding: 1.25rem;
         backdrop-filter: blur(10px);
         width: 100%;
         max-width: 700px;
         margin: 0 auto;
-        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
         transition: all 0.3s ease;
+    }
+
+    .project-card:hover {
+        background: rgba(255, 255, 255, 0.1);
+        transform: translateX(5px);
     }
 
     .project-header {
@@ -1934,20 +1954,23 @@
     .tech-stack {
         display: flex;
         flex-wrap: wrap;
-        gap: 0.5rem;
+        gap: 0.75rem;
         margin-bottom: 1.5rem;
         justify-content: flex-start;  /* Changed from center */
     }
 
     .tech-button {
-        background: rgba(255, 255, 255, 0.08);
-        border: 1px solid rgba(255, 255, 255, 0.15);
-        border-radius: 12px;
-        padding: 0.35rem 0.75rem;
-        color: rgba(255, 255, 255, 0.9);
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 8px;
+        padding: 0.5rem 0.75rem;
         font-size: 0.85rem;
-        cursor: pointer;
-        transition: all 0.2s ease;
+        transition: all 0.3s ease;
+    }
+
+    .tech-button:hover {
+        background: rgba(255, 255, 255, 0.1);
+        transform: translateX(5px);
     }
 
     .project-details {
@@ -2446,10 +2469,23 @@
     }
 
     .skills-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-        gap: 1.5rem;
+        display: flex;
+        flex-direction: column;
+        gap: 1.25rem;
         margin-top: 1rem;
+    }
+
+    .skill-category {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 8px;
+        padding: 0.75rem;
+        transition: all 0.3s ease;
+    }
+
+    .skill-category:hover {
+        background: rgba(255, 255, 255, 0.1);
+        transform: translateX(5px);
     }
 
     .skill-category h4 {
@@ -2471,19 +2507,22 @@
     }
 
     .achievements-section li {
-        font-size: 1rem;
-        line-height: 1.6;
-        margin-bottom: 0.5rem;
-        padding-left: 1.5rem;
-        position: relative;
-        color: rgba(255, 255, 255, 0.8);
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 8px;
+        padding: 0.75rem;
+        margin-bottom: 1.25rem;
+        transition: all 0.3s ease;
+        list-style: none;
+    }
+
+    .achievements-section li:hover {
+        background: rgba(255, 255, 255, 0.1);
+        transform: translateX(5px);
     }
 
     .achievements-section li::before {
-        content: "•";
-        position: absolute;
-        left: 0.5rem;
-        color: rgba(255, 255, 255, 0.6);
+        content: none;
     }
 
     .contact-details {
