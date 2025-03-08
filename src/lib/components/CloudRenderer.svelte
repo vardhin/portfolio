@@ -1545,6 +1545,11 @@
         margin-bottom: 0;
     }
 
+    /* Add specific additional spacing between Carbon and About sections */
+    .portfolio-section:nth-child(5) {
+        margin-bottom: 30vh; /* Increased spacing between Code4Change and About sections */
+    }
+
     /* Intro section styles */
     .intro-content {
         text-align: center;
