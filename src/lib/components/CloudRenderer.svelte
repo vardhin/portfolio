@@ -248,7 +248,6 @@
             return; // Let the button handle the touch event
         }
         
-        event.preventDefault(); // Prevent scrolling only for canvas interactions
         const touch = event.touches[0];
         const rect = container.getBoundingClientRect();
         
@@ -264,6 +263,7 @@
             
             if (distance < 0.3) {
                 isDragging = true;
+                event.preventDefault(); // Prevent scrolling only when dragging the sun
             }
         }
     };
@@ -758,13 +758,13 @@
             
             // Update sun position without adding camera offset
             sunMesh.position.set(
-                sunX + camera.position.x,  // Add camera offset to keep sun fixed relative to view
-                sunY + camera.position.y,
+                sunX,  // Remove camera.position.x to keep sun position absolute
+                sunY,
                 sunMesh.position.z
             );
             sunGlowMesh.position.set(
-                sunX + camera.position.x,
-                sunY + camera.position.y,
+                sunX,
+                sunY,
                 sunGlowMesh.position.z
             );
 
@@ -958,6 +958,7 @@
             
             if (distance < 0.3) {
                 isDragging = true;
+                event.preventDefault(); // Prevent default to avoid text selection
             }
         }
     };
