@@ -278,25 +278,6 @@
         }
     };
 
-    // Make sure the move handlers are properly checking isDragging
-    const onMouseMove = (event) => {
-        // Don't prevent default if interacting with controls or content
-        if (event.target.closest('.controls') || event.target.closest('.content-overlay')) {
-            return;
-        }
-        
-        if (!isDragging) return;
-        
-        // Prevent default behavior during drag
-        event.preventDefault();
-        
-        const rect = container.getBoundingClientRect();
-        normalizedMousePosition.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
-        normalizedMousePosition.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
-        
-        updateSunPosition(normalizedMousePosition.x, normalizedMousePosition.y);
-    };
-
     const onTouchMove = (event) => {
         // Don't prevent default if touching controls or content
         if (event.target.closest('.controls') || event.target.closest('.content-overlay')) {
