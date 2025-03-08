@@ -10,6 +10,12 @@
     import ChevronUp from 'lucide-svelte/icons/chevron-up';
     import ChevronDown from 'lucide-svelte/icons/chevron-down';
     import Link from 'lucide-svelte/icons/link';
+    // Import GitHub icon from an icon library (you can choose your preferred one)
+    import { Github } from 'lucide-svelte';
+    // If you're using a different icon library, adjust the import accordingly
+    // For example, with FontAwesome:
+    // import { faGithub } from '@fortawesome/free-brands-svg-icons';
+    // import Fa from 'svelte-fa';
   
     let container;
     let showIntro = true;
@@ -1063,6 +1069,92 @@
     };
 
     startSequence();
+
+    // Move the data from the module script to the instance script
+    const about = {
+        name: "Surya Vardhin Gamidi",
+        title: "Computer Science Student & Full-Stack Developer",
+        description: "I'm a Computer Science student at VIT specializing in Data Science, with a focus on decentralized applications and blockchain technology. I combine technical expertise in Svelte, TypeScript, and blockchain development with research interests in P2P networking and accessibility solutions.",
+        links: {
+            github: "https://github.com/vardhin",
+            linkedin: "https://linkedin.com/in/vardhin",
+            website: "https://vardhin.tech",
+            email: "suryavardhin@gmail.com"
+        }
+    };
+
+    const skills = {
+        languages: ["Python", "Svelte", "React Native", "Solidity", "SQL", "TypeScript"],
+        tools: ["VMWare", "Cursor", "Azure", "Android Studio", "Docker"],
+        technologies: ["Arch Linux", "GunJs", "Cloudflare", "TensorFlow", "IPFS", "Ethereum/Hardhat"]
+    };
+
+    const achievements = [
+        {
+            title: "Design-a-thon Winner",
+            organization: "Yantra - Indian Geotechnical Society",
+            date: "March 2024",
+            description: "Designed and constructed a disaster resistant safe shelter utilizing mechanical contraptions and performed stress analysis using Python."
+        },
+        {
+            title: "Code4Change 2.0 Finalist",
+            organization: "IEEE Social Implications of Technology",
+            date: "February 2025",
+            description: "Developed a tamper-proof carbon credit marketplace using React Native and Ethereum blockchain."
+        }
+    ];
+
+    const research = [
+        {
+            title: "Improving the Reliability of NAT Traversal for Pure P2P Connections",
+            type: "Journal Publication",
+            status: "In Progress",
+            description: "A new method to improve the reliability of hole-punching procedures using an ML model for port prediction under various types of NAT."
+        },
+        {
+            title: "Discreet Accessibility Real-Time Command System",
+            type: "Patent Application",
+            status: "In Progress",
+            description: "An embedded IoT based module designed to alert and facilitate easy accessibility of computing devices for senior citizens and people with sensory impairments."
+        }
+    ];
+
+    const projects = [
+        {
+            title: "Decentralized Messaging App",
+            subtitle: "Recon",
+            description: "A decentralized mobile app using Svelte and GunJs to ensure private and secure communication without centralized servers. Created a custom event-driven protocol in TypeScript for seamless integration and rapid development.",
+            techStack: ["Svelte", "Capacitor", "GunJs", "TypeScript"],
+            github: "https://github.com/vardhin/recon"
+        },
+        {
+            title: "Decentralized Cloud Computing App",
+            subtitle: "Decloud",
+            description: "A desktop application using Electron and Svelte to enable secure, decentralized sharing of computing resources. Implemented a two-way communication protocol as a layer over IPFS PubSub for tamper proof records.",
+            techStack: ["Electron", "Svelte", "IPFS", "Docker", "TypeScript"],
+            github: "https://github.com/vardhin/decloud"
+        }
+    ];
+
+    const leadership = {
+        title: "Editorial Head",
+        organization: "English Literary Association",
+        period: "Autumn 2023 - Present",
+        highlights: [
+            "Semi Finalist in STEW - IITM Saarang",
+            "Led association of 300+ members",
+            "Organized 4 events for annual cultural fest Riviera",
+            "Developed web platform for literary skill development"
+        ]
+    };
+
+    const education = {
+        institution: "Vellore Institute of Technology",
+        degree: "Bachelor of Science in Computer Science",
+        specialization: "Data Science",
+        period: "Sep. 2022 - May 2026",
+        location: "Vellore, Tamil Nadu"
+    };
 </script>
   
   <div class="main-container">
@@ -2198,98 +2290,3 @@
 </style>
 
 <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&display=swap" rel="stylesheet" crossorigin="anonymous">
-
-<script context="module">
-    const about = {
-        name: "Surya Vardhin Gamidi",
-        title: "Computer Science Student & Full-Stack Developer",
-        description: "I'm a Computer Science student at VIT specializing in Data Science, with a focus on decentralized applications and blockchain technology. I combine technical expertise in Svelte, TypeScript, and blockchain development with research interests in P2P networking and accessibility solutions.",
-        links: {
-            github: "https://github.com/vardhin",
-            linkedin: "https://linkedin.com/in/vardhin",
-            website: "https://vardhin.tech",
-            email: "suryavardhin@gmail.com"
-        }
-    };
-
-    const skills = {
-        languages: ["Python", "Svelte", "React Native", "Solidity", "SQL", "TypeScript"],
-        tools: ["VMWare", "Cursor", "Azure", "Android Studio", "Docker"],
-        technologies: ["Arch Linux", "GunJs", "Cloudflare", "TensorFlow", "IPFS", "Ethereum/Hardhat"]
-    };
-
-    const achievements = [
-        {
-            title: "Design-a-thon Winner",
-            organization: "Yantra - Indian Geotechnical Society",
-            date: "March 2024",
-            description: "Designed and constructed a disaster resistant safe shelter utilizing mechanical contraptions and performed stress analysis using Python."
-        },
-        {
-            title: "Code4Change 2.0 Finalist",
-            organization: "IEEE Social Implications of Technology",
-            date: "February 2025",
-            description: "Developed a tamper-proof carbon credit marketplace using React Native and Ethereum blockchain."
-        }
-    ];
-
-    const research = [
-        {
-            title: "Improving the Reliability of NAT Traversal for Pure P2P Connections",
-            type: "Journal Publication",
-            status: "In Progress",
-            description: "A new method to improve the reliability of hole-punching procedures using an ML model for port prediction under various types of NAT."
-        },
-        {
-            title: "Discreet Accessibility Real-Time Command System",
-            type: "Patent Application",
-            status: "In Progress",
-            description: "An embedded IoT based module designed to alert and facilitate easy accessibility of computing devices for senior citizens and people with sensory impairments."
-        }
-    ];
-
-    const projects = [
-        {
-            title: "Decentralized Messaging App",
-            subtitle: "Recon",
-            description: "A decentralized mobile app using Svelte and GunJs to ensure private and secure communication without centralized servers. Created a custom event-driven protocol in TypeScript for seamless integration and rapid development.",
-            techStack: ["Svelte", "Capacitor", "GunJs", "TypeScript"],
-            github: "https://github.com/vardhin/recon"
-        },
-        {
-            title: "Decentralized Cloud Computing App",
-            subtitle: "Decloud",
-            description: "A desktop application using Electron and Svelte to enable secure, decentralized sharing of computing resources. Implemented a two-way communication protocol as a layer over IPFS PubSub for tamper proof records.",
-            techStack: ["Electron", "Svelte", "IPFS", "Docker", "TypeScript"],
-            github: "https://github.com/vardhin/decloud"
-        }
-    ];
-
-    const leadership = {
-        title: "Editorial Head",
-        organization: "English Literary Association",
-        period: "Autumn 2023 - Present",
-        highlights: [
-            "Semi Finalist in STEW - IITM Saarang",
-            "Led association of 300+ members",
-            "Organized 4 events for annual cultural fest Riviera",
-            "Developed web platform for literary skill development"
-        ]
-    };
-
-    const education = {
-        institution: "Vellore Institute of Technology",
-        degree: "Bachelor of Science in Computer Science",
-        specialization: "Data Science",
-        period: "Sep. 2022 - May 2026",
-        location: "Vellore, Tamil Nadu"
-    };
-
-    const ProjectLink = ({ href }) => (`
-        <div class="project-links">
-            <a href="${href}" class="project-link" target="_blank" rel="noopener noreferrer">
-                <svelte:component this={Github} size={16} /> GitHub
-            </a>
-        </div>
-    `);
-</script>
