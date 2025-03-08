@@ -1021,34 +1021,6 @@
         normalizedMousePosition.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
     };
 
-    // Add these touch event handlers near the other mouse handlers
-    const onTouchStart = (event) => {
-        // Check if the touch target is a control button or content overlay
-        if (event.target.closest('.controls') || event.target.closest('.content-overlay')) {
-            return; // Let the button or content handle the touch event
-        }
-        
-        // Prevent default behavior immediately
-        event.preventDefault();
-        
-        const touch = event.touches[0];
-        const rect = container.getBoundingClientRect();
-        
-        normalizedMousePosition.x = ((touch.clientX - rect.left) / rect.width) * 2 - 1;
-        normalizedMousePosition.y = -((touch.clientY - rect.top) / rect.height) * 2 + 1;
-        
-        if (fogMaterial) {
-            const sunPos = fogMaterial.uniforms.sunPosition.value;
-            const distance = Math.sqrt(
-                Math.pow((normalizedMousePosition.x - sunPos.x), 2) + 
-                Math.pow((normalizedMousePosition.y - sunPos.y), 2)
-            );
-            
-            if (distance < 0.3) {
-                isDragging = true;
-            }
-        }
-    };
 
     const onTouchMove = (event) => {
         // Don't prevent default if touching controls or content
