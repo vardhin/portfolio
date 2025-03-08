@@ -434,7 +434,7 @@
       const sunMesh = new THREE.Mesh(sunGeometry, sunMaterial);
       sunMesh.position.set(
         -0.5 * (frustumSize * aspect / 2),
-        0.0 * (frustumSize / 2), // Changed from -0.2 to 0.0 (higher position)
+        0.1 * (frustumSize / 2), // Changed from -0.2 to 0.0 (higher position)
         -3 // Keep at -3 to stay in front
       );
   
@@ -493,7 +493,7 @@
       const sunGlowMesh = new THREE.Mesh(sunGlowGeometry, sunGlowMaterial);
       sunGlowMesh.position.set(
         -0.6 * (frustumSize * aspect / 2),
-        0.0 * (frustumSize / 2), // Changed from -0.2 to 0.0 (higher position)
+        0.1 * (frustumSize / 2), // Changed from -0.2 to 0.0 (higher position)
         -3.5 // Changed from -6 to -3.5 to bring it forward but behind the sun
       );
       scene.add(sunMesh);
