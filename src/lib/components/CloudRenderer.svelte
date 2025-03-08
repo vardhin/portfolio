@@ -1285,28 +1285,37 @@
                          out:fade>
                         <h2>About Me</h2>
                         <div class="about-details">
-                            <p>I'm a Computer Science student at Vellore Institute of Technology, specializing in Data Science. My passion lies in developing decentralized applications and exploring innovative solutions in cloud computing and blockchain technology.</p>
-                            
-                            <div class="skills-section">
-                                <h3>Technical Expertise</h3>
+                            <!-- Primary Panel -->
+                            <div class="about-panel primary-panel">
+                                <p>I'm a Computer Science student at Vellore Institute of Technology, specializing in Data Science. My passion lies in developing decentralized applications and exploring innovative solutions in cloud computing and blockchain technology.</p>
+                            </div>
+
+                            <!-- Skills Panel -->
+                            <div class="about-panel skills-panel">
+                                <div class="panel-header">
+                                    <h3>Technical Expertise</h3>
+                                </div>
                                 <div class="skills-grid">
-                                    <div class="skill-category">
+                                    <div class="skill-panel">
                                         <h4>Languages</h4>
                                         <p>Python, Svelte, React Native, Solidity, SQL, TypeScript</p>
                                     </div>
-                                    <div class="skill-category">
+                                    <div class="skill-panel">
                                         <h4>Developer Tools</h4>
                                         <p>VMWare, Cursor, Azure, Android Studio, Docker</p>
                                     </div>
-                                    <div class="skill-category">
+                                    <div class="skill-panel">
                                         <h4>Technologies</h4>
                                         <p>Arch Linux, GunJs, Cloudflare, TensorFlow, IPFS, Ethereum/Hardhat</p>
                                     </div>
                                 </div>
                             </div>
 
-                            <div class="achievements-section">
-                                <h3>Current Endeavors</h3>
+                            <!-- Achievements Panel -->
+                            <div class="about-panel achievements-panel">
+                                <div class="panel-header">
+                                    <h3>Current Endeavors</h3>
+                                </div>
                                 <ul>
                                     <li>Researching NAT Traversal improvements for P2P connections</li>
                                     <li>Developing a patent-pending IoT solution for accessibility</li>
@@ -2552,6 +2561,104 @@
 
         .tech-button {
             width: auto;
+        }
+    }
+
+    /* Updated About section styles with panels */
+    .about-panel {
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        backdrop-filter: blur(8px);
+        transition: all 0.3s ease;
+    }
+
+    .about-panel:hover {
+        background: rgba(255, 255, 255, 0.05);
+        transform: translateY(-2px);
+    }
+
+    .primary-panel {
+        border-left: 3px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .skills-panel {
+        border-left: 3px solid rgba(255, 255, 255, 0.15);
+    }
+
+    .achievements-panel {
+        border-left: 3px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .panel-header {
+        margin-bottom: 1rem;
+    }
+
+    .panel-header h3 {
+        font-size: 1.3rem;
+        font-weight: 400;
+        margin: 0;
+        color: rgba(255, 255, 255, 0.95);
+    }
+
+    .skill-panel {
+        background: rgba(255, 255, 255, 0.02);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: 8px;
+        padding: 1rem;
+        transition: all 0.3s ease;
+    }
+
+    .skill-panel:hover {
+        background: rgba(255, 255, 255, 0.04);
+        transform: translateX(2px);
+    }
+
+    .skills-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+    }
+
+    /* Update existing about section styles */
+    .about-content {
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 0 1.5rem;
+    }
+
+    .about-content h2 {
+        font-size: 2rem;
+        font-weight: 300;
+        margin-bottom: 2rem;
+        text-align: center;
+        color: rgba(255, 255, 255, 0.95);
+    }
+
+    .about-details {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+
+    /* Mobile responsiveness for panels */
+    @media (max-width: 768px) {
+        .about-panel {
+            padding: 1.25rem;
+        }
+
+        .skills-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .skill-panel {
+            padding: 0.875rem;
+        }
+
+        .panel-header h3 {
+            font-size: 1.2rem;
         }
     }
 </style>
