@@ -268,7 +268,8 @@
                 Math.pow((normalizedMousePosition.y - sunPos.y), 2)
             );
             
-            if (distance < 0.3) {
+            // Increase the hit area for the sun to make it easier to grab
+            if (distance < 0.5) {  // Changed from 0.3 to 0.5
                 isDragging = true;
             }
         }
@@ -972,7 +973,8 @@
                 Math.pow((normalizedMousePosition.y - sunPos.y), 2)
             );
             
-            if (distance < 0.3) {
+            // Increase the hit area for the sun to make it easier to grab
+            if (distance < 0.5) {  // Changed from 0.3 to 0.5
                 isDragging = true;
             }
         }
