@@ -241,135 +241,6 @@
     const MAX_CAMERA_Y = -35; // Maximum camera position (lowest point)
     const MIN_CAMERA_Y = 0;   // Minimum camera position (highest point)
 
-    // Update handleNavButtonPress to use continuous movement
-    const handleNavButtonPress = (direction) => {
-        if (isNavigating) return;
-        
-        // Move camera gently in the requested direction
-        if (direction === 'up') {
-            targetCameraY = Math.max(MIN_CAMERA_Y, targetCameraY + 1);
-        } else if (direction === 'down') {
-            targetCameraY = Math.min(MAX_CAMERA_Y, targetCameraY - 1);
-        }
-        
-        // Calculate approximate section for content display
-        currentSection = Math.round(Math.abs(targetCameraY) / 5);
-        
-        // Update section spring for content positioning
-        sectionSpring.set({ y: currentSection * -100 });
-        
-        // Set navigating flag briefly to prevent rapid movement
-        isNavigating = true;
-        clearTimeout(navigationTimeout);
-        navigationTimeout = setTimeout(() => {
-            isNavigating = false;
-        }, 100); // Short timeout for responsive controls
-    };
-
-    const handleNavButtonRelease = (direction) => {
-        switch(direction) {
-            case 'up':
-                keyState.up = false;
-                break;
-            case 'down':
-                keyState.down = false;
-                break;
-        }
-    };
-
-    // Modify the mouse interaction variables
-    let mousePosition = { x: 0, y: 0 };
-    let normalizedMousePosition = { x: 0, y: 0 };
-    let isDragging = false;
-
-    // Update the mouse handlers
-    const updateMousePosition = (event) => {
-        const rect = container.getBoundingClientRect();
-        
-        // Calculate normalized coordinates (-1 to 1)
-        normalizedMousePosition.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
-        normalizedMousePosition.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
-
-        // Update cursor if near sun
-        if (fogMaterial) {
-            const sunPos = fogMaterial.uniforms.sunPosition.value;
-            const distance = Math.sqrt(
-                Math.pow((normalizedMousePosition.x - sunPos.x), 2) + 
-                Math.pow((normalizedMousePosition.y - sunPos.y), 2)
-            );
-            
-            if (distance < 0.2) {
-                container.style.cursor = 'grab';
-            } else {
-                container.style.cursor = 'default';
-            }
-        }
-    };
-
-    const onMouseDown = (event) => {
-        updateMousePosition(event);
-        if (fogMaterial) {
-            const sunPos = fogMaterial.uniforms.sunPosition.value;
-            
-            // Calculate distance in normalized coordinates
-            const distance = Math.sqrt(
-                Math.pow((normalizedMousePosition.x - sunPos.x), 2) + 
-                Math.pow((normalizedMousePosition.y - sunPos.y), 2)
-            );
-            
-            // Increased hit area from 0.06 to 0.2
-            if (distance < 0.2) {
-                isDragging = true;
-                container.style.cursor = 'grabbing';
-            }
-        }
-    };
-
-    const onMouseMove = (event) => {
-        updateMousePosition(event);
-        
-        if (isDragging && fogMaterial) {
-            // Update sun position directly with normalized coordinates
-            const newX = THREE.MathUtils.clamp(normalizedMousePosition.x, -1, 1);
-            const newY = THREE.MathUtils.clamp(normalizedMousePosition.y, -1, 1);
-            
-            // Update sun position
-            fogMaterial.uniforms.sunPosition.value.set(newX, newY);
-            
-            // Update coordinates and time display
-            sunCoordinates = { x: newX, y: newY };
-            currentTime = getTimeFromX(newX);
-            
-            // Update sky color
-            scene.background = getSkyColor(newX);
-            
-            // Update isNightTime based on hour
-            const hour = ((newX + 1) * 12);
-            isNightTime = hour < 5 || hour > 19;
-        }
-    };
-
-    const onMouseUp = () => {
-        isDragging = false;
-        container.style.cursor = 'default';
-    };
-
-    // Add fogMaterial to component scope
-    let fogMaterial;
-    let scene;  // Also add scene to component scope
-
-    // Add these lerp helper functions near the top
-    function lerp(start, end, t) {
-        return start * (1 - t) + end * t;
-    }
-
-    function lerpVector2(v1, v2, t) {
-        return {
-            x: lerp(v1.x, v2.x, t),
-            y: lerp(v1.y, v2.y, t)
-        };
-    }
-
     // Add these touch event handlers near the other mouse handlers
     const onTouchStart = (event) => {
         // Check if the touch target is a control button
@@ -816,40 +687,6 @@
       // Add lastTime variable at the top of onMount
       let lastTime;
       
-      // Add keyboard event listeners
-      const handleKeyDown = (event) => {
-          if (isNavigating) return; // Prevent multiple navigations
-          
-          switch(event.key.toLowerCase()) {
-              case 'arrowup':
-              case 'w':
-                  handleNavButtonPress('up');
-                  break;
-              case 'arrowdown':
-              case 's':
-                  handleNavButtonPress('down');
-                  break;
-          }
-      };
-
-      const handleKeyUp = (event) => {
-          switch(event.key.toLowerCase()) {
-              case 'arrowup':
-              case 'w':
-                  keyState.up = false;
-                  handleNavButtonRelease('up');
-                  break;
-              case 'arrowdown':
-              case 's':
-                  keyState.down = false;
-                  handleNavButtonRelease('down');
-                  break;
-          }
-      };
-
-      window.addEventListener('keydown', handleKeyDown);
-      window.addEventListener('keyup', handleKeyUp);
-
       // Add FPS limiting variables
       const fps = 30;
       const fpsInterval = 1000 / fps;
@@ -1023,8 +860,6 @@
             star.mesh.geometry.dispose();
             star.material.dispose();
         });
-        window.removeEventListener('keydown', handleKeyDown);
-        window.removeEventListener('keyup', handleKeyUp);
         container.removeEventListener('mousemove', updateMousePosition);
         clearTimeout(navigationTimeout);
         window.removeEventListener('scroll', handleScroll);
@@ -1115,32 +950,6 @@
             on:click={() => enableCloudMovement = !enableCloudMovement}
         >
             <svelte:component this={enableCloudMovement ? Pause : Play} size={20} />
-        </button>
-    </div>
-
-    <!-- Navigation controls -->
-    <div class="controls nav-controls">
-        <button 
-            class="control-button nav-button"
-            on:mousedown={() => handleNavButtonPress('up')}
-            on:mouseup={() => handleNavButtonRelease('up')}
-            on:mouseleave={() => handleNavButtonRelease('up')}
-            on:touchstart|preventDefault={() => handleNavButtonPress('up')}
-            on:touchend|preventDefault={() => handleNavButtonRelease('up')}
-            disabled={currentSection <= MIN_SECTION}
-        >
-            <svelte:component this={ChevronUp} size={20} />
-        </button>
-        <button 
-            class="control-button nav-button"
-            on:mousedown={() => handleNavButtonPress('down')}
-            on:mouseup={() => handleNavButtonRelease('down')}
-            on:mouseleave={() => handleNavButtonRelease('down')}
-            on:touchstart|preventDefault={() => handleNavButtonPress('down')}
-            on:touchend|preventDefault={() => handleNavButtonRelease('down')}
-            disabled={currentSection >= MAX_SECTION}
-        >
-            <svelte:component this={ChevronDown} size={20} />
         </button>
     </div>
 
@@ -1424,13 +1233,6 @@
         left: 20px;
     }
 
-    .nav-controls {
-        right: 20px;
-        bottom: 20px;
-        flex-direction: column;
-        touch-action: none; /* Prevent default touch actions */
-    }
-
     .control-button {
         width: 40px;
         height: 40px;
@@ -1455,16 +1257,6 @@
         opacity: 0.5;
         cursor: not-allowed;
         pointer-events: none; /* Prevent any interaction when disabled */
-    }
-
-    .nav-button {
-        background: rgba(255, 255, 255, 0.15);
-        transition: opacity 0.3s ease, background-color 0.3s ease;
-    }
-
-    .nav-button:disabled {
-        opacity: 0.3;
-        background: rgba(255, 255, 255, 0.05);
     }
 
     .canvas-container {
@@ -1495,12 +1287,6 @@
         .top-left {
             top: 24px;
             left: 24px;
-            gap: 16px;
-        }
-
-        .nav-controls {
-            right: 24px;
-            bottom: 24px;
             gap: 16px;
         }
 
