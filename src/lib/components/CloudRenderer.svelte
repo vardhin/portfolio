@@ -278,6 +278,43 @@
         }
     };
 
+    // Add the missing onTouchMove function
+    const onTouchMove = (event) => {
+        if (!isDragging) return;
+        
+        // Prevent default behavior during drag
+        event.preventDefault();
+        
+        const touch = event.touches[0];
+        const rect = container.getBoundingClientRect();
+        
+        normalizedMousePosition.x = ((touch.clientX - rect.left) / rect.width) * 2 - 1;
+        normalizedMousePosition.y = -((touch.clientY - rect.top) / rect.height) * 2 + 1;
+        
+        updateSunPosition(normalizedMousePosition.x, normalizedMousePosition.y);
+    };
+
+    // Add the missing onTouchEnd function
+    const onTouchEnd = () => {
+        isDragging = false;
+    };
+
+    // Make sure updateSunPosition function is defined
+    const updateSunPosition = (x, y) => {
+        if (fogMaterial && fogMaterial.uniforms && fogMaterial.uniforms.sunPosition) {
+            // Clamp values to stay within [-1, 1] range
+            const clampedX = Math.max(-1, Math.min(1, x));
+            const clampedY = Math.max(-1, Math.min(1, y));
+            
+            // Update sun position
+            fogMaterial.uniforms.sunPosition.value.x = clampedX;
+            fogMaterial.uniforms.sunPosition.value.y = clampedY;
+            
+            // Update time display
+            currentTime = getTimeFromX(clampedX);
+        }
+    };
+
     onMount(() => {
       // Scene setup
       scene = new THREE.Scene();  // Remove 'const' to use component-scoped variable
@@ -2607,4 +2644,6 @@
 </style>
 
 <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&display=swap" rel="stylesheet" crossorigin="anonymous">
+
+
 
