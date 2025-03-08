@@ -319,23 +319,11 @@
         // Mark that we're scrolling
         isScrolling = true;
         
-        // Calculate current time for velocity calculation
-        const now = performance.now();
-        const timeDelta = now - lastScrollTime;
-        lastScrollTime = now;
-        
         // Get current scroll position
         const currentScrollY = window.scrollY;
         
         // Calculate scroll direction and amount
         const scrollDelta = currentScrollY - lastScrollY;
-        
-        // Calculate velocity (with time normalization)
-        if (timeDelta > 0) {
-            // Smooth out the velocity calculation
-            const newVelocity = scrollDelta / timeDelta;
-            scrollVelocity = scrollVelocity * 0.7 + newVelocity * 0.3;
-        }
         
         lastScrollY = currentScrollY;
         
@@ -357,6 +345,9 @@
             hard: false,
             soft: 0.3 // More responsive during active scrolling
         });
+        
+        // Reset scroll velocity to disable inertia
+        scrollVelocity = 0;
         
         // Set timeout to mark when scrolling stops
         clearTimeout(scrollTimeout);
@@ -1192,7 +1183,7 @@
 
     <!-- Copyright watermark with improved visibility -->
     <div class="copyright-watermark">
-        © Built and Copyrighted by Gamidi Surya Vardhin
+        © Gamidi Surya Vardhin
     </div>
 
     <!-- Modified content overlay with pointer-events: all -->
@@ -2019,21 +2010,22 @@
         }
     }
 
-    /* Copyright watermark styles - improved visibility */
+    /* Copyright watermark styles - moved to bottom left corner */
     .copyright-watermark {
         position: fixed;
-        bottom: 15px;
-        left: 0;
-        width: 100%;
-        text-align: center;
-        font-size: 0.85rem;
-        color: rgba(255, 255, 255, 0.7); /* Increased opacity */
-        z-index: 1005; /* Increased z-index to be above all other elements */
+        bottom: 10px;
+        left: 10px;
+        text-align: left;
+        font-size: 0.7rem;
+        color: rgba(255, 255, 255, 0.5);
+        z-index: 1005;
         pointer-events: none;
         user-select: none;
-        text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8); /* Enhanced shadow for better visibility */
-        padding: 5px;
-        background: rgba(0, 0, 0, 0.2); /* Slight background for better contrast */
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+        padding: 3px 6px;
+        background: rgba(0, 0, 0, 0.15);
+        border-radius: 4px;
+        max-width: 150px;
     }
 
     /* Responsive styles */
@@ -2041,7 +2033,7 @@
         /* ... existing responsive styles ... */
         
         .copyright-watermark {
-            font-size: 0.7rem;
+            font-size: 0.6rem;
         }
     }
 
@@ -2049,7 +2041,9 @@
         /* ... existing responsive styles ... */
         
         .copyright-watermark {
-            font-size: 0.6rem;
+            font-size: 0.55rem;
+            bottom: 5px;
+            left: 5px;
         }
     }
 </style>
