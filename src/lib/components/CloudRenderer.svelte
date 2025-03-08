@@ -433,7 +433,7 @@
       });
       const sunMesh = new THREE.Mesh(sunGeometry, sunMaterial);
       sunMesh.position.set(
-        -0.6 * (frustumSize * aspect / 2),
+        -0.5 * (frustumSize * aspect / 2),
         -0.2 * (frustumSize / 2),
         -3 // Keep at -3 to stay in front
       );
