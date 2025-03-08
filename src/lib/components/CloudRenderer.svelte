@@ -342,6 +342,8 @@
             }, 150);
         }
     };
+```
+</script>
 
     onMount(() => {
       // Scene setup
