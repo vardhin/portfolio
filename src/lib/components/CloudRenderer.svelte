@@ -246,7 +246,7 @@
     let isDragging = false;
 
     // Increase the sun hit area significantly
-    const SUN_HIT_RADIUS = 0.6 //changed to 0.6 for larger hit area (was 0.5)
+    const SUN_HIT_RADIUS = 1.0 //changed to 1.0 for much larger hit area (was 0.6)
 
     const onTouchStart = (event) => {
         // Check if the touch target is a control button or content overlay
@@ -355,8 +355,8 @@
       const frustumSize = 10;  // Back to default zoom
       const aspect = window.innerWidth / window.innerHeight;
   
-      // Add sun mesh
-      const sunGeometry = new THREE.CircleGeometry(0.3, 32);
+      // Add sun mesh with increased size
+      const sunGeometry = new THREE.CircleGeometry(0.5, 32); // Increased from 0.3 to 0.5
       const sunMaterial = new THREE.MeshBasicMaterial({ 
         color: 0xFFF7E6,
         transparent: true,
@@ -366,11 +366,11 @@
       sunMesh.position.set(
         -0.6 * (frustumSize * aspect / 2),
         -0.2 * (frustumSize / 2),
-        -6
+        -3 // Changed from -6 to -3 to bring it forward
       );
   
-      // Add sun glow effect
-      const sunGlowGeometry = new THREE.CircleGeometry(1.2, 32);  // Increased size
+      // Add sun glow effect with increased size
+      const sunGlowGeometry = new THREE.CircleGeometry(2.0, 32);  // Increased from 1.2 to 2.0
       const sunGlowMaterial = new THREE.ShaderMaterial({
         uniforms: {
           color: { value: new THREE.Color(0xFFAA33) },
@@ -425,7 +425,7 @@
       sunGlowMesh.position.set(
         -0.6 * (frustumSize * aspect / 2),
         -0.2 * (frustumSize / 2),
-        -6
+        -3.5 // Changed from -6 to -3.5 to bring it forward but behind the sun
       );
       scene.add(sunGlowMesh);
       scene.add(sunMesh);
@@ -661,7 +661,7 @@
         frustumSize * 2          // Reduced from 3 to 2
       );
       const fogPlane = new THREE.Mesh(planeGeometry, fogMaterial);
-      fogPlane.position.z = -5;
+      fogPlane.position.z = -5; // Keep this at -5 so the sun is in front
       scene.add(fogPlane);
   
       // Position camera closer
@@ -760,14 +760,14 @@
             
             // Update sun position without adding camera offset
             sunMesh.position.set(
-                sunX,  // Remove camera.position.x to keep sun position absolute
+                sunX,
                 sunY,
-                sunMesh.position.z
+                -3 // Keep at -3 to stay in front
             );
             sunGlowMesh.position.set(
                 sunX,
                 sunY,
-                sunGlowMesh.position.z
+                -3.5 // Keep at -3.5 to stay behind the sun but in front of clouds
             );
 
             // Much gentler sky color transitions
