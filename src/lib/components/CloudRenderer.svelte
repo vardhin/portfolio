@@ -10,12 +10,7 @@
     import ChevronUp from 'lucide-svelte/icons/chevron-up';
     import ChevronDown from 'lucide-svelte/icons/chevron-down';
     import Link from 'lucide-svelte/icons/link';
-    // Import GitHub icon from an icon library (you can choose your preferred one)
-    import { Github } from 'lucide-svelte';
-    // If you're using a different icon library, adjust the import accordingly
-    // For example, with FontAwesome:
-    // import { faGithub } from '@fortawesome/free-brands-svg-icons';
-    // import Fa from 'svelte-fa';
+    import Github from 'lucide-svelte/icons/github';
   
     let container;
     let showIntro = true;
@@ -1069,227 +1064,277 @@
     };
 
     startSequence();
-
-    // Move the data from the module script to the instance script
-    const about = {
-        name: "Surya Vardhin Gamidi",
-        title: "Computer Science Student & Full-Stack Developer",
-        description: "I'm a Computer Science student at VIT specializing in Data Science, with a focus on decentralized applications and blockchain technology. I combine technical expertise in Svelte, TypeScript, and blockchain development with research interests in P2P networking and accessibility solutions.",
-        links: {
-            github: "https://github.com/vardhin",
-            linkedin: "https://linkedin.com/in/vardhin",
-            website: "https://vardhin.tech",
-            email: "suryavardhin@gmail.com"
-        }
-    };
-
-    const skills = {
-        languages: ["Python", "Svelte", "React Native", "Solidity", "SQL", "TypeScript"],
-        tools: ["VMWare", "Cursor", "Azure", "Android Studio", "Docker"],
-        technologies: ["Arch Linux", "GunJs", "Cloudflare", "TensorFlow", "IPFS", "Ethereum/Hardhat"]
-    };
-
-    const achievements = [
-        {
-            title: "Design-a-thon Winner",
-            organization: "Yantra - Indian Geotechnical Society",
-            date: "March 2024",
-            description: "Designed and constructed a disaster resistant safe shelter utilizing mechanical contraptions and performed stress analysis using Python."
-        },
-        {
-            title: "Code4Change 2.0 Finalist",
-            organization: "IEEE Social Implications of Technology",
-            date: "February 2025",
-            description: "Developed a tamper-proof carbon credit marketplace using React Native and Ethereum blockchain."
-        }
-    ];
-
-    const research = [
-        {
-            title: "Improving the Reliability of NAT Traversal for Pure P2P Connections",
-            type: "Journal Publication",
-            status: "In Progress",
-            description: "A new method to improve the reliability of hole-punching procedures using an ML model for port prediction under various types of NAT."
-        },
-        {
-            title: "Discreet Accessibility Real-Time Command System",
-            type: "Patent Application",
-            status: "In Progress",
-            description: "An embedded IoT based module designed to alert and facilitate easy accessibility of computing devices for senior citizens and people with sensory impairments."
-        }
-    ];
-
-    const projects = [
-        {
-            title: "Decentralized Messaging App",
-            subtitle: "Recon",
-            description: "A decentralized mobile app using Svelte and GunJs to ensure private and secure communication without centralized servers. Created a custom event-driven protocol in TypeScript for seamless integration and rapid development.",
-            techStack: ["Svelte", "Capacitor", "GunJs", "TypeScript"],
-            github: "https://github.com/vardhin/recon"
-        },
-        {
-            title: "Decentralized Cloud Computing App",
-            subtitle: "Decloud",
-            description: "A desktop application using Electron and Svelte to enable secure, decentralized sharing of computing resources. Implemented a two-way communication protocol as a layer over IPFS PubSub for tamper proof records.",
-            techStack: ["Electron", "Svelte", "IPFS", "Docker", "TypeScript"],
-            github: "https://github.com/vardhin/decloud"
-        }
-    ];
-
-    const leadership = {
-        title: "Editorial Head",
-        organization: "English Literary Association",
-        period: "Autumn 2023 - Present",
-        highlights: [
-            "Semi Finalist in STEW - IITM Saarang",
-            "Led association of 300+ members",
-            "Organized 4 events for annual cultural fest Riviera",
-            "Developed web platform for literary skill development"
-        ]
-    };
-
-    const education = {
-        institution: "Vellore Institute of Technology",
-        degree: "Bachelor of Science in Computer Science",
-        specialization: "Data Science",
-        period: "Sep. 2022 - May 2026",
-        location: "Vellore, Tamil Nadu"
-    };
 </script>
   
   <div class="main-container">
-    <!-- About Section -->
-    <section class="about-section">
-        <h1>{about.name}</h1>
-        <h2 class="about-title">{about.title}</h2>
-        <p>{about.description}</p>
-        <div class="social-links">
-            <a href={about.links.github} class="social-link" target="_blank" rel="noopener">
-                <i class="fab fa-github"></i> GitHub
-            </a>
-            <a href={about.links.linkedin} class="social-link" target="_blank" rel="noopener">
-                <i class="fab fa-linkedin"></i> LinkedIn
-            </a>
-            <a href={about.links.website} class="social-link" target="_blank" rel="noopener">
-                <i class="fas fa-globe"></i> Website
-            </a>
-            <a href={`mailto:${about.links.email}`} class="social-link">
-                <i class="fas fa-envelope"></i> Email
-            </a>
-        </div>
-    </section>
+    <!-- Cloud and movement controls -->
+    <div class="controls top-left">
+        <button 
+            class="control-button" 
+            title={showClouds ? 'Hide Clouds' : 'Show Clouds'} 
+            on:click={() => showClouds = !showClouds}
+        >
+            <svelte:component this={showClouds ? Cloud : CloudSun} size={20} />
+        </button>
+        <button 
+            class="control-button" 
+            title={enableCloudMovement ? 'Stop Movement' : 'Start Movement'} 
+            on:click={() => enableCloudMovement = !enableCloudMovement}
+        >
+            <svelte:component this={enableCloudMovement ? Pause : Play} size={20} />
+        </button>
+    </div>
 
-    <!-- Education Section -->
-    <section>
-        <h2 class="section-title">Education</h2>
-        <div class="education-card">
-            <h3>{education.institution}</h3>
-            <p>{education.degree}</p>
-            <p>Specialization in {education.specialization}</p>
-            <p>{education.period}</p>
-            <p>{education.location}</p>
-        </div>
-    </section>
+    <!-- Navigation controls -->
+    <div class="controls nav-controls">
+        <button 
+            class="control-button nav-button"
+            on:mousedown={() => handleNavButtonPress('up')}
+            on:mouseup={() => handleNavButtonRelease('up')}
+            on:mouseleave={() => handleNavButtonRelease('up')}
+            on:touchstart|preventDefault={() => handleNavButtonPress('up')}
+            on:touchend|preventDefault={() => handleNavButtonRelease('up')}
+            disabled={currentSection <= MIN_SECTION}
+        >
+            <svelte:component this={ChevronUp} size={20} />
+        </button>
+        <button 
+            class="control-button nav-button"
+            on:mousedown={() => handleNavButtonPress('down')}
+            on:mouseup={() => handleNavButtonRelease('down')}
+            on:mouseleave={() => handleNavButtonRelease('down')}
+            on:touchstart|preventDefault={() => handleNavButtonPress('down')}
+            on:touchend|preventDefault={() => handleNavButtonRelease('down')}
+            disabled={currentSection >= MAX_SECTION}
+        >
+            <svelte:component this={ChevronDown} size={20} />
+        </button>
+    </div>
 
-    <!-- Skills Section -->
-    <section>
-        <h2 class="section-title">Technical Skills</h2>
-        <div class="skills-grid">
-            <div class="skill-category">
-                <h3 class="skill-category-title">Languages</h3>
-                <ul>
-                    {#each skills.languages as skill}
-                        <li>{skill}</li>
-                    {/each}
-                </ul>
-            </div>
-            <div class="skill-category">
-                <h3 class="skill-category-title">Developer Tools</h3>
-                <ul>
-                    {#each skills.tools as tool}
-                        <li>{tool}</li>
-                    {/each}
-                </ul>
-            </div>
-            <div class="skill-category">
-                <h3 class="skill-category-title">Technologies</h3>
-                <ul>
-                    {#each skills.technologies as tech}
-                        <li>{tech}</li>
-                    {/each}
-                </ul>
-            </div>
-        </div>
-    </section>
+    <div bind:this={container} 
+         class="canvas-container" 
+         style="opacity: 0; 
+                transition: opacity 1s ease-in-out;
+                background: #000000;">
+        <!-- Canvas will be added here by Three.js -->
+    </div>
 
-    <!-- Projects Section -->
-    <section>
-        <h2 class="section-title">Projects</h2>
-        <div class="projects-container">
-            {#each projects as project}
-                <div class="project-card">
-                    <div class="project-header">
-                        <h2>{project.title}</h2>
-                        <h3>{project.subtitle}</h3>
+    <!-- Modified content overlay -->
+    <div class="content-overlay" 
+         style="transform: translateY({$sectionSpring.y}vh)">
+        {#each sections as section, i}
+            <section 
+                class="portfolio-section" 
+                class:active={currentSection === i}
+            >
+                {#if section.id === 'intro' && showIntro}
+                    <div class="intro-content" 
+                         in:fly="{{ y: 50, duration: 1000, delay: 500 }}"
+                         out:fade>
+                        <h1>
+                            {#each 'Surya Vardhin Gamidi' as char, i}
+                                <span style="animation-delay: {i * 0.08}s">
+                                    {char === ' ' ? '\u00A0' : char}
+                                </span>
+                            {/each}
+                        </h1>
+                        <p>Web Developer & Designer</p>
                     </div>
-                    <div class="project-details">
-                        <p>{project.description}</p>
+                {:else if section.id === 'decloud'}
+                    <div class="project-card" in:fly="{{ y: 50, duration: 1000 }}" out:fade>
+                        <div class="project-content">
+                            <div class="project-header">
+                                <div class="project-header-text">
+                                    <h2>Decentralized Cloud Computing</h2>
+                                    <h3>Decloud</h3>
+                                </div>
+                            </div>
+                            
+                            <div class="scrollable-content">
+                                <div class="project-details">
+                                    <h4>Overview</h4>
+                                    <p>A desktop application enabling secure, decentralized sharing of computing resources.</p>
+                                    
+                                    <h4>Key Features</h4>
+                                    <ul>
+                                        <li>Two-way communication protocol over IPFS PubSub for tamper-proof records</li>
+                                        <li>Automated Docker container deployment for dynamic resource provisioning</li>
+                                        <li>Decentralized architecture ensuring data privacy and security</li>
+                                    </ul>
+
+                                    <h4>Implementation</h4>
+                                    <p>Built using Electron and Svelte for the frontend, with IPFS for decentralized communication 
+                                    and Docker for containerization. TypeScript ensures type safety and better development experience.</p>
+                                </div>
+                            </div>
+                        </div>
+                        
                         <div class="tech-stack">
-                            {#each project.techStack as tech}
+                            {#each ['Electron', 'Svelte', 'IPFS', 'Docker', 'TypeScript'] as tech}
+                                <span class="tech-button">{tech}</span>
+                            {/each}
+                            <a href="https://github.com/yourusername/decloud" 
+                               class="github-button" 
+                               target="_blank" 
+                               rel="noopener noreferrer">
+                                <Github size={12} /> <!-- Reduced from 16 -->
+                                <span>GitHub</span>
+                            </a>
+                        </div>
+                    </div>
+                {:else if section.id === 'recon'}
+                    <div class="project-card" in:fly="{{ y: 50, duration: 1000 }}" out:fade>
+                        <div class="project-content">
+                            <div class="project-header">
+                                <div class="project-header-text">
+                                    <h2>Decentralized Messaging</h2>
+                                    <h3>Recon</h3>
+                                </div>
+                                <a href="https://github.com/yourusername/recon" 
+                                   class="github-button" 
+                                   target="_blank" 
+                                   rel="noopener noreferrer">
+                                    <Github size={16} />
+                                    <span>GitHub</span>
+                                </a>
+                            </div>
+                            
+                            <div class="scrollable-content">
+                                <div class="project-details">
+                                    <h4>Overview</h4>
+                                    <p>A decentralized mobile messaging application ensuring private and secure communication.</p>
+                                    
+                                    <h4>Key Features</h4>
+                                    <ul>
+                                        <li>Serverless architecture using GunJs for peer-to-peer data sync</li>
+                                        <li>Custom event-driven protocol for seamless integration</li>
+                                        <li>Cross-platform mobile deployment using Capacitor</li>
+                                    </ul>
+
+                                    <h4>Implementation</h4>
+                                    <p>Developed using Svelte for the UI, GunJs for decentralized data management, 
+                                    and Capacitor for native mobile deployment. TypeScript ensures robust type checking 
+                                    and better code organization.</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="tech-stack">
+                            {#each ['Svelte', 'Capacitor', 'GunJs', 'TypeScript'] as tech}
                                 <span class="tech-button">{tech}</span>
                             {/each}
                         </div>
                     </div>
-                    <div class="project-links">
-                        <a href={project.github} class="github-button" target="_blank" rel="noopener">
-                            <Github size={16} />
-                            View on GitHub
-                        </a>
+                {:else if section.id === 'yantra'}
+                    <div class="project-card" in:fly="{{ y: 50, duration: 1000 }}" out:fade>
+                        <div class="project-content">
+                            <div class="project-header">
+                                <div class="project-header-text">
+                                    <h2>Disaster Resistant Shelter</h2>
+                                    <h3>Yantra</h3>
+                                </div>
+                            </div>
+                            
+                            <div class="scrollable-content">
+                                <div class="project-details">
+                                    <h4>Overview</h4>
+                                    <p>Winner of Design-a-thon by Indian Geotechnical Society. A innovative shelter design 
+                                    with advanced safety features.</p>
+                                    
+                                    <h4>Key Features</h4>
+                                    <ul>
+                                        <li>Advanced structural analysis using Python</li>
+                                        <li>Comprehensive stress and fluid analysis</li>
+                                        <li>Mechanical contraptions for enhanced safety</li>
+                                    </ul>
+
+                                    <h4>Implementation</h4>
+                                    <p>Utilized Python with NumPy for computational analysis and Matplotlib for 
+                                    visualization of stress distributions and fluid dynamics.</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="tech-stack">
+                            {#each ['Python', 'NumPy', 'Matplotlib'] as tech}
+                                <span class="tech-button">{tech}</span>
+                            {/each}
+                            <a href="https://github.com/yourusername/yantra" 
+                               class="github-button" 
+                               target="_blank" 
+                               rel="noopener noreferrer">
+                                <Github size={12} />
+                                <span>GitHub</span>
+                            </a>
+                        </div>
                     </div>
-                </div>
-            {/each}
-        </div>
-    </section>
+                {:else if section.id === 'carbon'}
+                    <div class="project-card" in:fly="{{ y: 50, duration: 1000 }}" out:fade>
+                        <div class="project-content">
+                            <div class="project-header">
+                                <div class="project-header-text">
+                                    <h2>Carbon Credit Marketplace</h2>
+                                    <h3>Code4Change</h3>
+                                </div>
+                                <a href="https://github.com/yourusername/carbon-credits" 
+                                   class="github-button" 
+                                   target="_blank" 
+                                   rel="noopener noreferrer">
+                                    <Github size={16} />
+                                    <span>GitHub</span>
+                                </a>
+                            </div>
+                            
+                            <div class="scrollable-content">
+                                <div class="project-details">
+                                    <h4>Overview</h4>
+                                    <p>Finalist in IEEE Code4Change 2.0. A blockchain-based marketplace for carbon credits.</p>
+                                    
+                                    <h4>Key Features</h4>
+                                    <ul>
+                                        <li>Transparent carbon credit trading system</li>
+                                        <li>Secure blockchain transactions</li>
+                                        <li>Cross-platform mobile application</li>
+                                    </ul>
 
-    <!-- Achievements Section -->
-    <section>
-        <h2 class="section-title">Achievements</h2>
-        {#each achievements as achievement}
-            <div class="achievement-card">
-                <h3>{achievement.title}</h3>
-                <h4>{achievement.organization}</h4>
-                <p class="date">{achievement.date}</p>
-                <p>{achievement.description}</p>
-            </div>
+                                    <h4>Implementation</h4>
+                                    <p>Built using React Native for cross-platform compatibility, with Ethereum blockchain 
+                                    for secure and transparent transactions.</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="tech-stack">
+                            {#each ['React Native', 'Ethereum', 'Blockchain'] as tech}
+                                <span class="tech-button">{tech}</span>
+                            {/each}
+                            <a href="https://github.com/yourusername/carbon-credits" 
+                               class="github-button" 
+                               target="_blank" 
+                               rel="noopener noreferrer">
+                                <Github size={12} />
+                                <span>GitHub</span>
+                            </a>
+                        </div>
+                    </div>
+                {:else if section.id === 'about'}
+                    <div class="about-content"
+                         in:fly="{{ y: 50, duration: 1000 }}"
+                         out:fade>
+                        <h2>About Me</h2>
+                        <p>Your bio here...</p>
+                    </div>
+                {:else if section.id === 'contact'}
+                    <div class="contact-content"
+                         in:fly="{{ y: 50, duration: 1000 }}"
+                         out:fade>
+                        <h2>Get in Touch</h2>
+                        <!-- Add contact information or form -->
+                    </div>
+                {/if}
+            </section>
         {/each}
-    </section>
-
-    <!-- Research Section -->
-    <section>
-        <h2 class="section-title">Research & Patents</h2>
-        {#each research as item}
-            <div class="research-item">
-                <h3>{item.title}</h3>
-                <p class="research-type">{item.type} - {item.status}</p>
-                <p>{item.description}</p>
-            </div>
-        {/each}
-    </section>
-
-    <!-- Leadership Section -->
-    <section>
-        <h2 class="section-title">Leadership</h2>
-        <div class="leadership-card">
-            <h3>{leadership.title}</h3>
-            <h4>{leadership.organization}</h4>
-            <p>{leadership.period}</p>
-            <ul>
-                {#each leadership.highlights as highlight}
-                    <li>{highlight}</li>
-                {/each}
-            </ul>
-        </div>
-    </section>
+    </div>
   </div>
   
   <style>
@@ -1520,13 +1565,19 @@
         padding: 1.25rem;
         backdrop-filter: blur(10px);
         width: 100%;
-        max-width: 1200px; /* Increased from 1000px */
+        max-width: 1400px; /* Increased from 1200px */
         height: 450px;
         margin: 0 auto;
         box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
         transition: all 0.3s ease;
         display: flex;
+        flex-direction: column; /* Added to ensure proper layout */
         gap: 0.75rem;
+    }
+
+    .project-content {
+        flex: 1; /* Take up remaining space */
+        overflow: hidden; /* Prevent content overflow */
     }
 
     .project-header {
@@ -1590,11 +1641,11 @@
 
     .tech-stack {
         display: flex;
-        flex-direction: column;
-        gap: 0.3rem; /* Reduced from 0.4rem */
-        padding-left: 0.4rem; /* Reduced from 0.5rem */
-        border-left: 1px solid rgba(255, 255, 255, 0.1);
-        min-width: fit-content;
+        flex-wrap: wrap;
+        gap: 0.3rem;
+        padding-top: 0.5rem;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        align-items: center;
     }
 
     .tech-button {
@@ -1602,23 +1653,33 @@
         padding: 0.15rem 0.35rem; /* Reduced from 0.2rem 0.4rem */
     }
 
+    .github-button {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        border-radius: 8px;
+        padding: 0.35rem 0.6rem;
+        color: rgba(255, 255, 255, 0.9);
+        font-size: 0.7rem;
+        text-decoration: none;
+        transition: all 0.2s ease;
+        margin-top: 0;
+        white-space: nowrap;
+    }
+
+    .github-button:hover {
+        background: rgba(255, 255, 255, 0.12);
+        transform: translateY(-1px);
+    }
+
     /* Mobile optimizations */
     @media (max-width: 768px) {
         .project-card {
+            max-width: calc(100% - 2rem);
             height: auto;
-            max-width: calc(100% - 1.5rem); /* Slightly reduced margin */
-            margin: 0 0.75rem;
-            padding: 0.75rem; /* Reduced from 1rem */
-        }
-
-        .tech-stack {
-            flex-direction: row;
-            flex-wrap: wrap;
-            padding: 0.5rem 0 0; /* Reduced from 0.75rem */
-            margin: 0.5rem 0 0;
-            border-left: none;
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-            gap: 0.3rem; /* Reduced from 0.5rem */
+            padding: 1rem;
         }
     }
 
@@ -2083,7 +2144,6 @@
         margin: 0 auto;
         box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
         transition: all 0.3s ease;
-        animation: fadeIn 0.5s ease-out;
     }
 
     .project-header {
@@ -2221,72 +2281,16 @@
             padding: 0.4rem 0.8rem;
         }
     }
-
-    .about-section {
-        text-align: center;
-        margin-bottom: 3rem;
-    }
-
-    .about-title {
-        font-size: 1.2rem;
-        color: rgba(255, 255, 255, 0.7);
-        margin-bottom: 1rem;
-    }
-
-    .social-links {
-        display: flex;
-        gap: 1rem;
-        justify-content: center;
-        margin-top: 1.5rem;
-    }
-
-    .social-link {
-        color: rgba(255, 255, 255, 0.8);
-        transition: color 0.2s ease;
-    }
-
-    .social-link:hover {
-        color: white;
-    }
-
-    .section-title {
-        font-size: 1.8rem;
-        margin-bottom: 2rem;
-        text-align: center;
-        color: rgba(255, 255, 255, 0.9);
-    }
-
-    .skills-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-        gap: 2rem;
-        margin-bottom: 3rem;
-    }
-
-    .skill-category {
-        background: rgba(255, 255, 255, 0.05);
-        padding: 1.5rem;
-        border-radius: 12px;
-    }
-
-    .skill-category-title {
-        font-size: 1.1rem;
-        margin-bottom: 1rem;
-        color: rgba(255, 255, 255, 0.9);
-    }
-
-    .achievement-card {
-        background: rgba(255, 255, 255, 0.05);
-        padding: 1.5rem;
-        border-radius: 12px;
-        margin-bottom: 1rem;
-    }
-
-    .research-item {
-        border-left: 2px solid rgba(255, 255, 255, 0.2);
-        padding-left: 1rem;
-        margin-bottom: 2rem;
-    }
 </style>
 
 <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&display=swap" rel="stylesheet" crossorigin="anonymous">
+
+<script context="module">
+    const ProjectLink = ({ href }) => (`
+        <div class="project-links">
+            <a href="${href}" class="project-link" target="_blank" rel="noopener noreferrer">
+                <svelte:component this={Github} size={16} /> GitHub
+            </a>
+        </div>
+    `);
+</script>
