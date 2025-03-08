@@ -365,10 +365,14 @@
         }, 150);
     };
 
-    // Add a new function to apply scroll inertia
+    // Modify the applyScrollInertia function to disable inertia at the bottom of the page
     const applyScrollInertia = (deltaTime) => {
-        if (!isScrolling && Math.abs(scrollVelocity) > MIN_VELOCITY_THRESHOLD) {
+        // Check if we're at the bottom of the page
+        const isAtBottom = targetCameraY <= MAX_CAMERA_Y;
+        
+        if (!isScrolling && Math.abs(scrollVelocity) > MIN_VELOCITY_THRESHOLD && !isAtBottom) {
             // Apply inertia when user has stopped actively scrolling but there's still momentum
+            // and we're not at the bottom of the page
             targetCameraY -= scrollVelocity * 16 * SCROLL_INERTIA * deltaTime;
             
             // Apply friction to gradually reduce velocity
@@ -388,8 +392,8 @@
                 hard: false,
                 soft: 0.15 // Softer for inertia scrolling
             });
-        } else if (Math.abs(scrollVelocity) <= MIN_VELOCITY_THRESHOLD) {
-            // Reset velocity when it's below threshold
+        } else if (Math.abs(scrollVelocity) <= MIN_VELOCITY_THRESHOLD || isAtBottom) {
+            // Reset velocity when it's below threshold or at bottom of page
             scrollVelocity = 0;
         }
     };
@@ -1173,28 +1177,10 @@
         >
             <svelte:component this={enableCloudMovement ? Pause : Play} size={20} />
         </button>
-        <!-- Add debug toggle button -->
-        <button 
-            class="control-button" 
-            title="Toggle Debug Controls" 
-            on:click={() => showDebugControls = !showDebugControls}
-        >
-            D
-        </button>
+        <!-- Debug button completely removed -->
     </div>
 
-    <!-- Add sun movement debug controls -->
-    {#if showDebugControls}
-        <div class="controls debug-controls">
-            <button class="control-button" on:click={() => moveSun('up')}>↑</button>
-            <div class="horizontal-controls">
-                <button class="control-button" on:click={() => moveSun('left')}>←</button>
-                <button class="control-button" on:click={() => moveSun('reset')}>R</button>
-                <button class="control-button" on:click={() => moveSun('right')}>→</button>
-            </div>
-            <button class="control-button" on:click={() => moveSun('down')}>↓</button>
-        </div>
-    {/if}
+    <!-- Debug controls section completely removed -->
 
     <div bind:this={container} 
          class="canvas-container" 
@@ -1202,6 +1188,11 @@
                 transition: opacity 1s ease-in-out;
                 background: #000000;">
         <!-- Canvas will be added here by Three.js -->
+    </div>
+
+    <!-- Copyright watermark with improved visibility -->
+    <div class="copyright-watermark">
+        © Built and Copyrighted by Gamidi Surya Vardhin
     </div>
 
     <!-- Modified content overlay with pointer-events: all -->
@@ -2028,20 +2019,21 @@
         }
     }
 
-    /* Copyright watermark styles */
+    /* Copyright watermark styles - improved visibility */
     .copyright-watermark {
         position: fixed;
-        bottom: 10px;
+        bottom: 15px;
         left: 0;
         width: 100%;
         text-align: center;
-        font-size: 0.8rem;
-        color: rgba(255, 255, 255, 0.5);
-        z-index: 1001;
+        font-size: 0.85rem;
+        color: rgba(255, 255, 255, 0.7); /* Increased opacity */
+        z-index: 1005; /* Increased z-index to be above all other elements */
         pointer-events: none;
         user-select: none;
-        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+        text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8); /* Enhanced shadow for better visibility */
         padding: 5px;
+        background: rgba(0, 0, 0, 0.2); /* Slight background for better contrast */
     }
 
     /* Responsive styles */
