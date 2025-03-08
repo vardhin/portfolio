@@ -1022,44 +1022,6 @@
     };
 
 
-    const onTouchMove = (event) => {
-        // Don't prevent default if touching controls or content
-        if (event.target.closest('.controls') || event.target.closest('.content-overlay')) {
-            return;
-        }
-        
-        if (!isDragging) return;
-        
-        // Prevent default behavior during drag
-        event.preventDefault();
-        
-        const touch = event.touches[0];
-        const rect = container.getBoundingClientRect();
-        
-        normalizedMousePosition.x = ((touch.clientX - rect.left) / rect.width) * 2 - 1;
-        normalizedMousePosition.y = -((touch.clientY - rect.top) / rect.height) * 2 + 1;
-        
-        if (fogMaterial) {
-            // Update sun position directly with normalized coordinates
-            const newX = THREE.MathUtils.clamp(normalizedMousePosition.x, -1, 1);
-            const newY = THREE.MathUtils.clamp(normalizedMousePosition.y, -1, 1);
-            
-            // Update sun position
-            fogMaterial.uniforms.sunPosition.value.set(newX, newY);
-            
-            // Update coordinates and time display
-            sunCoordinates = { x: newX, y: newY };
-            currentTime = getTimeFromX(newX);
-            
-            // Update sky color
-            scene.background = getSkyColor(newX);
-            
-            // Update isNightTime based on hour
-            const hour = ((newX + 1) * 12);
-            isNightTime = hour < 5 || hour > 19;
-        }
-    };
-
     const onTouchEnd = () => {
         isDragging = false;
     };
