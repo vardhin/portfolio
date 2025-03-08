@@ -1620,7 +1620,7 @@
     .project-details p {
         font-size: 1rem;
         line-height: 1.6;
-        color: rgba(255, 255, 255, 0.08);
+        color: rgba(255, 255, 255, 0.8); /* Increased from 0.08 to 0.8 */
         margin-bottom: 1rem;
     }
 
@@ -1636,7 +1636,7 @@
         margin-bottom: 0.75rem;
         line-height: 1.5;
         font-size: 1rem;
-        color: rgba(255, 255, 255, 0.08);
+        color: rgba(255, 255, 255, 0.8); /* Increased from 0.08 to 0.8 */
     }
 
     .project-details li::before {
@@ -1760,7 +1760,7 @@
         margin-bottom: 0.75rem;
         line-height: 1.5;
         font-size: 1rem;
-        color: rgba(255, 255, 255, 0.08);
+        color: rgba(255, 255, 255, 0.8); /* Increased from 0.08 to 0.8 */
     }
 
     .achievements-panel li::before {
