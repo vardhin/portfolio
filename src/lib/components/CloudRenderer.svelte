@@ -422,6 +422,9 @@
       // Force initial sky color for night time
       scene.background = skyColors.nightDeep.clone();
   
+      // Show intro immediately when page loads
+      showIntro = true;
+  
       // Adjust frustum size to match screen proportions
       const frustumSize = 10;  // Back to default zoom
       const aspect = window.innerWidth / window.innerHeight;
@@ -938,13 +941,12 @@
       // Add the new context menu event listener
       container.addEventListener('contextmenu', onContextMenu, { passive: false });
   
-      // After everything is set up, add a delay before hiding loading screen
+      // After everything is set up, add a delay before showing the canvas
       setTimeout(() => {
-          showIntro = true;
           if (container) {
               container.style.opacity = '1';
           }
-      }, 1000);  // 1000ms = 1 second delay
+      }, 3000);  // 3000ms = 3 second delay to allow intro text animation to be seen
   
       // Create stars and add them to the scene
       for (let i = 0; i < TOTAL_STARS; i++) {
@@ -1212,11 +1214,11 @@
             >
                 {#if section.id === 'intro' && showIntro}
                     <div class="intro-content" 
-                         in:fly="{{ y: 50, duration: 1000, delay: 500 }}"
+                         in:fly="{{ y: 50, duration: 1000, delay: 100 }}"
                          out:fade>
                         <h1>
                             {#each 'Surya Vardhin Gamidi' as char, i}
-                                <span style="animation-delay: {i * 0.08}s">
+                                <span class="animated" style="animation-delay: {i * 0.08}s, {1.2 + i * 0.08}s">
                                     {char === ' ' ? '\u00A0' : char}
                                 </span>
                             {/each}
@@ -1526,7 +1528,7 @@
         top: 0;
         left: 0;
         opacity: 0;
-        transition: opacity 1s ease-in-out;
+        transition: opacity 2s ease-in-out; /* Slower fade-in for canvas */
         background: #000000;
         z-index: 1;
         user-select: none;
@@ -1539,7 +1541,7 @@
     .content-overlay {
         position: absolute;
         width: 100%;
-        z-index: 2;
+        z-index: 10; /* Increased z-index to ensure visibility */
         pointer-events: none;
         transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
     }
@@ -1568,6 +1570,9 @@
         max-width: 800px;
         margin: 0 auto;
         padding: 2rem;
+        /* Make intro content visible over black background */
+        position: relative;
+        z-index: 10;
     }
 
     .intro-content h1 {
@@ -1575,7 +1580,11 @@
         margin-bottom: 1.5rem;
         font-weight: 300;
         letter-spacing: 0.05em;
-        text-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+        /* Enhanced silver glow effect */
+        text-shadow: 0 0 10px rgba(200, 200, 255, 0.5),
+                     0 0 20px rgba(180, 180, 220, 0.3),
+                     0 0 30px rgba(160, 160, 200, 0.2);
+        color: #f0f0f8; /* Slightly silver-tinted white */
     }
 
     .intro-content h1 span {
@@ -1593,7 +1602,10 @@
         opacity: 0;
         animation: dreamyFadeIn 1.5s forwards cubic-bezier(0.4, 0, 0.2, 1);
         animation-delay: 1.5s;
-        text-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
+        /* Enhanced silver glow effect */
+        text-shadow: 0 0 8px rgba(200, 200, 255, 0.4),
+                     0 0 15px rgba(180, 180, 220, 0.2);
+        color: #e8e8f0; /* Slightly silver-tinted white */
     }
 
     @keyframes dreamyFadeIn {
@@ -1611,6 +1623,30 @@
             transform: translateY(0) scale(1);
             filter: blur(0);
         }
+    }
+
+    /* Add a new animation for the silver glow pulse */
+    @keyframes silverGlowPulse {
+        0% {
+            text-shadow: 0 0 10px rgba(200, 200, 255, 0.3),
+                         0 0 20px rgba(180, 180, 220, 0.2);
+        }
+        50% {
+            text-shadow: 0 0 15px rgba(200, 200, 255, 0.6),
+                         0 0 30px rgba(180, 180, 220, 0.4),
+                         0 0 45px rgba(160, 160, 200, 0.2);
+        }
+        100% {
+            text-shadow: 0 0 10px rgba(200, 200, 255, 0.3),
+                         0 0 20px rgba(180, 180, 220, 0.2);
+        }
+    }
+
+    /* Apply the glow pulse animation to the heading after the initial animation */
+    .intro-content h1 span.animated {
+        animation: dreamyFadeIn 1.2s forwards cubic-bezier(0.4, 0, 0.2, 1),
+                   silverGlowPulse 3s ease-in-out infinite;
+        animation-delay: 0s, 1.2s; /* Start pulsing after the fade-in completes */
     }
 
     /* Project section styles */
