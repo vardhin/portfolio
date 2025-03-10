@@ -412,6 +412,8 @@
         console.log("Mobile status changed:", isMobile, "showClouds:", showClouds);
       }
     }
+```
+</script>
 
     onMount(() => {
       // Check if device is mobile immediately
@@ -912,7 +914,7 @@
             previousSunX = currentSunX;
             
             if (enableCloudMovement) {
-                const baseTimeIncrement = 0.036;
+                const baseTimeIncrement = 0.047; // Increased from 0.036 (0.036 * 1.3 ≈ 0.047)
                 const timeIncrement = baseTimeIncrement + (sunMovementSpeed * speedMultiplier);
                 time += timeIncrement;
             }
@@ -1300,7 +1302,7 @@
 
     <!-- Modified content overlay with pointer-events: all -->
     <div class="content-overlay" 
-         style="transform: translateY({$sectionSpring.y}vh); pointer-events: all;">
+         style="transform: translateY(calc({$sectionSpring.y}vh * 1.5)); pointer-events: all;">
         {#each sections as section, i}
             <section 
                 class="portfolio-section" 
@@ -1641,6 +1643,7 @@
         width: 100%;
         z-index: 10; /* Increased z-index to ensure visibility */
         pointer-events: none;
+        transform: translateY(calc({$sectionSpring.y}vh * 1.5)); /* Increased parallax effect */
         transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
