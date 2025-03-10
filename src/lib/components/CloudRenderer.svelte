@@ -826,6 +826,7 @@
                     const currentX = fogMaterial.uniforms.sunPosition.value.x;
                     const newX = Math.max(-1, currentX - SUN_KEYBOARD_SPEED);
                     targetSunPosition.x = newX;
+                    fogMaterial.uniforms.sunPosition.value.x = newX;
                 }
             }
             if (keyState.right) {
@@ -834,7 +835,29 @@
                     const currentX = fogMaterial.uniforms.sunPosition.value.x;
                     const newX = Math.min(1, currentX + SUN_KEYBOARD_SPEED);
                     targetSunPosition.x = newX;
+                    fogMaterial.uniforms.sunPosition.value.x = newX;
                 }
+            }
+
+            // Update sun and glow position based on current sun position
+            if (sunMesh && sunGlowMesh && fogMaterial && fogMaterial.uniforms) {
+                const aspect = container.clientWidth / container.clientHeight;
+                const sunX = fogMaterial.uniforms.sunPosition.value.x * (frustumSize * aspect / 2);
+                const sunY = fogMaterial.uniforms.sunPosition.value.y * (frustumSize / 2);
+                
+                // Update sun mesh position
+                sunMesh.position.set(
+                    sunX,
+                    sunY,
+                    -3
+                );
+                
+                // Update sun glow mesh position
+                sunGlowMesh.position.set(
+                    sunX,
+                    sunY,
+                    -3.5
+                );
             }
 
             // Calculate what 33% of the scrollable area is
