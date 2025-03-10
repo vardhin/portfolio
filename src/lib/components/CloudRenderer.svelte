@@ -101,7 +101,7 @@
 
     // Add star system variables
     let stars = [];
-    const TOTAL_STARS = 500;  // Reduced from 800
+    const TOTAL_STARS = 700;  // Increased from 500 (500 * 1.4 = 700)
 
     class Star {
         constructor() {
@@ -110,7 +110,7 @@
         }
 
         resetProperties() {
-            this.size = Math.random() * 0.015 + 0.003; // Random size between 0.003 and 0.018
+            this.size = Math.random() * 0.02 + 0.005; // Increased size range from (0.003-0.018) to (0.005-0.025)
             this.ttl = Math.random() * 5 + 3; // Time to live: 3-8 seconds
             this.age = 0;
             this.fadeState = 'in';  // States: 'in', 'stable', 'out', 'waiting'
@@ -123,12 +123,12 @@
             const geometry = new THREE.SphereGeometry(this.size, 8, 8);
             const starColors = [
                 0xFFFFFF,    // White (young stars)
-                0xFFF4E8,    // Slightly warm white
-                0xFFEBD5,    // Warm white (like our Sun)
-                0xFFE4B5,    // Cream (older stars)
-                0xFFD7AA,    // Pale orange (red giants)
-                0x99CCFF,    // Blue-white (hot young stars)
-                0xCAE1FF     // Light blue (very hot stars)
+                0xFFF8F0,    // Slightly warmer white (increased brightness)
+                0xFFEFE0,    // Warmer white (increased brightness)
+                0xFFEAC0,    // Cream (increased brightness)
+                0xFFDFB5,    // Pale orange (increased brightness)
+                0xAAD5FF,    // Blue-white (increased brightness)
+                0xD5E8FF     // Light blue (increased brightness)
             ];
             const color = starColors[Math.floor(Math.random() * starColors.length)];
             
@@ -176,7 +176,7 @@
                     const twinkle = Math.sin(this.age * 3) * 0.05 + 
                                    Math.sin(this.age * 5) * 0.03 + 
                                    Math.sin(this.age * 7) * 0.02;
-                    this.material.opacity = (0.85 + twinkle) * (1 - weatherState.cloudDensity * 0.8);
+                    this.material.opacity = (0.9 + twinkle) * (1 - weatherState.cloudDensity * 0.7); // Increased base opacity from 0.85 to 0.9 and reduced cloud density impact
                     
                     if (this.age >= this.ttl) {
                         this.fadeState = 'out';
