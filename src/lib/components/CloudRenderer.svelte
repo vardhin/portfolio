@@ -417,7 +417,7 @@
       // Check if device is mobile
       isMobile = window.innerWidth < 768;
       
-      // Update showClouds based on device
+      // Update showClouds based on device - set to false for mobile by default
       showClouds = !isMobile;
       
       // Scene setup
