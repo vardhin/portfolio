@@ -1621,23 +1621,27 @@
                      0 0 20px rgba(180, 180, 220, 0.3),
                      0 0 30px rgba(160, 160, 200, 0.2);
         color: #f0f0f8; /* Slightly silver-tinted white */
-        /* Add word wrapping for the title */
-        overflow-wrap: break-word;
-        word-wrap: break-word;
-        hyphens: auto;
-        max-width: 100%;
+        /* Change from flex-direction: column to row for desktop */
         display: flex;
-        flex-direction: column;
+        flex-direction: row;
+        flex-wrap: nowrap;
         align-items: center;
         justify-content: center;
+        white-space: nowrap; /* Prevent wrapping on desktop */
     }
     
-    /* Add styling for name parts */
+    /* Change name-part styling for desktop */
     .name-part {
-        display: block;
-        width: 100%;
+        display: inline-block;
+        width: auto;
         text-align: center;
-        margin-bottom: 0.1em;
+        margin-right: 0.5rem; /* Add space between name parts */
+        margin-bottom: 0;
+    }
+
+    /* Last name part shouldn't have right margin */
+    .name-part:last-child {
+        margin-right: 0;
     }
 
     .intro-content h1 span {
@@ -2008,13 +2012,18 @@
     @media (max-width: 768px) {
         .intro-content h1 {
             font-size: 2.5rem;
-            /* Improve word wrapping for title */
+            /* Change to column layout and allow wrapping on mobile */
+            flex-direction: column;
+            white-space: normal;
             word-break: break-word;
             max-width: 100%;
             padding: 0 0.5rem;
         }
         
         .name-part {
+            display: block;
+            width: 100%;
+            margin-right: 0;
             margin-bottom: 0.2em;
         }
 
