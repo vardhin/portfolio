@@ -799,6 +799,9 @@
             // Calculate delta time
             let deltaTime = elapsed / 1000; // Convert to seconds
 
+            // Calculate what 33% of the scrollable area is
+            const topThirdThreshold = MAX_CAMERA_Y * 0.33; // -10 * 0.33 = -3.3
+            
             // Update camera position with smooth scrolling
             if (isScrolling) {
                 // Direct influence from current scroll velocity
@@ -808,7 +811,7 @@
                 targetCameraY = Math.max(MAX_CAMERA_Y, Math.min(MIN_CAMERA_Y, targetCameraY));
                 
                 // If scrolling toward the top section, allow full speed without resistance
-                if (scrollVelocity > 0 && targetCameraY > -2) {
+                if (scrollVelocity > 0 && targetCameraY > topThirdThreshold) {
                     // Increase scroll speed when approaching top to make it easier to reach
                     targetCameraY += scrollVelocity * SCROLL_SPEED * 0.5;
                 }
@@ -820,13 +823,13 @@
                 if (Math.abs(scrollVelocity) < MIN_VELOCITY_THRESHOLD) {
                     scrollVelocity = 0;
                 } else {
-                    // Continue movement with inertia, but only if not at or approaching the top section
-                    if (targetCameraY < -2 || (scrollVelocity < 0 && targetCameraY < -0.5)) {
-                        // Normal inertia for sections below the top or when scrolling down
+                    // Only apply inertia when below the top third of the page
+                    if (targetCameraY < topThirdThreshold) {
+                        // Normal inertia for sections below the top third
                         targetCameraY += scrollVelocity * SCROLL_SPEED * SCROLL_INERTIA;
                         targetCameraY = Math.max(MAX_CAMERA_Y, Math.min(MIN_CAMERA_Y, targetCameraY));
                     } else {
-                        // At or approaching the top section, kill inertia immediately
+                        // In the top third of the page, kill inertia immediately
                         scrollVelocity = 0;
                     }
                 }
