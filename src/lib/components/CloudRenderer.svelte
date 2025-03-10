@@ -353,25 +353,18 @@
         const scrollDelta = currentScrollY - lastScrollY;
         lastScrollY = currentScrollY;
         
-        // Update target camera position based on scroll without inertia
-        targetCameraY = targetCameraY - scrollDelta * SCROLL_SPEED;
+        // Calculate time since last scroll event for velocity
+        const now = performance.now();
+        const timeDelta = now - lastScrollTime;
+        lastScrollTime = now;
         
-        // Ensure we never go beyond the hard limits
-        targetCameraY = Math.max(MAX_CAMERA_Y, Math.min(MIN_CAMERA_Y, targetCameraY));
-        
-        // Update camera position immediately without inertia
-        cameraPosition.y = targetCameraY;
-        
-        // Update the section spring to match camera position
-        const normalizedPosition = targetCameraY / MAX_CAMERA_Y;
-        const sectionPosition = normalizedPosition * -100 * MAX_SECTION;
-        
-        // Use a more responsive spring for active scrolling
-        sectionSpring.set({ 
-            y: sectionPosition 
-        }, { 
-            hard: true // Use hard setting to make it more immediate
-        });
+        // Calculate scroll velocity (with time normalization)
+        if (timeDelta > 0) {
+            // Normalize by time to get consistent velocity regardless of frame rate
+            const newVelocity = scrollDelta / (timeDelta / 16.67); // Normalize to 60fps
+            // Blend with existing velocity for smoother transitions
+            scrollVelocity = scrollVelocity * 0.7 + newVelocity * 0.3;
+        }
         
         // Set timeout to mark when scrolling stops
         clearTimeout(scrollTimeout);
@@ -805,7 +798,31 @@
             // Calculate delta time
             let deltaTime = elapsed / 1000; // Convert to seconds
 
-            // Update camera position directly without smoothing
+            // Update camera position with smooth scrolling
+            if (isScrolling) {
+                // Direct influence from current scroll velocity
+                targetCameraY += scrollVelocity * SCROLL_SPEED;
+                
+                // Ensure we never go beyond the hard limits
+                targetCameraY = Math.max(MAX_CAMERA_Y, Math.min(MIN_CAMERA_Y, targetCameraY));
+            } else {
+                // Apply friction to slow down when not actively scrolling
+                scrollVelocity *= SCROLL_FRICTION;
+                
+                // Stop completely when velocity is very small
+                if (Math.abs(scrollVelocity) < MIN_VELOCITY_THRESHOLD) {
+                    scrollVelocity = 0;
+                } else {
+                    // Continue movement with inertia
+                    targetCameraY += scrollVelocity * SCROLL_SPEED * SCROLL_INERTIA;
+                    targetCameraY = Math.max(MAX_CAMERA_Y, Math.min(MIN_CAMERA_Y, targetCameraY));
+                }
+            }
+            
+            // Smooth camera movement using lerp
+            cameraPosition.y += (targetCameraY - cameraPosition.y) * 0.1;
+            
+            // Update camera position
             camera.position.y = cameraPosition.y;
             fogPlane.position.y = cameraPosition.y;
             thinFogPlane.position.y = cameraPosition.y;
