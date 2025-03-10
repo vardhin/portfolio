@@ -25,7 +25,7 @@
     let sunCoordinates = { x: -0.6, y: 0.018 };  // Changed from -0.6, 0.012 to -0.6, 0.018 (slightly higher)
   
     // Add new variables for time display
-    let currentTime = "11:59 PM";  // Updated to night time default
+    let currentTime = "00:00 AM";  // Updated to night time default
     let skyColors = {
         nightDeep: new THREE.Color(0x0A1025),
         nightLight: new THREE.Color(0x1A2045),
