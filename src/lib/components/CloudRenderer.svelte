@@ -404,7 +404,10 @@
     // Function to check if device is mobile and update settings
     function checkMobileAndUpdateSettings() {
       const wasMobile = isMobile;
-      isMobile = window.innerWidth < 768;
+      
+      // More robust mobile detection
+      isMobile = window.innerWidth < 768 || 
+                 /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
       
       // Only update showClouds if mobile status changed
       if (wasMobile !== isMobile) {
@@ -416,6 +419,11 @@
     onMount(() => {
       // Check if device is mobile immediately
       checkMobileAndUpdateSettings();
+      
+      // Double-check after a short delay to ensure window dimensions are accurate
+      setTimeout(() => {
+        checkMobileAndUpdateSettings();
+      }, 100);
       
       // Scene setup
       scene = new THREE.Scene();  // Remove 'const' to use component-scoped variable
