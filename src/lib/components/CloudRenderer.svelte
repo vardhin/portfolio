@@ -806,6 +806,12 @@
                 
                 // Ensure we never go beyond the hard limits
                 targetCameraY = Math.max(MAX_CAMERA_Y, Math.min(MIN_CAMERA_Y, targetCameraY));
+                
+                // If scrolling toward the top section, allow full speed without resistance
+                if (scrollVelocity > 0 && targetCameraY > -2) {
+                    // Increase scroll speed when approaching top to make it easier to reach
+                    targetCameraY += scrollVelocity * SCROLL_SPEED * 0.5;
+                }
             } else {
                 // Apply friction to slow down when not actively scrolling
                 scrollVelocity *= SCROLL_FRICTION;
@@ -814,13 +820,13 @@
                 if (Math.abs(scrollVelocity) < MIN_VELOCITY_THRESHOLD) {
                     scrollVelocity = 0;
                 } else {
-                    // Continue movement with inertia, but only if not at the top section
-                    // If we're near the top, stop inertia completely
-                    if (targetCameraY < -0.5) { // Only apply inertia when not at the top
+                    // Continue movement with inertia, but only if not at or approaching the top section
+                    if (targetCameraY < -2 || (scrollVelocity < 0 && targetCameraY < -0.5)) {
+                        // Normal inertia for sections below the top or when scrolling down
                         targetCameraY += scrollVelocity * SCROLL_SPEED * SCROLL_INERTIA;
                         targetCameraY = Math.max(MAX_CAMERA_Y, Math.min(MIN_CAMERA_Y, targetCameraY));
                     } else {
-                        // At the top section, kill inertia immediately
+                        // At or approaching the top section, kill inertia immediately
                         scrollVelocity = 0;
                     }
                 }
