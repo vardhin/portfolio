@@ -1465,7 +1465,7 @@
                                 </a>
                                 <a href="tel:+919398026360" class="contact-link">
                                     <svelte:component this={Phone} size={24} />
-                                    +91 939 802 6360
+                                    +91 93980 26360
                                 </a>
                                 <a href="https://linkedin.com/in/vardhin/" target="_blank" rel="noopener noreferrer" class="contact-link">
                                     <svelte:component this={Linkedin} size={24} />
