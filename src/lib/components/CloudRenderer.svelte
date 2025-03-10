@@ -209,9 +209,12 @@
     // Add these variables near the top with other state variables
     let keyState = {
         up: false,
-        down: false
+        down: false,
+        left: false,  // Add left key state
+        right: false  // Add right key state
     };
     const MOVEMENT_SPEED = 0.2; // Reduced from 0.5
+    const SUN_KEYBOARD_SPEED = 0.01; // Speed for keyboard sun movement
 
     // Remove scroll-related variables and keep only camera position
     let cameraPosition = { x: 0, y: 0 };
@@ -783,6 +786,23 @@
       const fpsInterval = 1000 / fps;
       let then = performance.now();
 
+      // Add keyboard event listeners
+      const handleKeyDown = (event) => {
+          if (event.key === 'ArrowLeft') {
+              keyState.left = true;
+          } else if (event.key === 'ArrowRight') {
+              keyState.right = true;
+          }
+      };
+
+      const handleKeyUp = (event) => {
+          if (event.key === 'ArrowLeft') {
+              keyState.left = false;
+          } else if (event.key === 'ArrowRight') {
+              keyState.right = false;
+          }
+      };
+
       // Update the animate function
       const animate = () => {
         animationFrameId = requestAnimationFrame(animate);
@@ -798,6 +818,24 @@
 
             // Calculate delta time
             let deltaTime = elapsed / 1000; // Convert to seconds
+
+            // Handle keyboard input for sun movement
+            if (keyState.left) {
+                // Move sun left
+                if (fogMaterial && fogMaterial.uniforms && fogMaterial.uniforms.sunPosition) {
+                    const currentX = fogMaterial.uniforms.sunPosition.value.x;
+                    const newX = Math.max(-1, currentX - SUN_KEYBOARD_SPEED);
+                    targetSunPosition.x = newX;
+                }
+            }
+            if (keyState.right) {
+                // Move sun right
+                if (fogMaterial && fogMaterial.uniforms && fogMaterial.uniforms.sunPosition) {
+                    const currentX = fogMaterial.uniforms.sunPosition.value.x;
+                    const newX = Math.min(1, currentX + SUN_KEYBOARD_SPEED);
+                    targetSunPosition.x = newX;
+                }
+            }
 
             // Calculate what 33% of the scrollable area is
             const topThirdThreshold = MAX_CAMERA_Y * 0.33; // -10 * 0.33 = -3.3
@@ -1005,6 +1043,10 @@
       // Initialize lastScrollTime
       lastScrollTime = performance.now();
   
+      // Add keyboard event listeners
+      window.addEventListener('keydown', handleKeyDown);
+      window.addEventListener('keyup', handleKeyUp);
+  
       // Cleanup
       return () => {
         cancelAnimationFrame(animationFrameId);
@@ -1038,6 +1080,8 @@
         clearTimeout(navigationTimeout);
         window.removeEventListener('scroll', handleScroll);
         clearTimeout(scrollTimeout);
+        window.removeEventListener('keydown', handleKeyDown);
+        window.removeEventListener('keyup', handleKeyUp);
       };
     });
   
