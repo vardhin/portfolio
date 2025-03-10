@@ -5,7 +5,7 @@
     import { fly, fade } from 'svelte/transition';
     
     // Import icons
-    import { Cloud, CloudSun, Pause, Play, Mail, Phone, Linkedin, Github, Globe } from 'lucide-svelte';
+    import { Cloud, CloudSun, Moon, Sun, Mail, Phone, Linkedin, Github, Globe } from 'lucide-svelte';
     
     let container;
     let showIntro = false;
@@ -25,7 +25,7 @@
     let sunCoordinates = { x: -0.6, y: 0.018 };  // Changed from -0.6, 0.012 to -0.6, 0.018 (slightly higher)
   
     // Add new variables for time display
-    let currentTime = "6:00 PM";  // Updated to match new position
+    let currentTime = "10:00 PM";  // Updated to night time default
     let skyColors = {
         nightDeep: new THREE.Color(0x0A1025),
         nightLight: new THREE.Color(0x1A2045),
@@ -259,6 +259,22 @@
     // Add these variables near the top with other state variables
     let targetSunPosition = { x: -0.6, y: 0.018 }; // Changed from -0.6, 0.012 to -0.6, 0.018 (slightly higher)
     const SUN_MOVEMENT_SPEED = 0.03; // Controls how quickly the sun moves to target position
+
+    // Add new function to set day/night mode
+    const setTimeOfDay = (isNight) => {
+        isNightTime = isNight;
+        
+        // Set sun position based on time of day
+        if (isNight) {
+            targetSunPosition = { x: -0.6, y: 0.018 }; // Night position
+            currentTime = "10:00 PM";
+        } else {
+            targetSunPosition = { x: 0.3, y: 0.5 }; // Day position
+            currentTime = "12:00 PM";
+        }
+        
+        console.log(`Setting time to ${isNight ? 'night' : 'day'}`);
+    };
 
     const onTouchStart = (event) => {
         // Check if the touch target is a control button or content overlay
@@ -1134,7 +1150,7 @@
 </script>
   
 <div class="main-container">
-    <!-- Cloud and movement controls -->
+    <!-- Cloud and time of day controls -->
     <div class="controls top-left">
         <button 
             class="control-button" 
@@ -1145,10 +1161,10 @@
         </button>
         <button 
             class="control-button" 
-            title={enableCloudMovement ? 'Stop Movement' : 'Start Movement'} 
-            on:click={() => enableCloudMovement = !enableCloudMovement}
+            title={isNightTime ? 'Switch to Day' : 'Switch to Night'} 
+            on:click={() => setTimeOfDay(!isNightTime)}
         >
-            <svelte:component this={enableCloudMovement ? Pause : Play} size={20} />
+            <svelte:component this={isNightTime ? Sun : Moon} size={20} />
         </button>
     </div>
 
