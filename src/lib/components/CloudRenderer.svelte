@@ -327,48 +327,16 @@
         
         // Calculate scroll direction and amount
         const scrollDelta = currentScrollY - lastScrollY;
-        
-        // Calculate scroll velocity for inertia
-        const now = performance.now();
-        const timeDelta = now - lastScrollTime;
-        lastScrollTime = now;
-        
-        if (timeDelta > 0) {
-            // Calculate new velocity, but don't override existing velocity if it's in the same direction
-            const newVelocity = scrollDelta / timeDelta;
-            
-            // Only update velocity if it's in the same direction or stronger
-            if (Math.abs(newVelocity) > Math.abs(scrollVelocity) || 
-                (scrollVelocity * newVelocity >= 0)) { // Same direction or zero
-                scrollVelocity = newVelocity;
-            }
-        }
-        
         lastScrollY = currentScrollY;
         
-        // Update target camera position based on scroll
-        const newTargetY = targetCameraY - scrollDelta * SCROLL_SPEED;
+        // Update target camera position based on scroll without inertia
+        targetCameraY = targetCameraY - scrollDelta * SCROLL_SPEED;
         
-        // Check if we're trying to scroll beyond boundaries
-        const wouldExceedTop = newTargetY > MIN_CAMERA_Y;
-        const wouldExceedBottom = newTargetY < MAX_CAMERA_Y;
-        
-        // Apply clamping with resistance at boundaries
-        if (wouldExceedTop) {
-            // Apply resistance when trying to scroll past the top
-            const overscroll = newTargetY - MIN_CAMERA_Y;
-            targetCameraY = MIN_CAMERA_Y + overscroll * 0.2; // Reduced resistance factor
-        } else if (wouldExceedBottom) {
-            // Apply resistance when trying to scroll past the bottom
-            const overscroll = MAX_CAMERA_Y - newTargetY;
-            targetCameraY = MAX_CAMERA_Y - overscroll * 0.2; // Reduced resistance factor
-        } else {
-            // Normal scrolling within bounds
-            targetCameraY = newTargetY;
-        }
-        
-        // Ensure we never actually go beyond the hard limits
+        // Ensure we never go beyond the hard limits
         targetCameraY = Math.max(MAX_CAMERA_Y, Math.min(MIN_CAMERA_Y, targetCameraY));
+        
+        // Update camera position immediately without inertia
+        cameraPosition.y = targetCameraY;
         
         // Update the section spring to match camera position
         const normalizedPosition = targetCameraY / MAX_CAMERA_Y;
@@ -378,73 +346,14 @@
         sectionSpring.set({ 
             y: sectionPosition 
         }, { 
-            hard: false,
-            soft: 0.3 // More responsive during active scrolling
+            hard: true // Use hard setting to make it more immediate
         });
         
         // Set timeout to mark when scrolling stops
         clearTimeout(scrollTimeout);
         scrollTimeout = setTimeout(() => {
             isScrolling = false;
-            
-            // Snap exactly to boundaries if we're very close
-            if (Math.abs(targetCameraY - MIN_CAMERA_Y) < 0.01) {
-                targetCameraY = MIN_CAMERA_Y;
-                scrollVelocity = 0;
-            } else if (Math.abs(targetCameraY - MAX_CAMERA_Y) < 0.01) {
-                targetCameraY = MAX_CAMERA_Y;
-                scrollVelocity = 0;
-            }
         }, 150);
-    };
-
-    // Modify the applyScrollInertia function to disable inertia at the bottom of the page
-    const applyScrollInertia = (deltaTime) => {
-        // Check if we're at the bottom or top of the page
-        const isAtBottom = targetCameraY <= MAX_CAMERA_Y;
-        const isAtTop = targetCameraY >= MIN_CAMERA_Y;
-        
-        if (!isScrolling && Math.abs(scrollVelocity) > MIN_VELOCITY_THRESHOLD) {
-            // Calculate the potential new position with inertia
-            const potentialNewY = targetCameraY - scrollVelocity * 16 * SCROLL_INERTIA * deltaTime;
-            
-            // Check if applying inertia would cause bouncing at boundaries
-            const wouldBounceAtBottom = isAtBottom && scrollVelocity < 0; // Going down at bottom
-            const wouldBounceAtTop = isAtTop && scrollVelocity > 0; // Going up at top
-            
-            if (!wouldBounceAtBottom && !wouldBounceAtTop) {
-                // Apply inertia only when not causing boundary bouncing
-                targetCameraY = potentialNewY;
-                
-                // Apply friction to gradually reduce velocity
-                scrollVelocity *= SCROLL_FRICTION;
-                
-                // Clamp target position to bounds without bouncing
-                targetCameraY = Math.max(MAX_CAMERA_Y, Math.min(MIN_CAMERA_Y, targetCameraY));
-                
-                // Update the section spring with inertia
-                const normalizedPosition = targetCameraY / MAX_CAMERA_Y;
-                const sectionPosition = normalizedPosition * -100 * MAX_SECTION;
-                
-                // Use a softer spring for inertia scrolling
-                sectionSpring.set({ 
-                    y: sectionPosition 
-                }, { 
-                    hard: false,
-                    soft: 0.15 // Softer for inertia scrolling
-                });
-            } else {
-                // If we would bounce, immediately stop the inertia
-                scrollVelocity = 0;
-                
-                // Ensure we're exactly at the boundary
-                if (wouldBounceAtBottom) targetCameraY = MAX_CAMERA_Y;
-                if (wouldBounceAtTop) targetCameraY = MIN_CAMERA_Y;
-            }
-        } else if (Math.abs(scrollVelocity) <= MIN_VELOCITY_THRESHOLD) {
-            // Reset velocity when it's below threshold
-            scrollVelocity = 0;
-        }
     };
 
     // Add this new function to handle right-click events
@@ -864,23 +773,7 @@
             // Calculate delta time
             let deltaTime = elapsed / 1000; // Convert to seconds
 
-            // Apply scroll inertia
-            applyScrollInertia(deltaTime);
-
-            // Smoothly interpolate camera position with variable smoothing
-            const smoothingFactor = isScrolling ? 
-                CAMERA_SMOOTHING * 1.5 : // Faster response during active scrolling
-                Math.abs(scrollVelocity) > MIN_VELOCITY_THRESHOLD ? 
-                    CAMERA_SMOOTHING * 1.2 : // Slightly faster during inertia
-                    CAMERA_SMOOTHING * 0.8;  // Slower for final settling
-
-            cameraPosition.y = THREE.MathUtils.lerp(
-                cameraPosition.y, 
-                targetCameraY, 
-                smoothingFactor
-            );
-            
-            // Update positions with smoothed camera position
+            // Update camera position directly without smoothing
             camera.position.y = cameraPosition.y;
             fogPlane.position.y = cameraPosition.y;
             thinFogPlane.position.y = cameraPosition.y;
