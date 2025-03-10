@@ -416,9 +416,6 @@
       if (sunGlowMesh) {
         sunGlowMesh.visible = showClouds;
       }
-      if (thinFogPlane) {
-        thinFogPlane.visible = showClouds;
-      }
       
       console.log("Mobile check:", isMobile, "showClouds:", showClouds);
     }
@@ -452,7 +449,7 @@
         transparent: true,
         opacity: 0.9 // Set to night opacity
       });
-      sunMesh = new THREE.Mesh(sunGeometry, sunMaterial); // Store reference
+      const sunMesh = new THREE.Mesh(sunGeometry, sunMaterial);
       sunMesh.position.set(
         -0.8 * (frustumSize * aspect / 2), // Changed from -0.5 to -0.8 (further left)
         0.018 * (frustumSize / 2),
@@ -511,7 +508,7 @@
         blending: THREE.AdditiveBlending,
         depthWrite: false
       });
-      sunGlowMesh = new THREE.Mesh(sunGlowGeometry, sunGlowMaterial); // Store reference
+      const sunGlowMesh = new THREE.Mesh(sunGlowGeometry, sunGlowMaterial);
       sunGlowMesh.position.set(
         -0.8 * (frustumSize * aspect / 2), // Changed from -0.6 to -0.8 (further left)
         0.018 * (frustumSize / 2),
@@ -530,7 +527,7 @@
         transparent: true,
         opacity: 0.01
       });
-      thinFogPlane = new THREE.Mesh(thinFogGeometry, thinFogMaterial); // Store reference
+      const thinFogPlane = new THREE.Mesh(thinFogGeometry, thinFogMaterial);
       thinFogPlane.position.z = -4; // Between clouds and background
       scene.add(thinFogPlane);
   
@@ -750,7 +747,7 @@
         frustumSize * aspect * 2, // Reduced from 3 to 2
         frustumSize * 2          // Reduced from 3 to 2
       );
-      fogPlane = new THREE.Mesh(planeGeometry, fogMaterial); // Store reference
+      const fogPlane = new THREE.Mesh(planeGeometry, fogMaterial);
       fogPlane.position.z = -5; // Keep this at -5 so the sun is in front
       scene.add(fogPlane);
   
