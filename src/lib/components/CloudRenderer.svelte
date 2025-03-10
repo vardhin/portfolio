@@ -814,9 +814,15 @@
                 if (Math.abs(scrollVelocity) < MIN_VELOCITY_THRESHOLD) {
                     scrollVelocity = 0;
                 } else {
-                    // Continue movement with inertia
-                    targetCameraY += scrollVelocity * SCROLL_SPEED * SCROLL_INERTIA;
-                    targetCameraY = Math.max(MAX_CAMERA_Y, Math.min(MIN_CAMERA_Y, targetCameraY));
+                    // Continue movement with inertia, but only if not at the top section
+                    // If we're near the top, stop inertia completely
+                    if (targetCameraY < -0.5) { // Only apply inertia when not at the top
+                        targetCameraY += scrollVelocity * SCROLL_SPEED * SCROLL_INERTIA;
+                        targetCameraY = Math.max(MAX_CAMERA_Y, Math.min(MIN_CAMERA_Y, targetCameraY));
+                    } else {
+                        // At the top section, kill inertia immediately
+                        scrollVelocity = 0;
+                    }
                 }
             }
             
