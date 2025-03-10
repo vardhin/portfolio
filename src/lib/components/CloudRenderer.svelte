@@ -22,7 +22,7 @@
     };
   
     // Add new variable to store coordinates
-    let sunCoordinates = { x: -0.6, y: 0.018 };  // Changed from -0.6, 0.012 to -0.6, 0.018 (slightly higher)
+    let sunCoordinates = { x: -0.8, y: 0.018 };  // Changed from -0.6, 0.012 to -0.8, 0.018 (slightly higher and further left)
   
     // Add new variables for time display
     let currentTime = "10:00 PM";  // Updated to night time default
@@ -257,7 +257,7 @@
     const SUN_HIT_RADIUS = 1.0 //changed to 1.0 for much larger hit area (was 0.6)
 
     // Add these variables near the top with other state variables
-    let targetSunPosition = { x: -0.6, y: 0.018 }; // Changed from -0.6, 0.012 to -0.6, 0.018 (slightly higher)
+    let targetSunPosition = { x: -0.8, y: 0.018 }; // Changed from -0.6, 0.012 to -0.8, 0.018 (slightly higher and further left)
     const SUN_MOVEMENT_SPEED = 0.03; // Controls how quickly the sun moves to target position
 
     // Add new function to set day/night mode
@@ -266,7 +266,7 @@
         
         // Set sun position based on time of day
         if (isNight) {
-            targetSunPosition = { x: -0.6, y: 0.018 }; // Night position
+            targetSunPosition = { x: -0.8, y: 0.018 }; // Night position (further left)
             currentTime = "10:00 PM";
             // Immediately set sky color for night
             if (scene && scene.background) {
@@ -439,13 +439,13 @@
       });
       const sunMesh = new THREE.Mesh(sunGeometry, sunMaterial);
       sunMesh.position.set(
-        -0.5 * (frustumSize * aspect / 2),
-        0.018 * (frustumSize / 2), // Changed from 0.012 to 0.018 (slightly higher)
+        -0.8 * (frustumSize * aspect / 2), // Changed from -0.5 to -0.8 (further left)
+        0.018 * (frustumSize / 2),
         -3 // Keep at -3 to stay in front
       );
   
       // Add sun glow effect with increased size
-      const sunGlowGeometry = new THREE.CircleGeometry(2.0, 32);  // Increased from 1.2 to 2.0
+      const sunGlowGeometry = new THREE.CircleGeometry(2.0, 32);
       const sunGlowMaterial = new THREE.ShaderMaterial({
         uniforms: {
           color: { value: new THREE.Color(0xFFAA33) },
@@ -498,8 +498,8 @@
       });
       const sunGlowMesh = new THREE.Mesh(sunGlowGeometry, sunGlowMaterial);
       sunGlowMesh.position.set(
-        -0.6 * (frustumSize * aspect / 2),
-        0.018 * (frustumSize / 2), // Changed from 0.012 to 0.018 (slightly higher)
+        -0.8 * (frustumSize * aspect / 2), // Changed from -0.6 to -0.8 (further left)
+        0.018 * (frustumSize / 2),
         -3.5 // Changed from -6 to -3.5 to bring it forward but behind the sun
       );
       scene.add(sunMesh);
@@ -554,7 +554,7 @@
           seed: { value: Math.random() * 100.0 },
           fogTexture: { value: fogTexture },
           resolution: { value: new THREE.Vector2(window.innerWidth, window.innerHeight) },
-          sunPosition: { value: new THREE.Vector2(-0.6, 0.018) }, // Night position
+          sunPosition: { value: new THREE.Vector2(-0.8, 0.018) }, // Night position (further left)
           
           cloudDensity: { value: weatherState.cloudDensity },
           windSpeed: { value: weatherState.windSpeed },
@@ -1144,7 +1144,7 @@
                 newX = Math.min(1, currentX + step);
                 break;
             case 'reset':
-                newX = -0.6;
+                newX = -0.8;
                 newY = 0.018; // Changed from 0.012 to 0.018 (slightly higher)
                 break;
         }
