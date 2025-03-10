@@ -416,6 +416,9 @@
       if (sunGlowMesh) {
         sunGlowMesh.visible = showClouds;
       }
+      if (thinFogPlane) {
+        thinFogPlane.visible = showClouds;
+      }
       
       console.log("Mobile check:", isMobile, "showClouds:", showClouds);
     }
@@ -527,7 +530,7 @@
         transparent: true,
         opacity: 0.01
       });
-      const thinFogPlane = new THREE.Mesh(thinFogGeometry, thinFogMaterial);
+      thinFogPlane = new THREE.Mesh(thinFogGeometry, thinFogMaterial); // Store reference
       thinFogPlane.position.z = -4; // Between clouds and background
       scene.add(thinFogPlane);
   
