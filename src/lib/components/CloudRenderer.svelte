@@ -9,6 +9,9 @@
     
     let container;
     let showIntro = false;
+    
+    // Add mobile detection variable
+    let isMobile = false;
   
     // Add weather state
     let weatherState = {
