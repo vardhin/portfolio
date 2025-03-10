@@ -412,8 +412,6 @@
         console.log("Mobile status changed:", isMobile, "showClouds:", showClouds);
       }
     }
-```
-</script>
 
     onMount(() => {
       // Check if device is mobile immediately
@@ -1108,7 +1106,7 @@
         window.removeEventListener('keydown', handleKeyDown);
         window.removeEventListener('keyup', handleKeyUp);
       };
-    });
+    }); // Make sure this closing bracket exists
   
     const transitionWeather = async (targetState, duration = 2000) => {
         const startState = { ...weatherState };
