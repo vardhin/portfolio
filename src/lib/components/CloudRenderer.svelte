@@ -449,7 +449,7 @@
         transparent: true,
         opacity: 0.9 // Set to night opacity
       });
-      const sunMesh = new THREE.Mesh(sunGeometry, sunMaterial);
+      sunMesh = new THREE.Mesh(sunGeometry, sunMaterial); // Store reference
       sunMesh.position.set(
         -0.8 * (frustumSize * aspect / 2), // Changed from -0.5 to -0.8 (further left)
         0.018 * (frustumSize / 2),
@@ -508,7 +508,7 @@
         blending: THREE.AdditiveBlending,
         depthWrite: false
       });
-      const sunGlowMesh = new THREE.Mesh(sunGlowGeometry, sunGlowMaterial);
+      sunGlowMesh = new THREE.Mesh(sunGlowGeometry, sunGlowMaterial); // Store reference
       sunGlowMesh.position.set(
         -0.8 * (frustumSize * aspect / 2), // Changed from -0.6 to -0.8 (further left)
         0.018 * (frustumSize / 2),
@@ -747,7 +747,7 @@
         frustumSize * aspect * 2, // Reduced from 3 to 2
         frustumSize * 2          // Reduced from 3 to 2
       );
-      const fogPlane = new THREE.Mesh(planeGeometry, fogMaterial);
+      fogPlane = new THREE.Mesh(planeGeometry, fogMaterial); // Store reference
       fogPlane.position.z = -5; // Keep this at -5 so the sun is in front
       scene.add(fogPlane);
   
