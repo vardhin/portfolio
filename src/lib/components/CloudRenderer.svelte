@@ -411,6 +411,12 @@
     };
 
     onMount(() => {
+      // Check if device is mobile
+      isMobile = window.innerWidth < 768;
+      
+      // Update showClouds based on device
+      showClouds = !isMobile;
+      
       // Scene setup
       scene = new THREE.Scene();  // Remove 'const' to use component-scoped variable
       
@@ -824,9 +830,17 @@
             
             fogMaterial.uniforms.time.value = time;
             
-            // Ensure fog plane is visible
+            // Ensure fog plane and sun are visible based on showClouds setting
             if (fogPlane) {
                 fogPlane.visible = showClouds;
+            }
+            
+            // Update sun and glow visibility to match cloud visibility
+            if (sunMesh) {
+                sunMesh.visible = showClouds;
+            }
+            if (sunGlowMesh) {
+                sunGlowMesh.visible = showClouds;
             }
             
             fogMaterial.uniforms.windSpeed.value = weatherState.windSpeed * (1.0 + sunMovementSpeed * speedMultiplier * 2);
@@ -1161,7 +1175,7 @@
     <div class="controls top-left">
         <button 
             class="control-button" 
-            title={showClouds ? 'Hide Clouds' : 'Show Clouds'} 
+            title={showClouds ? 'Hide Clouds & Sun' : 'Show Clouds & Sun'} 
             on:click={() => showClouds = !showClouds}
         >
             <svelte:component this={showClouds ? Cloud : CloudSun} size={20} />
@@ -1173,10 +1187,7 @@
         >
             <svelte:component this={enableCloudMovement ? Pause : Play} size={20} />
         </button>
-        <!-- Debug button completely removed -->
     </div>
-
-    <!-- Debug controls section completely removed -->
 
     <div bind:this={container} 
          class="canvas-container" 
@@ -1479,19 +1490,6 @@
     .top-left {
         top: 20px;
         left: 20px;
-    }
-
-    /* Debug controls positioning */
-    .debug-controls {
-        bottom: 20px;
-        right: 20px;
-        flex-direction: column;
-        align-items: center;
-    }
-
-    .horizontal-controls {
-        display: flex;
-        gap: 10px;
     }
 
     .control-button {
