@@ -877,22 +877,22 @@
                     targetCameraY += scrollVelocity * SCROLL_SPEED * 0.5;
                 }
             } else {
-                // Apply friction to slow down when not actively scrolling
-                scrollVelocity *= SCROLL_FRICTION;
-                
-                // Stop completely when velocity is very small
-                if (Math.abs(scrollVelocity) < MIN_VELOCITY_THRESHOLD) {
-                    scrollVelocity = 0;
-                } else {
-                    // Only apply inertia when below the top third of the page
-                    if (targetCameraY < topThirdThreshold) {
-                        // Normal inertia for sections below the top third
+                // Only apply inertia when below the top third of the page
+                if (targetCameraY < topThirdThreshold) {
+                    // Apply friction to slow down when not actively scrolling
+                    scrollVelocity *= SCROLL_FRICTION;
+                    
+                    // Stop completely when velocity is very small
+                    if (Math.abs(scrollVelocity) < MIN_VELOCITY_THRESHOLD) {
+                        scrollVelocity = 0;
+                    } else {
+                        // Apply inertia only below the top third
                         targetCameraY += scrollVelocity * SCROLL_SPEED * SCROLL_INERTIA;
                         targetCameraY = Math.max(MAX_CAMERA_Y, Math.min(MIN_CAMERA_Y, targetCameraY));
-                    } else {
-                        // In the top third of the page, kill inertia immediately
-                        scrollVelocity = 0;
                     }
+                } else {
+                    // In the top third of the page, kill inertia immediately
+                    scrollVelocity = 0;
                 }
             }
             
