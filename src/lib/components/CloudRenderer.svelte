@@ -25,7 +25,7 @@
     let sunCoordinates = { x: -0.6, y: 0.018 };  // Changed from -0.6, 0.012 to -0.6, 0.018 (slightly higher)
   
     // Add new variables for time display
-    let currentTime = "00:00 AM";  // Updated to night time default
+    let currentTime = "10:00 PM";  // Updated to night time default
     let skyColors = {
         nightDeep: new THREE.Color(0x0A1025),
         nightLight: new THREE.Color(0x1A2045),
@@ -268,9 +268,17 @@
         if (isNight) {
             targetSunPosition = { x: -0.6, y: 0.018 }; // Night position
             currentTime = "10:00 PM";
+            // Immediately set sky color for night
+            if (scene && scene.background) {
+                scene.background.copy(skyColors.nightDeep);
+            }
         } else {
             targetSunPosition = { x: 0.3, y: 0.5 }; // Day position
             currentTime = "12:00 PM";
+            // Immediately set sky color for day
+            if (scene && scene.background) {
+                scene.background.copy(skyColors.day);
+            }
         }
         
         console.log(`Setting time to ${isNight ? 'night' : 'day'}`);
@@ -841,10 +849,10 @@
                 -3.5 // Keep at -3.5 to stay behind the sun but in front of clouds
             );
 
-            // Much gentler sky color transitions
+            // Much faster sky color transitions - increase the lerp factor
             const currentSkyColor = getSkyColor(fogMaterial.uniforms.sunPosition.value.x);
             if (scene.background) {
-                scene.background.lerp(currentSkyColor, 0.01);
+                scene.background.lerp(currentSkyColor, 0.1); // Increased from 0.01 to 0.1 for faster transitions
             }
 
             // Calculate hour and isNightTime once
@@ -861,13 +869,13 @@
             // Update sun glow time uniform
             sunGlowMaterial.uniforms.time.value = time * 0.5;
 
-            // Gentler sun/moon transitions
+            // Faster sun/moon transitions
             if (isNightTime) {
-                sunMaterial.color.lerp(new THREE.Color(0xEEEEFF), 0.01);
-                sunMaterial.opacity = THREE.MathUtils.lerp(sunMaterial.opacity, 0.9, 0.01);
+                sunMaterial.color.lerp(new THREE.Color(0xEEEEFF), 0.1); // Increased from 0.01 to 0.1
+                sunMaterial.opacity = THREE.MathUtils.lerp(sunMaterial.opacity, 0.9, 0.1); // Increased from 0.01 to 0.1
             } else {
-                sunMaterial.color.lerp(new THREE.Color(0xFFF7E6), 0.01);
-                sunMaterial.opacity = THREE.MathUtils.lerp(sunMaterial.opacity, 1.0, 0.01);
+                sunMaterial.color.lerp(new THREE.Color(0xFFF7E6), 0.1); // Increased from 0.01 to 0.1
+                sunMaterial.opacity = THREE.MathUtils.lerp(sunMaterial.opacity, 1.0, 0.1); // Increased from 0.01 to 0.1
             }
 
             // Update glow effect
@@ -943,8 +951,9 @@
           scene.add(star.mesh);
       }
   
-      // Force initial night time state
+      // Force initial night time state and sky color
       isNightTime = true;
+      scene.background.copy(skyColors.nightDeep);
   
       // Add mousemove event listener
       container.addEventListener('mousemove', updateMousePosition);
