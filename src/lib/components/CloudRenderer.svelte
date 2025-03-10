@@ -1641,7 +1641,7 @@
         width: 100%;
         z-index: 10; /* Increased z-index to ensure visibility */
         pointer-events: none;
-        transform: translateY(calc({$sectionSpring.y}vh * 1.5)); /* Increased parallax effect */
+        transform: translateY(calc({$sectionSpring.y}vh * 1.5));
         transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
