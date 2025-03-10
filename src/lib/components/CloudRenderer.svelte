@@ -361,7 +361,8 @@
         // Calculate scroll velocity (with time normalization)
         if (timeDelta > 0) {
             // Normalize by time to get consistent velocity regardless of frame rate
-            const newVelocity = scrollDelta / (timeDelta / 16.67); // Normalize to 60fps
+            // Invert the sign to match expected scroll direction (negative for down, positive for up)
+            const newVelocity = -scrollDelta / (timeDelta / 16.67); // Normalize to 60fps and invert
             // Blend with existing velocity for smoother transitions
             scrollVelocity = scrollVelocity * 0.7 + newVelocity * 0.3;
         }
