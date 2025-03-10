@@ -870,12 +870,6 @@
                 
                 // Ensure we never go beyond the hard limits
                 targetCameraY = Math.max(MAX_CAMERA_Y, Math.min(MIN_CAMERA_Y, targetCameraY));
-                
-                // If scrolling toward the top section, allow full speed without resistance
-                if (scrollVelocity > 0 && targetCameraY > topThirdThreshold) {
-                    // Increase scroll speed when approaching top to make it easier to reach
-                    targetCameraY += scrollVelocity * SCROLL_SPEED * 0.5;
-                }
             } else {
                 // Only apply inertia when below the top third of the page
                 if (targetCameraY < topThirdThreshold) {
@@ -891,13 +885,17 @@
                         targetCameraY = Math.max(MAX_CAMERA_Y, Math.min(MIN_CAMERA_Y, targetCameraY));
                     }
                 } else {
-                    // In the top third of the page, kill inertia immediately
+                    // In the top third of the page, immediately snap to 0
+                    targetCameraY = 0;
                     scrollVelocity = 0;
+                    cameraPosition.y = 0;
                 }
             }
             
-            // Smooth camera movement using lerp
-            cameraPosition.y += (targetCameraY - cameraPosition.y) * 0.1;
+            // Only apply smooth camera movement when not in title section
+            if (targetCameraY < topThirdThreshold) {
+                cameraPosition.y += (targetCameraY - cameraPosition.y) * 0.1;
+            }
             
             // Update camera position
             camera.position.y = cameraPosition.y;
