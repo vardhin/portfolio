@@ -1300,7 +1300,7 @@
 
     <!-- Modified content overlay with pointer-events: all -->
     <div class="content-overlay" 
-         style="transform: translateY(calc({$sectionSpring.y}vh * 1.5)); pointer-events: all;">
+         style="--section-y: {$sectionSpring.y}">
         {#each sections as section, i}
             <section 
                 class="portfolio-section" 
@@ -1639,9 +1639,9 @@
     .content-overlay {
         position: absolute;
         width: 100%;
-        z-index: 10; /* Increased z-index to ensure visibility */
+        z-index: 10;
         pointer-events: none;
-        transform: translateY(calc({$sectionSpring.y}vh * 1.5));
+        transform: translateY(calc(var(--section-y) * 1.5vh));
         transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
