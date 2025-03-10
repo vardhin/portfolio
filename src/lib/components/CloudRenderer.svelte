@@ -433,9 +433,9 @@
       // Add sun mesh with reduced size
       const sunGeometry = new THREE.CircleGeometry(0.38, 32); // Reduced from 0.5 to 0.38
       const sunMaterial = new THREE.MeshBasicMaterial({ 
-        color: 0xFFF7E6,
+        color: 0xEEEEFF, // Set to night color
         transparent: true,
-        opacity: 1.0
+        opacity: 0.9 // Set to night opacity
       });
       const sunMesh = new THREE.Mesh(sunGeometry, sunMaterial);
       sunMesh.position.set(
@@ -450,7 +450,7 @@
         uniforms: {
           color: { value: new THREE.Color(0xFFAA33) },
           time: { value: 0 },
-          isNight: { value: true }  // Add new uniform for night state
+          isNight: { value: true }  // Set to night mode
         },
         vertexShader: `
           varying vec2 vUv;
@@ -554,13 +554,13 @@
           seed: { value: Math.random() * 100.0 },
           fogTexture: { value: fogTexture },
           resolution: { value: new THREE.Vector2(window.innerWidth, window.innerHeight) },
-          sunPosition: { value: new THREE.Vector2(-0.6, 0.018) }, // Changed from -0.6, 0.012 to -0.6, 0.018 (slightly higher)
-
+          sunPosition: { value: new THREE.Vector2(-0.6, 0.018) }, // Night position
+          
           cloudDensity: { value: weatherState.cloudDensity },
           windSpeed: { value: weatherState.windSpeed },
           stormIntensity: { value: weatherState.stormIntensity },
           rainIntensity: { value: weatherState.rainIntensity },
-          hour: { value: 0.0 },
+          hour: { value: 22.0 }, // Set to 10 PM (22:00) for night
           cameraOffset: { value: new THREE.Vector2(0, 0) },
         },
         vertexShader: `
