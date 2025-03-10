@@ -413,12 +413,21 @@
         console.log("New sun target (right-click):", targetSunPosition.x, targetSunPosition.y);
     };
 
-    onMount(() => {
-      // Check if device is mobile
+    // Function to check if device is mobile and update settings
+    function checkMobileAndUpdateSettings() {
+      const wasMobile = isMobile;
       isMobile = window.innerWidth < 768;
       
-      // Update showClouds based on device - set to false for mobile by default
-      showClouds = !isMobile;
+      // Only update showClouds if mobile status changed
+      if (wasMobile !== isMobile) {
+        showClouds = !isMobile;
+        console.log("Mobile status changed:", isMobile, "showClouds:", showClouds);
+      }
+    }
+
+    onMount(() => {
+      // Check if device is mobile immediately
+      checkMobileAndUpdateSettings();
       
       // Scene setup
       scene = new THREE.Scene();  // Remove 'const' to use component-scoped variable
@@ -754,7 +763,7 @@
       showClouds = true;
       enableCloudMovement = true;
   
-      // Update resize handler
+      // Update resize handler to also check mobile status
       const handleResize = () => {
         const aspect = window.innerWidth / window.innerHeight;
         camera.left = frustumSize * aspect / -2;
@@ -764,6 +773,9 @@
         camera.updateProjectionMatrix();
         renderer.setSize(window.innerWidth, window.innerHeight);
         fogMaterial.uniforms.resolution.value.set(window.innerWidth, window.innerHeight);
+        
+        // Check mobile status on resize
+        checkMobileAndUpdateSettings();
       };
       window.addEventListener('resize', handleResize);
   
