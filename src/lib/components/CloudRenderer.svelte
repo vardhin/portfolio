@@ -403,11 +403,21 @@
       isMobile = window.innerWidth < 768 || 
                  /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
       
-      // Only update showClouds if mobile status changed
-      if (wasMobile !== isMobile) {
-        showClouds = !isMobile;
-        console.log("Mobile status changed:", isMobile, "showClouds:", showClouds);
+      // Always update showClouds based on current mobile status
+      showClouds = !isMobile;
+      
+      // Apply settings immediately to scene elements if they exist
+      if (fogPlane) {
+        fogPlane.visible = showClouds;
       }
+      if (sunMesh) {
+        sunMesh.visible = showClouds;
+      }
+      if (sunGlowMesh) {
+        sunGlowMesh.visible = showClouds;
+      }
+      
+      console.log("Mobile check:", isMobile, "showClouds:", showClouds);
     }
 
     onMount(() => {
@@ -417,7 +427,7 @@
       // Double-check after a short delay to ensure window dimensions are accurate
       setTimeout(() => {
         checkMobileAndUpdateSettings();
-      }, 100);
+      }, 500);  // Increased from 100ms to 500ms for more reliable detection
       
       // Scene setup
       scene = new THREE.Scene();  // Remove 'const' to use component-scoped variable
@@ -764,8 +774,10 @@
         renderer.setSize(window.innerWidth, window.innerHeight);
         fogMaterial.uniforms.resolution.value.set(window.innerWidth, window.innerHeight);
         
-        // Check mobile status on resize
-        checkMobileAndUpdateSettings();
+        // Check mobile status on resize with a slight delay to ensure dimensions are updated
+        setTimeout(() => {
+          checkMobileAndUpdateSettings();
+        }, 100);
       };
       window.addEventListener('resize', handleResize);
   
